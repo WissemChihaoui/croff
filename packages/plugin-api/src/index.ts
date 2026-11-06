@@ -10,7 +10,7 @@ import type { ThemeConfig } from "@croff/theme";
 export const PLUGIN_API_VERSION = 1;
 
 /** A utility without its name, which comes from its key in `utilities`. */
-export type PluginUtility = Omit<UtilityDefinition, "name" | "category" | "examples"> &
+export type PluginUtility = Omit<UtilityDefinition, "name" | "category" | "examples" | "plugin"> &
   Partial<Pick<UtilityDefinition, "category" | "examples">>;
 
 /** A variant without its name, which comes from its key in `variants`. */
@@ -96,7 +96,10 @@ export function registerPlugins(registry: Registry, plugins: readonly CroffPlugi
     const override = plugin.override ?? false;
     try {
       for (const [name, utility] of Object.entries(plugin.utilities ?? {})) {
-        registry.addUtility({ category: "plugins", examples: [], ...utility, name }, { override });
+        registry.addUtility(
+          { category: "plugins", examples: [], ...utility, name, plugin: plugin.name },
+          { override },
+        );
       }
       for (const [name, variant] of Object.entries(plugin.variants ?? {})) {
         registry.addVariant({ ...variant, name }, { override });

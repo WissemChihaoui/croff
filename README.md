@@ -2,7 +2,7 @@
   <img src="apps/docs/public/brand/croff-logo.png" alt="CROFF" width="320" />
 </p>
 
-**Style without the noise.** An expressive utility-first CSS framework, with its own language and compiler.
+**Style without the noise.** An expressive utility-first CSS framework, with its own language and compiler. Read the [documentation](https://croff.wisecode.tn), or try it in the [playground](https://croff.wisecode.tn/playground).
 
 ```html
 <button

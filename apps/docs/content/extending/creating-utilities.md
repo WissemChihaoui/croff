@@ -50,6 +50,8 @@ export default definePlugin({
 
 `compile` receives the resolved `args`, the source text in `words`, and the resolve `context` for reading the theme.
 
+What it returns is checked before it reaches the stylesheet. Property names must be valid, and values must be non-empty strings that can't affect anything outside their declaration, so `1px}body{color:red` is rejected as `unsafe-output`. If `compile` throws, that's a `utility-error`. Either way, only that expression fails.
+
 ## Value types
 
 Value types live in `values` and decide what's valid. Try several in order by listing them in `types`.

@@ -89,13 +89,17 @@ Syntax never depends on your configuration. Whether `gap(banana)` is valid isn't
 
 These come from the registry, so the same expression can be valid in one project and not in another.
 
-| Code                    | Example                                           |
-| ----------------------- | ------------------------------------------------- |
-| `unknown-utility`       | `pad(4)`                                          |
-| `unknown-variant`       | `hovr:gap(4)`                                     |
-| `invalid-argument`      | `gap(banana)`                                     |
-| `missing-argument`      | `gap()`                                           |
-| `too-many-arguments`    | `gap(1,2)`                                        |
-| `call-not-supported`    | A plugin utility that only takes a bracket value. |
-| `bracket-not-supported` | `flex[row]`                                       |
-| `unsafe-value`          | `width[1px;color:red]`                            |
+| Code                    | Example                                             |
+| ----------------------- | --------------------------------------------------- |
+| `unknown-utility`       | `pad(4)`                                            |
+| `unknown-variant`       | `hovr:gap(4)`                                       |
+| `invalid-argument`      | `gap(banana)`                                       |
+| `missing-argument`      | `gap()`                                             |
+| `too-many-arguments`    | `gap(1,2)`                                          |
+| `call-not-supported`    | A plugin utility that only takes a bracket value.   |
+| `bracket-not-supported` | `flex[row]`                                         |
+| `unsafe-value`          | `width[1px;color:red]`                              |
+| `utility-error`         | A plugin utility that throws an exception.          |
+| `unsafe-output`         | A plugin utility that returns `1px}body{color:red`. |
+
+The last two are reported wherever the expression was found, because they mean a utility has a bug. Only that expression fails, and everything else still compiles.

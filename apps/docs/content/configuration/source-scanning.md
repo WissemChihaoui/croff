@@ -20,7 +20,7 @@ Dependencies, build output and minified files are always ignored: `node_modules`
 
 ## What counts as a candidate
 
-A token that starts after whitespace, a quote or `=`, is shaped like an expression and ends at whitespace, a quote, `>` or the end of the text. So `el.width(10)` and `width(10);` are never picked up.
+A token that starts after whitespace, a quote or `=`, is shaped like an expression and ends at whitespace, a quote, `>`, `/>` or the end of the text. So `el.width(10)` and `width(10);` are never picked up. In a JavaScript string, an escaped quote or an escape like `\n` counts as well.
 
 Bare words never qualify, which keeps almost all prose and code out.
 
@@ -34,7 +34,7 @@ Where a candidate appears decides what happens if it's invalid.
 | Any other string          | `const a = "gap(banana)"` | Warning if the utility exists, otherwise ignored |
 | Code                      | `run(1)`                  | Ignored                                          |
 
-Class attributes are `class`, `className`, `:class` and `class:list`. Helpers are the functions in `classFunctions`. Add your own:
+Class attributes are `class`, `className`, `:class` and `class:list`, and Svelte's `class:gap(4)={on}` counts too. Helpers are the functions in `classFunctions`, called or used as a template tag, like ``cx`gap(4) bg(brand)` ``. Add your own:
 
 ```ts
 import { defineConfig } from "@croff/core";
@@ -53,3 +53,5 @@ Files whose size and modification time haven't changed aren't read again, unless
 ## Limitations
 
 Class names built at runtime can't be found. See [Dynamic utility limitations](/docs/advanced/dynamic-utilities).
+
+An expression can be up to 512 characters. A longer one in a class is reported as `expression-too-long` and generates no CSS, so move a long value to a theme token or a CSS variable.

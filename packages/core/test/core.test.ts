@@ -185,6 +185,194 @@ describe("plugins", () => {
   });
 });
 
+describe("plugins that misbehave", () => {
+  const withUtility = (utility: Record<string, unknown>) =>
+    createCroff({
+      plugins: [
+        definePlugin({
+          name: "croff-plugin-test",
+          utilities: { bad: { description: "", ...utility } as never },
+        }),
+      ],
+    });
+  const word = { name: "value", types: [values.words("x")] };
+
+  it("keeps compiling when a utility's compile function throws", () => {
+    const croff = withUtility({
+      args: [word],
+      compile: () => {
+        throw new Error("boom");
+      },
+    });
+    const { css, failures } = croff.compile(["bad(x)", "gap(4)"], { minify: true });
+    expect(css).toContain(".gap\\(4\\)");
+    expect(failures).toMatchObject([{ expression: "bad(x)", error: { code: "utility-error" } }]);
+    const { message } = failures[0]!.error;
+    expect(message).toContain('Plugin "croff-plugin-test"');
+    expect(message).toContain('"bad"');
+    expect(message).toContain("boom");
+  });
+
+  it("keeps compiling when a bracket function or a value type throws", () => {
+    const fails = () => {
+      throw new Error("boom");
+    };
+    expect(withUtility({ arbitrary: fails }).compile(["bad[1px]"]).failures).toMatchObject([
+      { error: { code: "utility-error" } },
+    ]);
+    const type = { kind: "custom", describe: () => ({ label: "x" }), resolve: fails };
+    const croff = withUtility({ args: [{ name: "value", types: [type] }], properties: ["width"] });
+    expect(croff.compile(["bad(x)"]).failures).toMatchObject([
+      { error: { code: "utility-error" } },
+    ]);
+  });
+
+  it("names a utility that throws without a plugin", () => {
+    const croff = createCroff();
+    croff.registry.addUtility({
+      name: "bad",
+      category: "test",
+      description: "",
+      examples: [],
+      args: [word],
+      compile: () => {
+        throw new Error("boom");
+      },
+    });
+    const { message } = croff.compile(["bad(x)"]).failures[0]!.error;
+    expect(message).toContain('Utility "bad"');
+    expect(message).not.toContain("Plugin");
+  });
+
+  it.each([
+    ["a value that ends the rule", { width: "1px}body{display:none" }],
+    ["a value that ends the declaration", { width: "1px;color:red" }],
+    ["an unterminated value", { width: "url(a" }],
+    ["an empty value", { width: " " }],
+    ["a value that isn't a string", { width: 1 }],
+    ["a property that ends the rule", { "width}body{color": "red" }],
+    ["an empty property", { "": "red" }],
+  ])("rejects %s from compile", (_label, output) => {
+    const croff = withUtility({ args: [word], compile: () => output });
+    const { css, failures, rules } = croff.compile(["bad(x)", "gap(4)"]);
+    expect(failures).toMatchObject([{ expression: "bad(x)", error: { code: "unsafe-output" } }]);
+    expect(rules.map((rule) => rule.expression)).toEqual(["gap(4)"]);
+    expect(css).not.toContain("body");
+    expect(css).not.toContain("bad");
+    expect(failures[0]!.error.message).toContain('Plugin "croff-plugin-test"');
+  });
+
+  it("rejects a compile function that returns nothing", () => {
+    const croff = withUtility({ args: [word], compile: () => undefined });
+    expect(croff.compile(["bad(x)"]).failures).toMatchObject([
+      { error: { code: "unsafe-output" } },
+    ]);
+  });
+
+  it("rejects unsafe output from a bracket function and from a value type", () => {
+    const fromBracket = withUtility({ arbitrary: () => ({ width: "1px}a{b:c" }) });
+    expect(fromBracket.compile(["bad[1px]"]).failures).toMatchObject([
+      { error: { code: "unsafe-output" } },
+    ]);
+    const type = { kind: "custom", describe: () => ({ label: "x" }), resolve: () => "}" };
+    const fromType = withUtility({
+      args: [{ name: "value", types: [type] }],
+      properties: ["width"],
+    });
+    expect(fromType.compile(["bad(x)"]).failures).toMatchObject([
+      { error: { code: "unsafe-output" } },
+    ]);
+  });
+
+  it("accepts ordinary output", () => {
+    const croff = withUtility({
+      args: [word],
+      compile: () => ({
+        "--local-name": "1px",
+        "-webkit-box-flex": "1",
+        width: "calc(100% - 1px) !important",
+        background: "url(data:image/png;base64,AAAA)",
+        "font-family": '"A;B", serif',
+      }),
+    });
+    expect(croff.compile(["bad(x)"]).failures).toEqual([]);
+  });
+
+  const withVariant = (variant: Record<string, unknown>) => () =>
+    createCroff({
+      plugins: [definePlugin({ name: "croff-plugin-test", variants: { custom: variant } })],
+    });
+
+  it.each([
+    ["a selector that also matches other elements", { selector: "&:hover, .evil" }],
+    ["an unterminated selector", { selector: "&:is(a" }],
+    ["an unterminated at-rule", { atRule: "@media (min-width: 1px" }],
+    ["a comment", { selector: "& /* a" }],
+  ])("rejects a variant with %s", (_label, variant) => {
+    expect(withVariant(variant)).toThrow(PluginError);
+  });
+
+  it.each([
+    ["a selector list", { selector: "&:hover, &:focus" }],
+    ["a comma inside a function", { selector: "&:is(a, b)" }],
+    ["a comma inside a string", { selector: '&[title="a, b"]' }],
+    ["an at-rule list", { atRule: "@media print, (min-width: 1px)" }],
+  ])("accepts a variant with %s", (_label, variant) => {
+    expect(withVariant(variant)).not.toThrow();
+  });
+});
+
+describe("theme names that clash with the language", () => {
+  const issuesOf = (theme: Record<string, unknown>) =>
+    createCroff({ theme: theme as never }, { strict: false }).issues;
+
+  it.each([
+    ["spacing", "full", "width(full)"],
+    ["spacing", "auto", "width(auto)"],
+    ["spacing", "screen", "height(screen)"],
+    ["colors", "current", "color(current)"],
+    ["colors", "transparent", "bg(transparent)"],
+  ])("rejects %s token %s, which would replace a keyword", (scale, name, expression) => {
+    const theme = { [scale]: { [name]: scale === "colors" ? "red" : "1px" } };
+    expect(() => createCroff({ theme })).toThrow(CroffConfigError);
+    expect(issuesOf(theme)).toMatchObject([{ code: "reserved-token", scale, token: name }]);
+
+    const { rules, css } = createCroff({ theme }, { strict: false }).compile([expression]);
+    expect(rules).toHaveLength(1);
+    expect(css).not.toContain(`--croff-${scale === "colors" ? "color" : scale}-${name}`);
+  });
+
+  it("allows those names where no utility has the keyword", () => {
+    expect(issuesOf({ radius: { auto: "1px" }, durations: { full: "1s" } })).toEqual([]);
+  });
+
+  it("has no clashes in the default theme", () => {
+    expect(createCroff().issues).toEqual([]);
+  });
+
+  it("reports a breakpoint named after a state variant, instead of throwing", () => {
+    const theme = { breakpoints: { hover: "500px" } };
+    expect(() => createCroff({ theme })).toThrow(CroffConfigError);
+    expect(() => createCroff({ theme })).toThrow(/hover/);
+    expect(issuesOf(theme)).toMatchObject([
+      { code: "reserved-token", scale: "breakpoints", token: "hover" },
+    ]);
+
+    const croff = createCroff({ theme }, { strict: false });
+    expect(croff.compile(["hover:gap(4)"]).css).toContain(":hover");
+    expect(croff.compile(["hover:gap(4)"]).css).not.toContain("500px");
+  });
+
+  it("reports a breakpoint name that can't be written as a variant, instead of throwing", () => {
+    const theme = { breakpoints: { Tablet: "500px" } };
+    expect(() => createCroff({ theme })).toThrow(CroffConfigError);
+    expect(issuesOf(theme)).toMatchObject([
+      { code: "invalid-token-name", scale: "breakpoints", token: "Tablet" },
+    ]);
+    expect(createCroff({ theme }, { strict: false }).compile(["md:gap(4)"]).failures).toEqual([]);
+  });
+});
+
 describe("project", () => {
   let cwd: string;
 
@@ -298,6 +486,43 @@ describe("project", () => {
     const { css } = await project.generate();
     expect(css).toContain(".gap\\(8\\)");
     expect(css).not.toContain(".gap\\(4\\)");
+  });
+
+  it("reports a utility that fails, even in plain code", async () => {
+    await write("src/a.html", '<a class="bad(x)">');
+    await write("src/b.ts", "bad(y)\n");
+    const type = { kind: "custom", describe: () => ({ label: "x" }), resolve: () => "x" };
+    const fails = () => {
+      throw new Error("boom");
+    };
+    const project = await Project.load({
+      cwd,
+      overrides: {
+        plugins: [
+          definePlugin({
+            name: "croff-plugin-test",
+            utilities: {
+              bad: { description: "", args: [{ name: "v", types: [type] }], compile: fails },
+            },
+          }),
+        ],
+      },
+    });
+    const { diagnostics } = await project.generate();
+    expect(diagnostics.map((d) => [d.severity, d.code, d.expression])).toEqual([
+      ["error", "utility-error", "bad(x)"],
+      ["warning", "utility-error", "bad(y)"],
+    ]);
+  });
+
+  it("reports an expression too long to read", async () => {
+    await write("src/a.html", `<a class="width[${"1".repeat(600)}px]">`);
+    await write("src/b.js", `run(${"1,".repeat(600)})`);
+    const { diagnostics } = await (await Project.load({ cwd })).generate();
+    expect(diagnostics).toMatchObject([
+      { severity: "error", code: "expression-too-long", file: "src/a.html" },
+    ]);
+    expect(diagnostics[0]!.message.length).toBeLessThan(200);
   });
 
   it("applies overrides on top of the file", async () => {

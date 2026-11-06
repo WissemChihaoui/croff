@@ -36,7 +36,7 @@ Must start with `@`. Stacked at-rules nest in the order written.
 
 ## Validation
 
-Names follow the same rules as built-in variants, and definitions can't contain `{`, `}` or `;`. A clash with an existing variant is an error unless the plugin sets `override: true`.
+Names follow the same rules as built-in variants, and definitions can't contain `{`, `}`, `;`, a comment or an unclosed bracket or string. In a selector list, every part needs its own `&`, so `&:hover, &:focus` is fine, but `&:hover, .other` is an error, because it would style elements without the utility's class. A clash with an existing variant is an error unless the plugin sets `override: true`.
 
 ## Ordering
 

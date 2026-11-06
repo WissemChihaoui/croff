@@ -71,6 +71,8 @@ export interface UtilityDefinition {
   examples: string[];
   /** Extra guidance for the reference page. */
   notes?: string;
+  /** The plugin that registered this utility, for error messages. */
+  plugin?: string;
 }
 
 /** @unstable The shape of a variant definition may change between 0.x releases. */
@@ -93,7 +95,9 @@ export type ResolveErrorCode =
   | "too-many-arguments"
   | "call-not-supported"
   | "bracket-not-supported"
-  | "unsafe-value";
+  | "unsafe-value"
+  | "utility-error"
+  | "unsafe-output";
 
 export interface ResolveError {
   code: ResolveErrorCode;

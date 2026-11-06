@@ -3,6 +3,8 @@ import type { ResolvedTheme, ThemeConfig, ThemeIssue, TokenGroup } from "./types
 
 const TOKEN_NAME = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
 const SCALE_NAME = /^[a-zA-Z][a-zA-Z0-9]*$/;
+/** Breakpoints become variants, so their names follow the grammar of variants. */
+const BREAKPOINT_NAME = /^[a-z0-9][a-z0-9-]*$/;
 
 const LENGTH =
   /^(0|-?(\d+\.?\d*|\.\d+)(px|rem|em|%|vw|vh|vmin|vmax|dvh|svh|lvh|ch|ex|lh|rlh|cm|mm|in|pt|pc))$/;
@@ -99,6 +101,7 @@ function mergeScale(
   scale: string,
   prefix: string,
   issues: ThemeIssue[],
+  written: Set<string>,
 ): void {
   for (const [key, value] of Object.entries(group)) {
     const name = prefix ? `${prefix}-${key}` : key;
@@ -109,12 +112,26 @@ function mergeScale(
         token: name,
         message: `Token "${name}" in "${scale}" has an invalid name. Use letters, digits, "-" and "_".`,
       });
+    } else if (scale === "breakpoints" && !BREAKPOINT_NAME.test(key)) {
+      issues.push({
+        code: "invalid-token-name",
+        scale,
+        token: name,
+        message: `Breakpoint "${name}" can't be written as a variant. Use lowercase letters, digits and "-".`,
+      });
     } else if (value === null) {
       for (const existing of Object.keys(target)) {
         if (existing === name || existing.startsWith(`${name}-`)) delete target[existing];
       }
-    } else if (typeof value === "object") {
-      mergeScale(target, value, scale, name, issues);
+    } else if (typeof value === "object" && !Array.isArray(value)) {
+      mergeScale(target, value, scale, name, issues, written);
+    } else if (typeof value !== "string" && !Number.isFinite(value)) {
+      issues.push({
+        code: "invalid-token-value",
+        scale,
+        token: name,
+        message: `Token "${name}" in "${scale}" must be a string, a number or a group of tokens.`,
+      });
     } else {
       const text = normalizeValue(scale, String(value));
       const validator = VALIDATORS[scale];
@@ -132,7 +149,15 @@ function mergeScale(
           token: name,
           message: `Token "${name}" in "${scale}" should be ${validator.expected}, got ${JSON.stringify(value)}.`,
         });
+      } else if (written.has(name)) {
+        issues.push({
+          code: "token-collision",
+          scale,
+          token: name,
+          message: `Token "${name}" in "${scale}" is written twice in one theme, once as a nested group. Keep one of them.`,
+        });
       } else {
+        written.add(name);
         target[name] = text;
       }
     }
@@ -147,6 +172,29 @@ export interface CreateThemeOptions {
 export interface CreateThemeResult {
   theme: ResolvedTheme;
   issues: ThemeIssue[];
+}
+
+/** Drops tokens that would share a custom property with a token of an earlier scale. */
+function dropCollisions(scales: ResolvedTheme["scales"], issues: ThemeIssue[]): void {
+  const owners = new Map<string, string>();
+  for (const [scale, tokens] of Object.entries(scales)) {
+    if (NON_VARIABLE_SCALES.has(scale)) continue;
+    for (const token of Object.keys(tokens)) {
+      const variable = tokenVariable(scale, token);
+      const owner = owners.get(variable);
+      if (owner === undefined) {
+        owners.set(variable, scale);
+      } else {
+        delete tokens[token];
+        issues.push({
+          code: "token-collision",
+          scale,
+          token,
+          message: `Token "${token}" in "${scale}" would use ${variable}, which belongs to "${owner}". Rename the scale or the token.`,
+        });
+      }
+    }
+  }
 }
 
 /** Merges theme layers, in order, on top of the preset. Invalid tokens are dropped and reported. */
@@ -169,11 +217,18 @@ export function createTheme(
         });
       } else if (group === null) {
         scales[scale] = {};
+      } else if (typeof group === "object" && !Array.isArray(group)) {
+        mergeScale((scales[scale] ??= {}), group, scale, "", issues, new Set());
       } else if (group !== undefined) {
-        mergeScale((scales[scale] ??= {}), group, scale, "", issues);
+        issues.push({
+          code: "invalid-scale-value",
+          scale,
+          message: `Theme scale "${scale}" must be an object of tokens, got ${JSON.stringify(group)}.`,
+        });
       }
     }
   }
+  dropCollisions(scales, issues);
   return { theme: { scales }, issues };
 }
 

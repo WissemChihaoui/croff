@@ -166,6 +166,137 @@ describe("broken expressions", () => {
   });
 });
 
+describe("Svelte class directives", () => {
+  const contexts = (source: string) =>
+    extractCandidates(source).candidates.map((c) => [c.expression, c.context]);
+
+  it("reads the expression after the prefix, as a class", () => {
+    expect(
+      contexts("<a class:gap(4)={on} class:hover:bg(brand)={on} class:width[1px]={on}>"),
+    ).toEqual([
+      ["gap(4)", "class"],
+      ["hover:bg(brand)", "class"],
+      ["width[1px]", "class"],
+    ]);
+  });
+
+  it("points at the expression, not the prefix", () => {
+    expect(extractCandidates("<a class:gap(4)={on}>").candidates[0]).toMatchObject({ column: 9 });
+  });
+
+  it("doesn't mistake other attributes for it", () => {
+    expect(
+      expressions('<a data-class:gap(4)={on} xclass:gap(8)={on} class:list={["gap(12)"]}>'),
+    ).toEqual(["gap(12)"]);
+  });
+
+  it("only treats = as an ending after the prefix", () => {
+    expect(expressions("<a gap(4)={on}>")).toEqual([]);
+  });
+});
+
+describe("unusual endings", () => {
+  it("accepts an unquoted value that ends a self-closing tag", () => {
+    expect(extractCandidates("<img class=gap(4)/>").candidates).toMatchObject([
+      { expression: "gap(4)", context: "class" },
+    ]);
+  });
+
+  it("still rejects a slash that isn't closing a tag", () => {
+    expect(expressions('"gap(4)/2"')).toEqual([]);
+    expect(expressions('"gap(4)/"')).toEqual([]);
+  });
+
+  it.each([
+    [String.raw`"gap(4)\n"`],
+    [String.raw`"gap(4)\t"`],
+    [String.raw`"gap(4)\r\n"`],
+    [String.raw`"gap(4)\f"`],
+  ])("accepts an expression before the whitespace escape in %s", (source) => {
+    expect(expressions(source)).toEqual(["gap(4)"]);
+  });
+
+  it("accepts expressions after and between whitespace escapes", () => {
+    expect(expressions(String.raw`"\ngap(4)\n\thover:bg(brand)\n"`)).toEqual([
+      "gap(4)",
+      "hover:bg(brand)",
+    ]);
+    expect(expressions(String.raw`"foo\ngap(4)"`)).toEqual(["gap(4)"]);
+  });
+
+  it("accepts an expression before an escaped quote", () => {
+    expect(expressions(String.raw`const html = "<a class=\"gap(4) bg(brand)\">"`)).toEqual([
+      "gap(4)",
+      "bg(brand)",
+    ]);
+  });
+
+  it("still rejects other escapes", () => {
+    expect(expressions(String.raw`"gap(4)\d"`)).toEqual([]);
+    expect(expressions(String.raw`"x\dgap(4)"`)).toEqual([]);
+  });
+});
+
+describe("very long expressions", () => {
+  const long = `width[${"1".repeat(600)}px]`;
+
+  it("reports one in a class, without quoting all of it", () => {
+    const { candidates, broken } = extractCandidates(`<a class="${long} gap(4)">`);
+    expect(candidates.map((c) => c.expression)).toEqual(["gap(4)"]);
+    expect(broken).toMatchObject([{ tooLong: true, context: "class", column: 10 }]);
+    expect(broken[0]!.text.length).toBeLessThan(100);
+  });
+
+  it("stays silent outside a class, where it's probably minified code", () => {
+    expect(extractCandidates(`run(${"1,".repeat(600)})`).broken).toEqual([]);
+    expect(extractCandidates(`"${long}"`).broken).toEqual([]);
+  });
+
+  it("accepts one exactly at the limit", () => {
+    const fits = `width[${"1".repeat(512 - "width[px]".length)}px]`;
+    expect(expressions(`<a class="${fits}">`)).toEqual([fits]);
+  });
+});
+
+describe("tagged templates", () => {
+  const contexts = (source: string, classFunctions?: string[]) =>
+    extractCandidates(source, classFunctions ? { classFunctions } : {}).candidates.map((c) => [
+      c.expression,
+      c.context,
+    ]);
+
+  it("treats every token in a class function's template as a class", () => {
+    expect(contexts("cx`gap(4) bg(brand)\n  nope(1)`")).toEqual([
+      ["gap(4)", "class"],
+      ["bg(brand)", "class"],
+      ["nope(1)", "class"],
+    ]);
+  });
+
+  it("honors configured function names", () => {
+    expect(contexts("tw`gap(4) bg(brand)`", ["tw"])).toEqual([
+      ["gap(4)", "class"],
+      ["bg(brand)", "class"],
+    ]);
+  });
+
+  it("carries on after an interpolation", () => {
+    expect(contexts('cx`gap(4) ${on ? "bg(brand)" : ""} padding(2)` nope(1)')).toEqual([
+      ["gap(4)", "class"],
+      ["bg(brand)", "class"],
+      ["padding(2)", "class"],
+      ["nope(1)", "code"],
+    ]);
+  });
+
+  it("ignores other tags", () => {
+    expect(contexts("html`gap(4) bg(brand)`")).toEqual([
+      ["gap(4)", "string"],
+      ["bg(brand)", "code"],
+    ]);
+  });
+});
+
 describe("robustness", () => {
   it("handles empty, huge and unbalanced input", () => {
     expect(expressions("")).toEqual([]);

@@ -26,7 +26,13 @@ export interface ResolvedTheme {
   scales: Record<string, Record<string, string>>;
 }
 
-export type ThemeIssueCode = "invalid-token-name" | "invalid-token-value" | "invalid-scale-name";
+export type ThemeIssueCode =
+  | "invalid-token-name"
+  | "invalid-token-value"
+  | "invalid-scale-name"
+  | "invalid-scale-value"
+  | "token-collision"
+  | "reserved-token";
 
 export interface ThemeIssue {
   code: ThemeIssueCode;

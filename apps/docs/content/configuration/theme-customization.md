@@ -39,6 +39,21 @@ export default defineConfig({
 
 Now `bg(red)` is an error, which is how you enforce a smaller palette.
 
+## Mistakes that are rejected
+
+These mistakes stop the build, with a message saying what to change:
+
+| Mistake                                     | Example                                           | Code                  |
+| ------------------------------------------- | ------------------------------------------------- | --------------------- |
+| A scale that isn't an object                | `colors: "red"`                                   | `invalid-scale-value` |
+| A token named after a keyword               | `spacing: { full: "1px" }` replaces `width(full)` | `reserved-token`      |
+| A breakpoint named after a state variant    | `breakpoints: { hover: "500px" }`                 | `reserved-token`      |
+| A breakpoint name that can't be a variant   | `breakpoints: { Tablet: "500px" }`                | `invalid-token-name`  |
+| One token written twice in the same theme   | `{ "a-b": "red", a: { b: "blue" } }`              | `token-collision`     |
+| Two scales that produce one custom property | `textSize` and `textSizes`                        | `token-collision`     |
+
+Replacing a token from an earlier layer is fine, however it's written. That's how overrides work.
+
 ## Start from nothing
 
 ```ts

@@ -26,13 +26,15 @@ export interface DynamicExpression {
   context: CandidateContext;
   line: number;
   column: number;
+  /** Set when the expression was over the length limit. `text` is then only its start. */
+  tooLong?: true;
 }
 
 export interface ExtractResult {
   candidates: Candidate[];
   /** Expression-shaped text with interpolation, which can never be compiled. */
   dynamic: DynamicExpression[];
-  /** Expressions in a class context broken up by whitespace, e.g. `width[calc(1px - 2px)]`. */
+  /** Expressions in a class context broken up by whitespace, e.g. `width[calc(1px - 2px)]`, or too long to read. */
   broken: DynamicExpression[];
 }
 
@@ -45,12 +47,28 @@ export const DEFAULT_CLASS_FUNCTIONS = ["cx", "clsx", "classnames", "classNames"
 
 const MAX_CANDIDATE_LENGTH = 512;
 
+const DIRECTIVE_PREFIX = "class:";
+
 function isWhitespace(code: number): boolean {
   return code === 32 || code === 10 || code === 9 || code === 13 || code === 12;
 }
 
 function isQuote(code: number): boolean {
   return code === 34 || code === 39 || code === 96;
+}
+
+/** Whether the text before `index` is an escape for whitespace, as in the JS string `"\ngap(4)"`. */
+function followsWhitespaceEscape(source: string, index: number): boolean {
+  return source[index - 2] === "\\" && "nrtf".includes(source[index - 1] ?? " ");
+}
+
+/** Whether an expression can end at `end`: at whitespace, a quote, `>`, `/>`, or an escape of either. */
+function endsExpression(source: string, end: number): boolean {
+  if (end >= source.length) return true;
+  const code = source.charCodeAt(end);
+  if (isWhitespace(code) || isQuote(code) || code === 62) return true;
+  if (code === 47) return source[end + 1] === ">";
+  return code === 92 && "nrtf\"'`".includes(source[end + 1] ?? " ");
 }
 
 /**
@@ -151,9 +169,14 @@ function classRegions(source: string, functions: string[]): Span[] {
 
   if (functions.length > 0) {
     const names = functions.map((name) => name.replace(/[^a-zA-Z0-9_$]/g, "")).join("|");
-    const call = new RegExp(`(?:^|[^a-zA-Z0-9_$.])(?:${names})\\(`, "g");
+    // Either called, or used as the tag of a template.
+    const call = new RegExp(`(?:^|[^a-zA-Z0-9_$.])(?:${names})([(\`])`, "g");
     for (let match = call.exec(source); match; match = call.exec(source)) {
-      call.lastIndex = walkCode(source, match.index + match[0].length, ")", spans);
+      const start = match.index + match[0].length;
+      call.lastIndex =
+        match[1] === "("
+          ? walkCode(source, start, ")", spans)
+          : skipString(source, start - 1, spans);
     }
   }
   return spans.sort((a, b) => a.start - b.start);
@@ -190,7 +213,7 @@ function locate(starts: number[], offset: number): { line: number; column: numbe
 function readToken(
   source: string,
   start: number,
-): { end: number; dynamic: boolean; balanced: boolean; hitWhitespace: boolean } {
+): { end: number; dynamic: boolean; balanced: boolean; hitWhitespace: boolean; tooLong?: true } {
   let i = start;
   let dynamic = false;
   let hitWhitespace = false;
@@ -252,13 +275,21 @@ function readToken(
     }
     i++;
   }
-  return { end: i, dynamic, balanced: stack.length === 0 && quote === 0, hitWhitespace };
+  return {
+    end: i,
+    dynamic,
+    balanced: stack.length === 0 && quote === 0,
+    hitWhitespace,
+    ...(i - start > MAX_CANDIDATE_LENGTH ? { tooLong: true as const } : {}),
+  };
 }
 
 /**
  * Finds every expression-shaped token in `source`. A token must begin after
- * whitespace, a quote or `=`, and end at whitespace, a quote, `>` or the end of
- * the text. This is what keeps `foo.width(10)` and `width(10);` out.
+ * whitespace, a quote or `=`, and end at whitespace, a quote, `>`, `/>` or the end
+ * of the text. This is what keeps `foo.width(10)` and `width(10);` out. Whitespace
+ * and quotes may be written as JS string escapes, and Svelte's `class:gap(4)={on}`
+ * holds an expression after its prefix.
  */
 export function extractCandidates(source: string, options: ExtractOptions = {}): ExtractResult {
   const regions = classRegions(source, options.classFunctions ?? DEFAULT_CLASS_FUNCTIONS);
@@ -268,6 +299,7 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
   const broken: DynamicExpression[] = [];
   const seen = new Map<string, Candidate>();
   let regionIndex = 0;
+  let directiveBody = -1;
 
   const inClassRegion = (offset: number): boolean => {
     while (regionIndex < regions.length && regions[regionIndex]!.end <= offset) regionIndex++;
@@ -279,11 +311,23 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
   while (i < source.length) {
     const code = source.charCodeAt(i);
     const previous = i === 0 ? 32 : source.charCodeAt(i - 1);
-    const atBoundary = isWhitespace(previous) || isQuote(previous) || previous === 61;
+    const inDirective = i === directiveBody;
+    const atBoundary =
+      inDirective ||
+      isWhitespace(previous) ||
+      isQuote(previous) ||
+      previous === 61 ||
+      followsWhitespaceEscape(source, i);
     // Only letters and digits can start an expression.
     const startsWord = (code >= 97 && code <= 122) || (code >= 48 && code <= 57);
     if (!atBoundary || !startsWord) {
       i++;
+      continue;
+    }
+
+    if (!inDirective && source.startsWith(DIRECTIVE_PREFIX, i)) {
+      i += DIRECTIVE_PREFIX.length;
+      directiveBody = i;
       continue;
     }
 
@@ -295,19 +339,26 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
       continue;
     }
 
-    const context: CandidateContext = inClassRegion(i)
-      ? "class"
-      : isQuote(previous)
-        ? "string"
-        : "code";
-    const nextCode = source.charCodeAt(token.end);
+    const context: CandidateContext =
+      inDirective || inClassRegion(i) ? "class" : isQuote(previous) ? "string" : "code";
     const endsCleanly =
-      token.end >= source.length || isWhitespace(nextCode) || isQuote(nextCode) || nextCode === 62;
+      endsExpression(source, token.end) || (inDirective && source[token.end] === "=");
 
     if (token.dynamic) {
       dynamic.push({ text, context, ...locate(starts, i) });
       // Rescan the interpolation, because its strings may hold real expressions.
       i = source.indexOf("${", i) + 2;
+    } else if (token.tooLong) {
+      // Outside a class, this is probably minified code.
+      if (context === "class") {
+        broken.push({
+          text: `${text.slice(0, 40)}...`,
+          context,
+          ...locate(starts, i),
+          tooLong: true,
+        });
+      }
+      i = token.end;
     } else if (token.hitWhitespace || !token.balanced) {
       if (token.hitWhitespace && context === "class") {
         const end = source.indexOf("\n", token.end);
@@ -343,7 +394,16 @@ function firstBreak(source: string, start: number): number {
   let i = start;
   while (i < source.length) {
     const code = source.charCodeAt(i);
-    if (isWhitespace(code) || isQuote(code) || code === 40 || code === 91 || code === 61) return i;
+    if (
+      isWhitespace(code) ||
+      isQuote(code) ||
+      code === 40 ||
+      code === 91 ||
+      code === 61 ||
+      code === 92
+    ) {
+      return i;
+    }
     i++;
   }
   return i;

@@ -1,4 +1,4 @@
-import type { ResolvedTheme } from "@croff/theme";
+import { tokenNames, type ResolvedTheme, type ThemeIssue } from "@croff/theme";
 import { buildRegistry, type Registry } from "./registry.js";
 import type { UtilityDefinition } from "./types.js";
 import { backgroundUtilities } from "./utilities/background.js";
@@ -10,6 +10,7 @@ import { layoutUtilities } from "./utilities/layout.js";
 import { sizingUtilities } from "./utilities/sizing.js";
 import { spacingUtilities } from "./utilities/spacing.js";
 import { typographyUtilities } from "./utilities/typography.js";
+import { stateVariants } from "./variants.js";
 
 /**
  * Every built-in utility. Order matters: it is the cascade order of the
@@ -43,6 +44,54 @@ export const utilityCategories = [
 /** Creates a registry holding the built-in utilities and variants for a theme. */
 export function createRegistry(theme: ResolvedTheme): Registry {
   return buildRegistry(theme, builtinUtilities);
+}
+
+/**
+ * Finds tokens that would change what the language means: a breakpoint named after a state
+ * variant, or a token named after a keyword of a utility, which it would silently replace.
+ */
+export function reservedTokenIssues(theme: ResolvedTheme): ThemeIssue[] {
+  const issues: ThemeIssue[] = [];
+  for (const token of tokenNames(theme, "breakpoints")) {
+    if (stateVariants.some((variant) => variant.name === token)) {
+      issues.push({
+        code: "reserved-token",
+        scale: "breakpoints",
+        token,
+        message: `Breakpoint "${token}" has the same name as the "${token}:" variant. Rename the breakpoint.`,
+      });
+    }
+  }
+
+  const keywords = new Map<string, Map<string, string>>();
+  for (const utility of builtinUtilities) {
+    for (const { types } of utility.args ?? []) {
+      const words = types
+        .filter((type) => type.kind === "keyword")
+        .flatMap((type) => type.describe(theme).values ?? []);
+      for (const type of types) {
+        const { scale } = type.describe(theme);
+        if (type.kind !== "token" || !scale) continue;
+        const reserved = keywords.get(scale) ?? new Map<string, string>();
+        keywords.set(scale, reserved);
+        for (const word of words) if (!reserved.has(word)) reserved.set(word, utility.name);
+      }
+    }
+  }
+  for (const [scale, reserved] of keywords) {
+    for (const token of tokenNames(theme, scale)) {
+      const utility = reserved.get(token);
+      if (utility) {
+        issues.push({
+          code: "reserved-token",
+          scale,
+          token,
+          message: `Token "${token}" in "${scale}" would replace a keyword of utilities like ${utility}(${token}). Rename the token.`,
+        });
+      }
+    }
+  }
+  return issues;
 }
 
 export { normalizeArbitraryValue, spaceMathOperators } from "./arbitrary.js";

@@ -29,13 +29,19 @@ function location(item: { file: string; line: number; column: number }) {
  * - In some other string it may be anything; a known utility name with a bad
  *   value is worth a warning, and an unknown name is ignored.
  * - In plain code it is probably a function call: stay silent.
+ *
+ * A utility that throws or produces unusable CSS has a bug wherever it was found, so that is
+ * always reported.
  */
 export function diagnoseFailure(
   failure: CompileFailure,
   candidate: ScannedCandidate | undefined,
 ): Diagnostic | undefined {
   const context = candidate?.context ?? "class";
-  if (context === "code") return undefined;
+  const faulty =
+    failure.phase === "resolve" &&
+    (failure.error.code === "utility-error" || failure.error.code === "unsafe-output");
+  if (context === "code" && !faulty) return undefined;
 
   // Point at the exact place in the class.
   const offset = failure.phase === "parse" ? failure.error.span.start : 0;
@@ -86,6 +92,15 @@ export function diagnoseDynamic(item: ScannedExpression): Diagnostic | undefined
 }
 
 export function diagnoseBroken(item: ScannedExpression): Diagnostic {
+  if (item.tooLong) {
+    return {
+      severity: "error",
+      code: "expression-too-long",
+      message: `"${item.text}" is too long to read as an expression, so no CSS is generated for it.`,
+      hint: "Move the long value to a theme token or a CSS variable.",
+      ...location(item),
+    };
+  }
   // Whitespace in `hover:(a(1), b(2))` isn't the real problem, so report the real one.
   const parsed = parse(item.text);
   if (!parsed.ok && parsed.error.code === "unsupported-group") {

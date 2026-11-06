@@ -620,6 +620,8 @@ describe("error documentation", () => {
     "call-not-supported",
     "bracket-not-supported",
     "unsafe-value",
+    "utility-error",
+    "unsafe-output",
   ])("documents %s", (code) => {
     expect(source("concepts/parsing")).toContain(`\`${code}\``);
   });

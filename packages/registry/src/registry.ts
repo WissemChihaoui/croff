@@ -1,5 +1,5 @@
 import type { ArgumentNode, UtilityNode } from "@croff/parser";
-import type { ResolvedTheme } from "@croff/theme";
+import { isSafeCssValue, type ResolvedTheme } from "@croff/theme";
 import { normalizeArbitraryValue } from "./arbitrary.js";
 import { closest } from "./suggest.js";
 import type {
@@ -14,6 +14,7 @@ import { breakpointVariants, stateVariants } from "./variants.js";
 
 const UTILITY_NAME = /^[a-z][a-z0-9-]*$/;
 const VARIANT_NAME = /^[a-z0-9][a-z0-9-]*$/;
+const PROPERTY_NAME = /^(--[a-zA-Z0-9_-]+|-?[a-zA-Z][a-zA-Z0-9-]*)$/;
 
 export class RegistrationError extends Error {
   override name = "RegistrationError";
@@ -57,6 +58,27 @@ function validateUtility(definition: UtilityDefinition): void {
   }
 }
 
+/** Splits a selector at its top-level commas. */
+function selectorList(selector: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let quote = "";
+  let start = 0;
+  for (let i = 0; i < selector.length; i++) {
+    const ch = selector[i]!;
+    if (ch === "\\") i++;
+    else if (quote) quote = ch === quote ? "" : quote;
+    else if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === "(" || ch === "[") depth++;
+    else if (ch === ")" || ch === "]") depth--;
+    else if (ch === "," && depth === 0) {
+      parts.push(selector.slice(start, i));
+      start = i + 1;
+    }
+  }
+  return [...parts, selector.slice(start)];
+}
+
 function validateVariant(definition: VariantDefinition): void {
   const { name, selector, atRule } = definition;
   if (typeof name !== "string" || !VARIANT_NAME.test(name)) {
@@ -65,9 +87,10 @@ function validateVariant(definition: VariantDefinition): void {
   if (!selector && !atRule) {
     throw new RegistrationError(`Variant "${name}" needs a "selector" or an "atRule".`);
   }
-  if (selector && !selector.includes("&")) {
+  // A part of a list without "&" would style elements that don't have the utility's class.
+  if (selector && selectorList(selector).some((part) => !part.includes("&"))) {
     throw new RegistrationError(
-      `Variant "${name}": selector ${JSON.stringify(selector)} must contain "&".`,
+      `Variant "${name}": selector ${JSON.stringify(selector)} must contain "&", in every part of a list.`,
     );
   }
   if (atRule && !atRule.startsWith("@")) {
@@ -76,6 +99,11 @@ function validateVariant(definition: VariantDefinition): void {
   for (const part of [selector, atRule]) {
     if (part && /[{};]/.test(part)) {
       throw new RegistrationError(`Variant "${name}" contains "{", "}" or ";".`);
+    }
+    if (part && !isSafeCssValue(part)) {
+      throw new RegistrationError(
+        `Variant "${name}": ${JSON.stringify(part)} has a comment or an unclosed bracket or string.`,
+      );
     }
   }
 }
@@ -179,13 +207,54 @@ export class Registry {
       });
     }
 
-    const result = node.arbitrary
-      ? resolveBracket(definition, node.arbitrary.value)
-      : resolveCall(definition, node, context);
-    return "error" in result
-      ? failure(result.error)
+    // Utilities can come from plugins, so one that throws only costs its own expression.
+    let result: DeclarationResult;
+    try {
+      result = node.arbitrary
+        ? resolveBracket(definition, node.arbitrary.value)
+        : resolveCall(definition, node, context);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      return failure({
+        code: "utility-error",
+        message: `${owner(definition)} failed on "${node.source}": ${reason}`,
+      });
+    }
+    if ("error" in result) return failure(result.error);
+    const unsafe = unsafeOutput(definition, node, result.declarations);
+    return unsafe
+      ? failure(unsafe)
       : { ok: true, node, declarations: Object.entries(result.declarations) };
   }
+}
+
+function owner(definition: UtilityDefinition): string {
+  const utility = `tility "${definition.name}"`;
+  return definition.plugin ? `Plugin "${definition.plugin}": u${utility}` : `U${utility}`;
+}
+
+/** Checks declarations before they reach the stylesheet, where a bad one could break other rules. */
+function unsafeOutput(
+  definition: UtilityDefinition,
+  node: UtilityNode,
+  declarations: unknown,
+): ResolveError | undefined {
+  const problem = (detail: string): ResolveError => ({
+    code: "unsafe-output",
+    message: `${owner(definition)} produced unusable CSS for "${node.source}": ${detail}`,
+  });
+  if (typeof declarations !== "object" || declarations === null) {
+    return problem("expected an object of declarations.");
+  }
+  for (const [property, value] of Object.entries(declarations)) {
+    if (!PROPERTY_NAME.test(property)) {
+      return problem(`${JSON.stringify(property)} isn't a property name.`);
+    }
+    if (typeof value !== "string" || value.trim() === "" || !isSafeCssValue(value)) {
+      return problem(`the value of ${property} isn't safe: ${JSON.stringify(value)}.`);
+    }
+  }
+  return undefined;
 }
 
 function failure(error: ResolveError): ResolvedUtility {

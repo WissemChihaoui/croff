@@ -54,6 +54,7 @@ A plugin has no other hooks. It describes what it adds, and CROFF does the rest.
 - A plugin can't replace a built-in or an earlier plugin's definition unless it sets `override: true`.
 - Registering two plugins with the same name is an error.
 - Errors name the plugin responsible.
+- A utility that throws or returns unsafe CSS fails only the expression using it, with a `utility-error` or `unsafe-output` error. This protects against mistakes, but it isn't a sandbox: plugins run as code at build time, so only use ones you trust.
 - Plugin utilities and variants sort after the built-ins in the cascade.
 
 ## Compatibility

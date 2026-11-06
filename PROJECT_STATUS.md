@@ -1,6 +1,6 @@
 # Project status
 
-**Version 0.1.0: implemented and verified locally. Not published.**
+**Version 0.1.0: implemented and verified, locally and on CI. Not published to a package registry.**
 
 ## Phases
 
@@ -15,13 +15,11 @@
 
 ## Where it lives
 
-The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). Nothing is published to a package registry, and the docs site isn't deployed.
+The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). The docs site is live at [croff.wisecode.tn](https://croff.wisecode.tn). Nothing is published to a package registry.
 
 ## Remaining before a public release
 
-- **Get CI passing.** It runs on Ubuntu and Windows, with Node 22 and 24. The run on `e144c02` passed everything on Ubuntu with both Node versions. On Windows it found a scanner bug, since fixed, where a same-size edit in one timestamp tick was missed. The hot-update browser test also failed there, because Vite refuses to serve from a temp path containing a Windows short name like `RUNNER~1`. The test now resolves the real path first.
 - **Confirm package names and publish.** Confirm the `@croff` npm scope is available. `published` in `apps/docs/src/site.config.ts` is `false` until then, and the install guide explains building from source.
-- **Deploy the docs site.**
 - **Publish a contact address** for code of conduct reports.
 
 ## Worth doing

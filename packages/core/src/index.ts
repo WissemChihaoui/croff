@@ -16,7 +16,7 @@ import {
   validatePlugin,
   type CroffPlugin,
 } from "@croff/plugin-api";
-import { createRegistry, type Registry } from "@croff/registry";
+import { createRegistry, reservedTokenIssues, type Registry } from "@croff/registry";
 import { createTheme, type ResolvedTheme, type ThemeConfig, type ThemeIssue } from "@croff/theme";
 import {
   directiveLayers,
@@ -106,6 +106,10 @@ export function createCroff(
   const { theme, issues } = createTheme([...pluginThemes(plugins), config.theme], {
     preset: config.preset ?? "default",
   });
+  for (const issue of reservedTokenIssues(theme)) {
+    delete theme.scales[issue.scale]![issue.token!];
+    issues.push(issue);
+  }
   if (issues.length > 0 && options.strict !== false) throw new CroffConfigError(issues);
 
   const registry = createRegistry(theme);

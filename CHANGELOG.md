@@ -22,7 +22,7 @@ The first release, for public testing. Nothing has been published to a package r
 
 - Design tokens in scales, compiled to CSS custom properties.
 - Merging over a default theme, token removal with `null`, and an empty preset.
-- Validation of token names and values.
+- Validation of token names and values, including a scale that isn't an object, and names that collide with each other, with a keyword or with a variant.
 
 ### Tooling
 
@@ -30,7 +30,7 @@ The first release, for public testing. Nothing has been published to a package r
 - The `croff` CLI: `init`, `dev`, `build` and `check`.
 - A Vite plugin with hot updates.
 - A PostCSS plugin.
-- A plugin API for adding utilities, variants and tokens.
+- A plugin API for adding utilities, variants and tokens. A plugin that throws or returns unsafe CSS only fails its own expression, and the error names the plugin.
 
 ### Documentation
 

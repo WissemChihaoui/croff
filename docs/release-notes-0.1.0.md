@@ -30,7 +30,7 @@ All at 0.1.0: `@croff/core`, `@croff/parser`, `@croff/theme`, `@croff/registry`,
 - Class names built at runtime can't be compiled. Template interpolation is detected and warned about, but concatenation isn't detectable.
 - In `vite build`, invalid expressions are logged and don't fail the build. Use `croff check` in CI.
 - No arbitrary variants, `important` modifier or container query variants yet.
-- Tested on Windows in Playwright's Chromium, Firefox and WebKit, but not in Safari itself or on real phones. CI is set up on GitHub, but hasn't yet had a passing run.
+- Tested in Playwright's Chromium, Firefox and WebKit, but not in Safari itself or on real phones. CI runs on Ubuntu and Windows, with Node 22 and 24.
 - The grammar and AST aren't final, and the language may still change before 1.0. `parse`, `expand`, the AST and the plugin API are marked `@unstable`.
 
 ## Upgrading
