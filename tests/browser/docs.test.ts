@@ -129,6 +129,33 @@ describe.each(engineNames)("documentation site in %s", (engine) => {
     await page.close();
   });
 
+  it("takes an expression apart on the landing page", async () => {
+    const { page } = await open(browser, "/");
+    const expression = page.locator(".anatomy-expression");
+    expect(await expression.textContent()).toBe("md:hover:bg(alpha(brand,50))");
+    await page.getByRole("button", { name: "Raw CSS" }).click();
+    await expect.poll(() => expression.textContent()).toBe("lg:width[calc(100%-2rem)]");
+    const output = page.locator("main").locator("pre code", { hasText: "calc(100% - 2rem)" });
+    expect(await output.count()).toBeGreaterThan(0);
+    await page.close();
+  });
+
+  // WebKit's Tab key skips links by default, as Safari's does.
+  it.skipIf(engine === "webkit")("keeps the focus ring on a button with cut corners", async () => {
+    const { page } = await open(browser, "/");
+    const link = page.getByRole("link", { name: "Get started" }).first();
+    expect(await link.evaluate((element) => getComputedStyle(element).clipPath)).not.toBe("none");
+    // Reach it from the keyboard, since only keyboard focus counts as focus-visible.
+    await page.locator("h1").click();
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.press("Tab");
+      if (await link.evaluate((element) => element === document.activeElement)) break;
+    }
+    expect(await link.evaluate((element) => element === document.activeElement)).toBe(true);
+    expect(await link.evaluate((element) => getComputedStyle(element).clipPath)).toBe("none");
+    await page.close();
+  });
+
   it("navigates without reloading", async () => {
     const { page } = await open(browser, "/");
     await page.evaluate(() => {

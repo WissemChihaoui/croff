@@ -205,11 +205,13 @@ export function UtilitiesPage({ page }: { page: NavPage }) {
 
   return (
     <DocsLayout page={page} headings={headings}>
-      <header className="flex(col) gap(3) margin-bottom(4)">
-        <p className="font(mono) text-size(xs) text-color(faint)">Generated from the registry</p>
-        <h1 className="font(display) stretch(wide) text-size(3xl) md:text-size(4xl) text-weight(bold) letter-spacing(tight) line-height(tight)">
+      <header className="flex(col) gap(4) margin-bottom(4)">
+        <h1 className="font(display) stretch(wide) text-size[clamp(2.25rem,5vw,3.5rem)] text-weight(bold) letter-spacing(tighter) line-height[1.04]">
           {page.title}
         </h1>
+        <p className="text-size(xl) text-color(soft) line-height(snug)">
+          Generated from the registry, so this page can't drift from the compiler.
+        </p>
       </header>
       {interactions ? (
         <Interactions />

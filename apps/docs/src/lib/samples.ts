@@ -32,6 +32,90 @@ bg(alpha(brand,50))
 width[calc(100%-var(--sidebar-width))]
 md:hover:transform(translate-y(-2px),scale(1.02))`;
 
+export interface AnatomyPart {
+  text: string;
+  /** Names the highlight color: the same `t-*` classes the code blocks use. */
+  kind: "variant" | "utility" | "arg" | "raw";
+  label: string;
+  note: string;
+}
+
+/** Expressions taken apart on the landing page. Their parts add up to `source`. */
+export const ANATOMY: { name: string; source: string; parts: AnatomyPart[] }[] = [
+  {
+    name: "Stacked variants",
+    source: "md:hover:bg(alpha(brand,50))",
+    parts: [
+      {
+        text: "md:",
+        kind: "variant",
+        label: "Breakpoint",
+        note: "Comes from your theme, and wraps the rule in a media query.",
+      },
+      {
+        text: "hover:",
+        kind: "variant",
+        label: "State",
+        note: "Adds a pseudo-class. Stack as many variants as you need.",
+      },
+      {
+        text: "bg",
+        kind: "utility",
+        label: "Utility",
+        note: "Looked up in the registry. A typo is an error, with a suggestion.",
+      },
+      {
+        text: "(alpha(brand,50))",
+        kind: "arg",
+        label: "Checked value",
+        note: "brand has to be a color in your theme, and 50 a percentage from 0 to 100.",
+      },
+    ],
+  },
+  {
+    name: "Theme token",
+    source: "gap(4)",
+    parts: [
+      {
+        text: "gap",
+        kind: "utility",
+        label: "Utility",
+        note: "One utility, one small rule in the stylesheet.",
+      },
+      {
+        text: "(4)",
+        kind: "arg",
+        label: "Checked value",
+        note: "A spacing token, compiled to a custom property. Change the token and every use follows.",
+      },
+    ],
+  },
+  {
+    name: "Raw CSS",
+    source: "lg:width[calc(100%-2rem)]",
+    parts: [
+      {
+        text: "lg:",
+        kind: "variant",
+        label: "Breakpoint",
+        note: "Variants work the same way in front of raw values.",
+      },
+      {
+        text: "width",
+        kind: "utility",
+        label: "Utility",
+        note: "Brackets don't change which property it sets.",
+      },
+      {
+        text: "[calc(100%-2rem)]",
+        kind: "raw",
+        label: "Raw value",
+        note: "Brackets are the visible escape hatch. CROFF spaces the math for you, and still refuses anything that could break out of the rule.",
+      },
+    ],
+  },
+];
+
 /** Deliberate mistakes, compiled on the landing page to show real error messages. */
 export const MISTAKES_SAMPLE = ["pad(4)", "bg(brnad)"];
 

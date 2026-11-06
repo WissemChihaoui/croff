@@ -22,7 +22,7 @@ function SidebarLinks({ current, onNavigate }: { current: string; onNavigate?: (
                     aria-current={active ? "page" : undefined}
                     className={
                       active
-                        ? "display(block) padding-y(1) padding-x(3) margin-left[-1px] border-left(1,brand) text-size(sm) text-color(fg) text-weight(medium)"
+                        ? "display(block) padding-y(1) padding-x(3) margin-left[-1px] border-left(2,brand) bg(raised) text-size(sm) text-color(brand) text-weight(medium)"
                         : "display(block) padding-y(1) padding-x(3) text-size(sm) text-color(faint) transition(colors) duration(fast) hover:text-color(fg)"
                     }
                   >
@@ -94,7 +94,7 @@ function PreviousNext({ page }: { page: NavPage }) {
   const previous = pages[index - 1];
   const next = pages[index + 1];
   const box =
-    "flex(col) gap(1) padding(4) border(1,line) radius[0.25rem] transition(colors) duration(fast) hover:border-color(brand)";
+    "flex(col) gap(1) padding(5) bg(surface) border(1,line) transition(colors) duration(fast) hover:border-color(brand) hover:bg(raised)";
   return (
     <nav
       aria-label="Pagination"
@@ -102,16 +102,16 @@ function PreviousNext({ page }: { page: NavPage }) {
     >
       {previous ? (
         <Link href={`/docs/${previous.slug}`} className={box}>
-          <span className="font(mono) text-size(xs) text-color(faint)">Previous</span>
-          <span className="text-color(fg) text-size(sm) text-weight(medium)">{previous.title}</span>
+          <span className="font(mono) text-size(xs) text-color(faint)">← Previous</span>
+          <span className="text-color(fg) text-weight(semibold)">{previous.title}</span>
         </Link>
       ) : (
         <span className="display(none) sm:display(block)" />
       )}
       {next && (
         <Link href={`/docs/${next.slug}`} className={`${box} sm:text-align(right)`}>
-          <span className="font(mono) text-size(xs) text-color(faint)">Next</span>
-          <span className="text-color(fg) text-size(sm) text-weight(medium)">{next.title}</span>
+          <span className="font(mono) text-size(xs) text-color(faint)">Next →</span>
+          <span className="text-color(fg) text-weight(semibold)">{next.title}</span>
         </Link>
       )}
     </nav>
@@ -130,6 +130,7 @@ export function DocsLayout({
   const { path } = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => setMenuOpen(false), [path]);
+  const section = nav.find((entry) => entry.pages.includes(page))?.title;
 
   return (
     <div className="max-width[88rem] width(full) margin-x(auto) lg:display(grid) lg:columns[16rem_minmax(0,1fr)] xl:columns[16rem_minmax(0,1fr)_15rem]">
@@ -146,7 +147,7 @@ export function DocsLayout({
             type="button"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(!menuOpen)}
-            className="flex(row) align(center) gap(2) width(full) padding(3) border(1,line) radius[0.1875rem] text-size(sm) text-color(soft)"
+            className="flex(row) align(center) gap(3) width(full) padding(3) bg(raised) cut(sm) text-size(sm) text-color(fg)"
           >
             <span className="chamfer" />
             {menuOpen ? "Close menu" : `Menu: ${page.title}`}
@@ -158,6 +159,10 @@ export function DocsLayout({
           )}
         </div>
         <article className="max-width[46rem] margin-x(auto)">
+          <p className="flex(row) align(center) gap(3) margin-bottom(4) font(mono) text-size(xs) text-color(faint) text-transform(uppercase) letter-spacing(widest)">
+            <span className="chamfer" />
+            {section}
+          </p>
           {children}
           <PreviousNext page={page} />
         </article>

@@ -30,14 +30,14 @@ function Item({ href, children }: { href: string; children: ReactNode }) {
 export function Footer() {
   return (
     <footer className="border-top(1,line)">
-      <div className="max-width[88rem] margin(0,auto) padding(6) md:padding(10) display(grid) columns(2) md:columns(4) gap(8)">
+      <div className="max-width[88rem] margin-x(auto) padding-x(5) md:padding-x(10) padding-y(12) md:padding-y(16) display(grid) columns(2) md:columns(4) gap(8)">
         <div className="grid-span(2) md:grid-span(1) flex(col) align(start) gap(4)">
           <img
             src="/brand/croff-logo.png"
             alt="CROFF"
             width={1304}
             height={218}
-            className="height(6) width(auto)"
+            className="height(8) width(auto)"
           />
           <p className="text-size(sm) text-color(faint) max-width[20rem]">
             An expressive utility-first CSS framework. Version {site.version}, pre-release.
@@ -69,6 +69,12 @@ export function Footer() {
             )}
           </li>
         </Column>
+      </div>
+      <div className="border-top(1,line)">
+        <p className="max-width[88rem] margin-x(auto) padding-x(5) md:padding-x(10) padding-y(4) flex(row) align(center) gap(3) font(mono) text-size(xs) text-color(faint)">
+          <span className="chamfer" />
+          This site is styled with CROFF.
+        </p>
       </div>
     </footer>
   );

@@ -47,8 +47,8 @@ export function Header({ onSearch }: { onSearch: () => void }) {
               aria-current={link.match(path) ? "page" : undefined}
               className={
                 link.match(path)
-                  ? "text-color(fg)"
-                  : "text-color(faint) hover:text-color(fg) transition(colors) duration(fast)"
+                  ? "flex(row) align(center) height[3.5rem] text-color(fg) border-bottom(2,brand)"
+                  : "flex(row) align(center) height[3.5rem] text-color(faint) border-bottom(2,transparent) hover:text-color(fg) transition(colors) duration(fast)"
               }
             >
               {link.label}
@@ -60,7 +60,7 @@ export function Header({ onSearch }: { onSearch: () => void }) {
             type="button"
             onClick={onSearch}
             aria-label="Search the documentation"
-            className="flex(row) align(center) gap(3) height(8) padding-x(3) border(1,line) radius[0.1875rem] text-size(sm) text-color(faint) transition(colors) duration(fast) hover:border-color(line-strong) hover:text-color(fg)"
+            className="flex(row) align(center) gap(3) height(8) padding-x(3) bg(raised) cut(sm) text-size(sm) text-color(soft) transition(colors) duration(fast) hover:bg(line-strong) hover:text-color(fg)"
           >
             <span>Search</span>
             <kbd className="display(none) md:display(block) text-size(xs) text-color(faint)">

@@ -24,6 +24,7 @@ import {
   slugify,
 } from "../src/lib/markdown";
 import { generatedCss, signatures, usageExamples } from "../src/lib/reference";
+import { ANATOMY } from "../src/lib/samples";
 import { search } from "../src/lib/search";
 import { allRoutes, flatPages, nav } from "../src/nav";
 
@@ -269,7 +270,19 @@ describe("search", () => {
   });
 });
 
+describe("landing page", () => {
+  it.each(ANATOMY)("takes $source apart into parts that add up to it", ({ source, parts }) => {
+    expect(parts.map((part) => part.text).join("")).toBe(source);
+    expect(createCroff().compile([source]).failures).toEqual([]);
+  });
+});
+
 describe("markdown", () => {
+  it("gives the table of contents plain text, not HTML entities", () => {
+    const { headings } = renderMarkdown(`## What's "new" & \`<next>\` in \`gap(4)\``);
+    expect(headings[0]!.text).toBe(`What's "new" & <next> in gap(4)`);
+  });
+
   it("assigns stable, unique heading ids", () => {
     const { html, headings } = renderMarkdown("## One thing\n\n## One thing\n\n### `code` here");
     expect(headings.map((heading) => heading.id)).toEqual([

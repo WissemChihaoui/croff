@@ -18,9 +18,15 @@ html {
   outline-offset: 2px;
 }
 
+/* A clipped element can't show an outline, so it gives up the cut while it has focus. */
+[class*="cut("]:focus-visible {
+  clip-path: none;
+}
+
 /* The chamfered accent from the logo. */
 .chamfer {
   display: inline-block;
+  flex-shrink: 0;
   width: 0.85em;
   height: 0.5em;
   background: var(--croff-color-brand);
@@ -33,6 +39,212 @@ html {
   text-overflow: ellipsis;
 }
 
+/* --------------------------------------------------------------- Landing */
+
+/* Generated CSS behind the headline: the noise the tagline talks about. */
+.noise {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 1.5rem;
+  columns: 5 14rem;
+  column-gap: 2rem;
+  font-family: var(--croff-font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.7;
+  white-space: pre;
+  color: #3a3a36;
+  user-select: none;
+  pointer-events: none;
+  mask-image: linear-gradient(105deg, transparent 18%, black 62%);
+}
+
+/* The lime stroke of the logo, with an echo behind it. */
+.slashes {
+  position: absolute;
+  right: -4vw;
+  bottom: 9rem;
+  display: flex;
+  gap: 0;
+  pointer-events: none;
+}
+
+.slashes i {
+  display: block;
+  width: 24vw;
+  height: 13vw;
+  margin-left: -11vw;
+  clip-path: polygon(45% 0, 100% 0, 55% 100%, 0 100%);
+  animation: sweep 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.slashes i:nth-child(1) {
+  background: var(--croff-color-line);
+}
+
+.slashes i:nth-child(2) {
+  background: var(--croff-color-line-strong);
+  animation-delay: 80ms;
+}
+
+.slashes i:nth-child(3) {
+  background: var(--croff-color-brand);
+  animation-delay: 160ms;
+}
+
+.slashes-ink {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.slashes-ink i {
+  animation: none;
+}
+
+.slashes-ink i:nth-child(1) {
+  background: rgb(10 10 10 / 0.06);
+}
+
+.slashes-ink i:nth-child(2) {
+  background: rgb(10 10 10 / 0.12);
+}
+
+.slashes-ink i:nth-child(3) {
+  background: var(--croff-color-ink);
+}
+
+/* Below this width, the hero's slashes would run into its text. */
+@media (max-width: 1099px) {
+  .slashes:not(.slashes-ink) {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .noise {
+    columns: 2 10rem;
+    mask-image: linear-gradient(170deg, transparent 55%, black 100%);
+  }
+
+  .slashes-ink {
+    top: auto;
+    bottom: 1rem;
+    transform: none;
+    opacity: 0.25;
+  }
+}
+
+@keyframes sweep {
+  from {
+    opacity: 0;
+    transform: translateX(6vw);
+  }
+}
+
+.rise {
+  animation: rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.rise-1 {
+  animation-delay: 60ms;
+}
+
+.rise-2 {
+  animation-delay: 140ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+/* Sections settle in as they scroll past, where browsers can do it without JavaScript. */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: settle linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
+  }
+
+  @keyframes settle {
+    from {
+      opacity: 0.3;
+      transform: translateY(1.5rem);
+    }
+  }
+}
+
+/* A hairline panel, with a lime tab marking its corner. */
+.panel {
+  position: relative;
+  border: 1px solid var(--croff-color-line-strong);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -1px;
+  left: -1px;
+  width: 2.5rem;
+  height: 3px;
+  background: var(--croff-color-brand);
+}
+
+.anatomy-expression {
+  overflow-wrap: anywhere;
+}
+
+.anatomy-part {
+  border-top: 2px solid var(--croff-color-line-strong);
+}
+
+.anatomy-variant {
+  border-top-color: #8fb8ff;
+}
+
+.anatomy-utility {
+  border-top-color: var(--croff-color-brand);
+}
+
+.anatomy-arg {
+  border-top-color: var(--croff-color-fg);
+}
+
+.anatomy-raw {
+  border-top-color: #e6c78b;
+}
+
+.glyphs {
+  letter-spacing: -0.08em;
+}
+
+/* Blocks side by side stay the same height, and the longer one scrolls. */
+.side-by-side .code-block {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+.side-by-side .code-block pre {
+  flex: 1;
+  min-height: 0;
+  max-height: 27rem;
+  overflow: auto;
+}
+
+.side-by-side .code-block + .code-block {
+  margin-top: 0;
+}
+
+.flush-block .code-block {
+  margin: 0;
+}
+
 /* --------------------------------------------------------------- Code */
 
 code,
@@ -43,9 +255,9 @@ kbd {
 }
 
 .code-block {
+  position: relative;
   border: 1px solid var(--croff-color-line);
   background: var(--croff-color-surface);
-  border-radius: 0.25rem;
   margin: 1.25rem 0;
   font-size: 0.8125rem;
 }
@@ -66,6 +278,7 @@ kbd {
   justify-content: space-between;
   padding: 0.25rem 0.5rem 0.25rem 0.875rem;
   border-bottom: 1px solid var(--croff-color-line);
+  background: var(--croff-color-raised);
   color: var(--croff-color-faint);
   font-family: var(--croff-font-mono);
   font-size: 0.6875rem;
@@ -138,8 +351,8 @@ kbd {
 
 .prose {
   color: var(--croff-color-soft);
-  line-height: 1.7;
-  font-size: 0.9375rem;
+  line-height: 1.75;
+  font-size: 1rem;
 }
 
 .prose > * + * {
@@ -155,17 +368,20 @@ kbd {
 }
 
 .prose h2 {
-  margin-top: 3rem;
-  padding-top: 1.75rem;
+  margin-top: 3.5rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--croff-color-line);
-  font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-family: var(--croff-font-display);
+  font-stretch: 125%;
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 
 .prose h3 {
-  margin-top: 2rem;
-  font-size: 1.0625rem;
+  margin-top: 2.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
@@ -200,12 +416,15 @@ kbd {
 }
 
 .prose :not(pre) > code {
-  background: var(--croff-color-raised);
-  color: var(--croff-color-fg);
+  background: rgb(200 253 18 / 0.08);
+  color: var(--croff-color-brand);
   padding: 0.125em 0.35em;
-  border-radius: 0.1875rem;
   font-size: 0.85em;
   overflow-wrap: anywhere;
+}
+
+.prose a:not(.anchor) code {
+  color: inherit;
 }
 
 .prose ul,
@@ -221,18 +440,26 @@ kbd {
   position: relative;
 }
 
+/* The logo's slash, as a bullet. */
 .prose ul > li::before {
   content: "";
   position: absolute;
   left: -1.125rem;
-  top: 0.72em;
-  width: 0.5rem;
-  height: 1px;
-  background: var(--croff-color-faint);
+  top: 0.68em;
+  width: 0.6rem;
+  height: 0.32rem;
+  background: var(--croff-color-brand);
+  transform: skewX(-42deg);
 }
 
 .prose ol {
   list-style: decimal;
+}
+
+.prose ol > li::marker {
+  color: var(--croff-color-brand);
+  font-family: var(--croff-font-mono);
+  font-size: 0.875em;
 }
 
 .prose li + li {
@@ -240,9 +467,10 @@ kbd {
 }
 
 .prose blockquote {
-  border-left: 2px solid var(--croff-color-brand);
-  padding: 0.125rem 0 0.125rem 1rem;
-  color: var(--croff-color-soft);
+  border-left: 3px solid var(--croff-color-brand);
+  background: rgb(200 253 18 / 0.05);
+  padding: 0.875rem 1.125rem;
+  color: var(--croff-color-fg);
 }
 
 .prose hr {
@@ -254,7 +482,6 @@ kbd {
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--croff-color-line);
-  border-radius: 0.25rem;
 }
 
 .prose table {
@@ -265,6 +492,7 @@ kbd {
 
 .prose th {
   text-align: left;
+  background: var(--croff-color-raised);
   color: var(--croff-color-fg);
   font-weight: 600;
   white-space: nowrap;
@@ -330,6 +558,7 @@ kbd {
 
 @media (prefers-reduced-motion: reduce) {
   * {
+    animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }

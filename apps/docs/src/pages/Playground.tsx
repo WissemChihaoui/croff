@@ -129,8 +129,8 @@ export function Playground() {
   const problemCount = result.problems.length + result.themeIssues.length;
   const tab = (active: boolean) =>
     active
-      ? "font(mono) text-size(xs) text-color(fg) border-bottom(1,brand) padding-y(2)"
-      : "font(mono) text-size(xs) text-color(faint) hover:text-color(fg) border-bottom(1,transparent) padding-y(2)";
+      ? "font(mono) text-size(xs) text-color(fg) border-bottom(2,brand) padding-y(2)"
+      : "font(mono) text-size(xs) text-color(faint) hover:text-color(fg) border-bottom(2,transparent) padding-y(2)";
 
   return (
     <main
@@ -148,8 +148,8 @@ export function Playground() {
             onClick={() => setMarkup(PRESETS[name]!)}
             className={
               markup === PRESETS[name]
-                ? "padding(1,2) text-size(xs) bg(raised) border(1,line-strong) text-color(fg) radius[0.125rem]"
-                : "padding(1,2) text-size(xs) border(1,line) text-color(soft) radius[0.125rem] hover:border-color(line-strong)"
+                ? "padding(1,3) text-size(xs) text-weight(semibold) bg(brand) text-color(ink) cut(sm)"
+                : "padding(1,3) text-size(xs) bg(raised) text-color(soft) cut(sm) transition(colors) duration(fast) hover:text-color(fg)"
             }
           >
             {name}
@@ -165,7 +165,7 @@ export function Playground() {
           <button
             type="button"
             onClick={share}
-            className="padding(1,2) text-size(xs) border(1,line) text-color(soft) radius[0.125rem] hover:border-color(brand)"
+            className="padding(1,3) text-size(xs) bg(raised) text-color(soft) cut(sm) transition(colors) duration(fast) hover:bg(brand) hover:text-color(ink)"
           >
             {shareLabel}
           </button>

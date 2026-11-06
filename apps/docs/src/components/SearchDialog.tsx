@@ -35,7 +35,7 @@ export default function SearchDialog({ onClose }: { onClose: () => void }) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="max-width[40rem] margin-x(auto) bg(surface) border(1,line-strong) radius[0.25rem] shadow(lg) overflow(hidden)">
+      <div className="panel max-width[40rem] margin-x(auto) bg(surface) shadow(lg) overflow(hidden)">
         <input
           ref={input}
           value={query}

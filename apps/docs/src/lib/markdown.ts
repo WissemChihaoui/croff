@@ -32,6 +32,21 @@ export function slugify(text: string): string {
     .replace(/\s+/g, "-");
 }
 
+const ENTITIES: Record<string, string> = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+};
+
+/** A heading as plain text. React escapes it again when rendering the table of contents. */
+function plainText(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, "")
+    .replace(/&(?:amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity]!);
+}
+
 export function parseFrontmatter(source: string): {
   data: Record<string, string>;
   body: string;
@@ -89,7 +104,7 @@ export function renderMarkdown(source: string): DocPageData {
         const count = used.get(base) ?? 0;
         used.set(base, count + 1);
         const id = count === 0 ? base : `${base}-${count}`;
-        const text = inner.replace(/<[^>]+>/g, "");
+        const text = plainText(inner);
         if (token.depth === 2 || token.depth === 3) {
           headings.push({ id, text, level: token.depth });
         }
