@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -19,7 +19,8 @@ describe("Vite hot updates in a browser", () => {
   };
 
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), "croff-hot-"));
+    // A Windows temp path can contain a short name like RUNNER~1, and Vite refuses to serve those.
+    root = await realpath(await mkdtemp(join(tmpdir(), "croff-hot-")));
     await write(
       "index.html",
       `<!doctype html><div id="box" class="gap(4) padding-top[37px]"></div><script type="module" src="/src/main.js"></script>`,
