@@ -42,6 +42,127 @@ describe.each(engineNames)("generated CSS in %s", (engine) => {
       [property, id],
     );
 
+  describe("everyday variants", () => {
+    const show = (classes: string, tag = "div") =>
+      render(
+        page,
+        croff.compile(classes.split(" "), { minify: true }).css,
+        `<${tag} id="x" class="${classes.replaceAll('"', "&quot;")}">x</${tag}><p id="y">y</p>`,
+      );
+    const pseudo = (name: string, property: string) =>
+      page.evaluate(
+        ([target, prop]) =>
+          getComputedStyle(document.getElementById("x")!, target!).getPropertyValue(prop!),
+        [name, property],
+      );
+
+    it("dark: follows the color scheme", async () => {
+      await show("color[rgb(1,1,1)] dark:color[rgb(2,2,2)]");
+      await page.emulateMedia({ colorScheme: "light" });
+      expect(await computed("color")).toBe("rgb(1, 1, 1)");
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await computed("color")).toBe("rgb(2, 2, 2)");
+    });
+
+    it("motion-reduce: follows the preference", async () => {
+      await show("opacity(50) motion-reduce:opacity(25)");
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+      expect(await computed("opacity")).toBe("0.5");
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      expect(await computed("opacity")).toBe("0.25");
+    });
+
+    it("print: applies only when printing", async () => {
+      await show("display(block) print:display(none)");
+      await page.emulateMedia({ media: "screen" });
+      expect(await computed("display")).toBe("block");
+      await page.emulateMedia({ media: "print" });
+      expect(await computed("display")).toBe("none");
+    });
+
+    it("first: and last: match by position", async () => {
+      const classes = "first:gap[1px] last:gap[2px]";
+      await render(
+        page,
+        croff.compile(classes.split(" "), { minify: true }).css,
+        `<ul><li id="a" class="${classes}"></li><li id="b" class="${classes}"></li><li id="c" class="${classes}"></li></ul>`,
+      );
+      expect(await computed("row-gap", "a")).toBe("1px");
+      expect(await computed("row-gap", "b")).toBe("normal");
+      expect(await computed("row-gap", "c")).toBe("2px");
+    });
+
+    it("before: renders without anyone writing content", async () => {
+      await show("before:display(block) before:width[10px] before:height[10px]");
+      expect(await pseudo("::before", "content")).toBe('""');
+      expect(await pseudo("::before", "width")).toBe("10px");
+      expect(await pseudo("::after", "content")).toBe("none");
+    });
+
+    it("after: shows text from content, with a space from an underscore", async () => {
+      await show("after:content['Hi_there']");
+      expect(await pseudo("::after", "content")).toBe('"Hi there"');
+    });
+
+    it("content: replaces the default whichever rule comes first", async () => {
+      await show("before:content['x'] before:color[rgb(1,2,3)] before:[width:9px]");
+      expect(await pseudo("::before", "content")).toBe('"x"');
+      expect(await pseudo("::before", "color")).toBe("rgb(1, 2, 3)");
+    });
+
+    it("before:hover: is a selector the browser accepts", async () => {
+      await show("before:hover:color[rgb(1,2,3)] before:content['x']");
+      await page.hover("#x");
+      expect(await pseudo("::before", "color")).toBe("rgb(1, 2, 3)");
+    });
+  });
+
+  describe("arbitrary properties", () => {
+    it("set any property, and match the class name written", async () => {
+      await render(page, croff.compile(["[float:left]"]).css, element("[float:left]"));
+      expect(await computed("float")).toBe("left");
+    });
+
+    it("take variants", async () => {
+      const classes = ["[tab-size:3]", "hover:[tab-size:5]"];
+      await render(page, croff.compile(classes).css, element(classes.join(" ")));
+      await page.mouse.move(0, 0);
+      expect(await computed("tab-size")).toBe("3");
+      await page.hover("#x");
+      expect(await computed("tab-size")).toBe("5");
+    });
+
+    it("set custom properties that others can read", async () => {
+      const classes = ["[--box:7px]", "width[var(--box)]"];
+      await render(page, croff.compile(classes).css, element(classes.join(" ")));
+      expect(await computed("width")).toBe("7px");
+    });
+  });
+
+  it("truncate() really cuts off long text", async () => {
+    await render(
+      page,
+      croff.compile(["truncate()", "width[40px]"]).css,
+      `<div id="x" class="truncate() width[40px]">a very long line of text indeed</div>`,
+    );
+    expect(await computed("text-overflow")).toBe("ellipsis");
+    expect(
+      await page.evaluate(() => {
+        const box = document.getElementById("x")!;
+        return box.scrollWidth > box.clientWidth;
+      }),
+    ).toBe(true);
+  });
+
+  it("filter() applies its functions", async () => {
+    await render(
+      page,
+      croff.compile(["filter(blur(2px),grayscale(100%))"]).css,
+      element("filter(blur(2px),grayscale(100%))"),
+    );
+    expect(await computed("filter")).toBe("blur(2px) grayscale(1)");
+  });
+
   it("accepts every declaration of every documented example, and matches its class name", async () => {
     const examples = builtinUtilities.flatMap((utility) => utility.examples);
     const { css, rules, failures } = croff.compile(examples);
@@ -50,7 +171,8 @@ describe.each(engineNames)("generated CSS in %s", (engine) => {
 
     const problems = await page.evaluate(
       (compiled) => {
-        const STATE = /(?<!\\):(hover|focus-visible|focus-within|focus|active|disabled)$/;
+        const STATE =
+          /(?<!\\):(hover|focus-visible|focus-within|focus|active|disabled|first-child|last-child|:before|:after)$/;
         const found: CSSStyleRule[] = [];
         const walk = (list: CSSRuleList) => {
           for (const rule of Array.from(list)) {

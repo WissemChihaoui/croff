@@ -134,7 +134,7 @@ export function Playground() {
 
   return (
     <main
-      id="content"
+      id="main-content"
       className="grow(1) flex(col) lg:height[calc(100vh-3.5rem)] lg:overflow(hidden)"
     >
       <h1 className="position(absolute) width(px) height(px) overflow(hidden)">CROFF playground</h1>

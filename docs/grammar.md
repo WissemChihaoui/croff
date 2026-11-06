@@ -22,6 +22,8 @@ There are exactly two value forms, and the difference is meaningful:
 | Call `(…)`    | `gap(4)`      | Language values. Validated against tokens, keywords and ranges. |
 | Bracket `[…]` | `gap[1.5rem]` | Raw CSS. An explicit escape hatch; only sanity-checked.         |
 
+An arbitrary property, `[float:left]`, is the bracket form with the property inside it, for properties without a utility.
+
 A bare word is **never** a utility. `flex` is just a class name; `flex()` is a
 utility. This keeps CROFF from ever colliding with your own class names and
 keeps source scanning precise.
@@ -29,10 +31,12 @@ keeps source scanning precise.
 ## 2. Grammar (EBNF)
 
 ```ebnf
-expression   = { variant , ":" } , utility ;
+expression   = { variant , ":" } , ( utility | property ) ;
 
 variant      = variant-name ;
 utility      = utility-name , ( call | arbitrary ) ;
+
+property     = "[" , property-name , ":" , raw , "]" ;
 
 call         = "(" , [ argument , { "," , argument } ] , ")" ;
 argument     = function | word ;
@@ -51,6 +55,8 @@ string       = "'" , { any-char-except-unescaped-quote } , "'"
 utility-name  = lower , { lower | digit | "-" } ;
 variant-name  = ( lower | digit ) , { lower | digit | "-" } ;
 function-name = ( lower | "-" ) , { lower | digit | "-" } ;
+property-name = [ "-" ] , lower , { lower | digit | "-" }
+              | "--" , ( letter | digit | "_" | "-" ) , { letter | digit | "_" | "-" } ;
 
 word         = word-item , { word-item } ;
 word-item    = word-char | escape ;
@@ -133,6 +139,8 @@ the value according to §4. Before CSS is emitted the compiler additionally:
 
    Custom property names inside `var()` are left untouched.
 
+The property name of `[property:value]` is checked against the grammar, not against a list of real CSS properties. It ends at the first colon, and only the value is decoded, so a custom property keeps its underscores.
+
 ## 7. Variants
 
 Variants are listed left to right, before the utility:
@@ -148,6 +156,7 @@ md:hover:focus:bg(brand)
 - Different orderings are different class names (`md:hover:x` and `hover:md:x`)
   but select the same elements under the same conditions.
 - A repeated variant (`hover:hover:x`) is a `duplicate-variant` error.
+- A selector transformation that adds a pseudo-element is applied last, wherever it was written, because a pseudo-element has to end the selector. Two of them (`before:after:x`) is a `conflicting-variants` error from the registry.
 
 ## 8. No grouping syntax
 
@@ -184,6 +193,7 @@ source `span` and, when possible, a `hint`.
 | `duplicate-variant`    | The same variant used twice.                         |
 | `too-deep`             | Nesting deeper than 16 levels.                       |
 | `unsupported-group`    | Variants followed by `(`, as in `hover:(a(1),b(2))`. |
+| `invalid-property`     | A bracket with no utility and no property, `[left]`. |
 
 Name and value resolution (`unknown-utility`, `invalid-argument`, …) happens
 later, in the registry. Syntax errors never depend on configuration.

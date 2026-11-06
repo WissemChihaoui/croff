@@ -554,7 +554,7 @@ function FinalCall() {
 
 export function Landing() {
   return (
-    <main id="content">
+    <main id="main-content">
       <Hero />
       <Bench />
       <Anatomy />

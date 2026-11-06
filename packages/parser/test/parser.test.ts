@@ -260,6 +260,49 @@ describe("invalid syntax", () => {
   });
 });
 
+describe("arbitrary properties", () => {
+  it("reads a property and a value", () => {
+    const node = ok("[float:left]");
+    expect(node).toMatchObject({ name: "float", property: true, variants: [] });
+    expect(node.arbitrary).toMatchObject({ raw: "left", value: "left" });
+    expect(node.arguments).toEqual([]);
+  });
+
+  it("takes variants", () => {
+    expect(ok("md:hover:[float:left]").variants.map((v) => v.name)).toEqual(["md", "hover"]);
+  });
+
+  it("splits at the first colon, and decodes only the value", () => {
+    expect(ok("[background:url(http://x.y/a_b.png)]").arbitrary!.value).toBe(
+      "url(http://x.y/a_b.png)",
+    );
+    const custom = ok("[--my_Var:a_b]");
+    expect(custom.name).toBe("--my_Var");
+    expect(custom.arbitrary!.value).toBe("a b");
+    expect(ok("[-webkit-line-clamp:2]").name).toBe("-webkit-line-clamp");
+  });
+
+  it.each([
+    ["[left]", "invalid-property"],
+    ["[:left]", "invalid-property"],
+    ["[Float:left]", "invalid-property"],
+    ["[a}b:c]", "invalid-property"],
+    ["[float:]", "empty-bracket"],
+    ["[]", "empty-bracket"],
+    ["[float:left]x", "unexpected-token"],
+    ["[float:left", "unterminated-bracket"],
+    ["[float: left]", "whitespace"],
+  ] as [string, ParseErrorCode][])("rejects %s", (source, code) => {
+    const result = parse(source);
+    expect(!result.ok && result.error.code).toBe(code);
+  });
+
+  it("explains the form when the colon is missing", () => {
+    const result = parse("[left]");
+    expect(!result.ok && result.error.hint).toContain("[float:left]");
+  });
+});
+
 describe("tokenizer", () => {
   it("reads a bracket as one token", () => {
     const result = tokenize("a:b[c(d)]");

@@ -14,12 +14,54 @@ A variant is written before a utility, followed by a colon.
 | Variant          | Applies when                                   |
 | ---------------- | ---------------------------------------------- |
 | `group-hover:`   | An ancestor with the class `group` is hovered. |
+| `first:`         | The element is its parent's first child.       |
+| `last:`          | The element is its parent's last child.        |
 | `hover:`         | The element is hovered.                        |
 | `focus-within:`  | The element or a descendant has focus.         |
 | `focus:`         | The element has focus.                         |
 | `focus-visible:` | The element has keyboard-visible focus.        |
 | `active:`        | The element is being pressed.                  |
 | `disabled:`      | A form control is disabled.                    |
+
+## Generated boxes
+
+`before:` and `after:` style the `::before` and `::after` boxes. You don't need to set `content` for them to render. Add `content` only when you want text in the box, with the text quoted inside the brackets:
+
+```html compile
+<a class="before:display(block) before:height(1) after:content['→']">Next</a>
+```
+
+The pseudo-element always ends the selector, so `before:hover:` and `hover:before:` both mean "the box, while the element is hovered". An element only has one of each, so `before:after:` is the error `conflicting-variants`.
+
+## Preference variants
+
+These follow what the visitor's device asks for.
+
+| Variant          | Applies when                             |
+| ---------------- | ---------------------------------------- |
+| `dark:`          | The system asks for a dark color scheme. |
+| `motion-reduce:` | The visitor has asked for less motion.   |
+| `print:`         | The page is printed.                     |
+
+```html compile
+<div
+  class="bg(light) color(dark) dark:bg(dark) dark:color(light) motion-reduce:transition(none) print:display(none)"
+></div>
+```
+
+To control dark mode with your own toggle, replace the variant with a plugin, and put the class `dark` on an ancestor:
+
+```ts
+import { definePlugin } from "@croff/core";
+
+export default definePlugin({
+  name: "croff-plugin-dark-class",
+  override: true,
+  variants: {
+    dark: { selector: ".dark &" },
+  },
+});
+```
 
 ## Composition
 
@@ -45,6 +87,7 @@ When two utilities on an element set the same property, the browser decides usin
 | `md:hover:padding(1)`               | `.x:hover` in a media query               | 0,2,0       |
 | `hover:focus:padding(1)`            | `.x:hover:focus`                          | 0,3,0       |
 | `group-hover:padding(1)`            | `.group:hover .x`                         | 0,3,0       |
+| `dark:padding(1)`                   | `.x` in a media query, which adds nothing | 0,1,0       |
 
 ### What this means
 
@@ -58,7 +101,7 @@ When two utilities on an element set the same property, the browser decides usin
 
 Where specificity is equal, the later rule wins. CROFF's order doesn't depend on where classes appear in your markup:
 
-1. Rules without at-rules come first, then breakpoints from narrowest to widest, then other at-rules.
+1. Rules without at-rules come first, then breakpoints from narrowest to widest, then other at-rules, such as `dark:`. So `dark:` beats `md:` when both apply.
 2. Within those, states go in the order of the table above, so `active:` beats `focus:`, which beats `hover:`.
 3. Then utilities in registry order, so `padding-top` beats `padding-x`, which beats `padding`.
 

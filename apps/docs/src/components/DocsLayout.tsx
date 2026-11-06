@@ -139,7 +139,7 @@ export function DocsLayout({
       </aside>
 
       <main
-        id="content"
+        id="main-content"
         className="min-width(0) padding-x(5) md:padding-x(10) padding-y(8) md:padding-y(12)"
       >
         <div className="lg:display(none) margin-bottom(6)">

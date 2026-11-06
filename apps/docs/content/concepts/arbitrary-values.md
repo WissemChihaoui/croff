@@ -11,6 +11,20 @@ Brackets hold raw CSS, for values outside your tokens.
 
 Most utilities accept this form. A few, such as `flex`, don't, because their value isn't a single CSS value. The [utility reference](/docs/utilities/layout) shows which forms each one supports.
 
+## Any CSS property
+
+When there's no utility for a property, put the property inside the brackets as well.
+
+```html compile
+<div
+  class="[break-inside:avoid] md:hover:[text-underline-position:under] [--sidebar-width:16rem]"
+></div>
+```
+
+This takes variants and follows the same rules as any bracket value, including everything below. It sorts after all utilities, so it wins when both set the same property with equal specificity. CROFF doesn't check the property name against a list of real properties, so a typo reaches the stylesheet and the browser ignores it.
+
+The scanner only reads this form in class attributes, class helpers and strings. In plain code, `[key:string]` means something else.
+
 ## Spaces
 
 An underscore is a space.
@@ -54,4 +68,4 @@ Semicolons inside a function are fine, so data URIs work: `bg-image[url(data:ima
 
 ## When to use them
 
-Reach for a token first, and add one if the value recurs. A bracket value marks a deliberate exception, and the syntax makes those easy to find in review.
+Reach for a utility and a token first, and add a token if the value recurs. A bracket marks a deliberate exception, and the syntax makes those easy to find in review.

@@ -63,4 +63,14 @@ function family(property: "padding" | "margin", types: ValueType[]): UtilityDefi
 export const spacingUtilities: UtilityDefinition[] = [
   ...family("padding", spacing()),
   ...family("margin", spacing({ negative: true, auto: true })),
+  ...(["scroll-margin", "scroll-padding"] as const).map((name) =>
+    simple({
+      name,
+      category,
+      description: `Sets the ${name.slice(7)} used when something scrolls into view.`,
+      types: spacing(),
+      properties: [name],
+      examples: [`${name}(4)`, `${name}[5rem_0_0]`],
+    }),
+  ),
 ];

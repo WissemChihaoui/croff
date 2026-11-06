@@ -142,9 +142,9 @@ describe("code examples", () => {
             },
           },
           variants: {
-            first: { selector: "&:first-child" },
+            even: { selector: "&:nth-child(even)" },
             "not-last": { selector: "&:not(:last-child)" },
-            dark: { atRule: "@media (prefers-color-scheme: dark)" },
+            landscape: { atRule: "@media (orientation: landscape)" },
           },
         },
       ],
@@ -367,6 +367,20 @@ describe("built site", () => {
       expect(html, route).toContain("<title>");
       expect(html, route).not.toContain("<!--app-->");
       expect(html.length, route).toBeGreaterThan(2000);
+    }
+  });
+
+  it.runIf(built)("uses each id only once on a page, so that links to a section land on it", () => {
+    const files = [
+      join(dist, "index.html"),
+      ...flatPages().map((page) => join(dist, "docs", page.slug, "index.html")),
+    ];
+    for (const file of files) {
+      const ids = [...readFileSync(file, "utf8").matchAll(/\sid="([^"]+)"/g)].map(
+        (match) => match[1],
+      );
+      const repeated = ids.filter((id, index) => ids.indexOf(id) !== index);
+      expect(repeated, relative(dist, file)).toEqual([]);
     }
   });
 
@@ -625,6 +639,7 @@ describe("error documentation", () => {
     "duplicate-variant",
     "too-deep",
     "unsupported-group",
+    "invalid-property",
     "unknown-utility",
     "unknown-variant",
     "invalid-argument",
@@ -635,6 +650,7 @@ describe("error documentation", () => {
     "unsafe-value",
     "utility-error",
     "unsafe-output",
+    "conflicting-variants",
   ])("documents %s", (code) => {
     expect(source("concepts/parsing")).toContain(`\`${code}\``);
   });

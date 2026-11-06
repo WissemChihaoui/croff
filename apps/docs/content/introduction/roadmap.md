@@ -16,7 +16,8 @@ These are intentions, not commitments, and nothing on this page exists yet.
 
 - Arbitrary variants, for one-off selectors and media queries.
 - An `important` modifier.
-- Container query variants, and a `dark` variant in the core.
+- Container query variants.
+- Keyframes generated from the theme, for `animation`.
 - Composable `ring` and `shadow`, which currently both set `box-shadow`.
 
 ## Tooling

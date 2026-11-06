@@ -102,7 +102,7 @@ export function App({
     <RouterContext.Provider value={router}>
       <div className="min-height(screen) flex(col) bg(ink) text-color(fg) font(sans)">
         <a
-          href="#content"
+          href="#main-content"
           className="position(absolute) z-index(50) left(2) top[-4rem] focus:top(2) padding(2,4) bg(brand) text-color(ink) text-weight(semibold) radius[0.1875rem]"
         >
           Skip to content

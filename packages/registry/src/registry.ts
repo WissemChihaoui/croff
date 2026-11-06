@@ -10,7 +10,7 @@ import type {
   ValueType,
   VariantDefinition,
 } from "./types.js";
-import { breakpointVariants, stateVariants } from "./variants.js";
+import { breakpointVariants, preferenceVariants, stateVariants } from "./variants.js";
 
 const UTILITY_NAME = /^[a-z][a-z0-9-]*$/;
 const VARIANT_NAME = /^[a-z0-9][a-z0-9-]*$/;
@@ -192,6 +192,18 @@ export class Registry {
       }
     }
 
+    const pseudoElements = node.variants.filter((variant) =>
+      this.variants.get(variant.name)?.definition.selector?.includes("::"),
+    );
+    if (pseudoElements.length > 1) {
+      return failure({
+        code: "conflicting-variants",
+        message: `"${pseudoElements[0]!.name}:" and "${pseudoElements[1]!.name}:" can't be combined, because a selector can only target one pseudo-element.`,
+      });
+    }
+
+    if (node.property) return resolveProperty(node);
+
     const definition = this.utilities.get(node.name)?.definition;
     if (!definition) {
       const near = closest(node.name, [...this.utilities.keys()]);
@@ -203,7 +215,9 @@ export class Registry {
               hint: `Did you mean "${near}"?`,
               suggestion: `${node.variants.map((v) => `${v.name}:`).join("")}${near}${node.source.slice(node.nameSpan.end)}`,
             }
-          : {}),
+          : node.arbitrary
+            ? { hint: `To set any CSS property, write [${node.name}:${node.arbitrary.raw}].` }
+            : {}),
       });
     }
 
@@ -221,7 +235,7 @@ export class Registry {
       });
     }
     if ("error" in result) return failure(result.error);
-    const unsafe = unsafeOutput(definition, node, result.declarations);
+    const unsafe = unsafeOutput(owner(definition), node, result.declarations);
     return unsafe
       ? failure(unsafe)
       : { ok: true, node, declarations: Object.entries(result.declarations) };
@@ -235,13 +249,13 @@ function owner(definition: UtilityDefinition): string {
 
 /** Checks declarations before they reach the stylesheet, where a bad one could break other rules. */
 function unsafeOutput(
-  definition: UtilityDefinition,
+  source: string,
   node: UtilityNode,
   declarations: unknown,
 ): ResolveError | undefined {
   const problem = (detail: string): ResolveError => ({
     code: "unsafe-output",
-    message: `${owner(definition)} produced unusable CSS for "${node.source}": ${detail}`,
+    message: `${source} produced unusable CSS for "${node.source}": ${detail}`,
   });
   if (typeof declarations !== "object" || declarations === null) {
     return problem("expected an object of declarations.");
@@ -255,6 +269,14 @@ function unsafeOutput(
     }
   }
   return undefined;
+}
+
+function resolveProperty(node: UtilityNode): ResolvedUtility {
+  const normalized = normalizeArbitraryValue(node.arbitrary!.value);
+  if (!normalized.ok) return failure({ code: "unsafe-value", message: normalized.message });
+  const declarations = { [node.name]: normalized.value };
+  const unsafe = unsafeOutput("This property", node, declarations);
+  return unsafe ? failure(unsafe) : { ok: true, node, declarations: Object.entries(declarations) };
 }
 
 function failure(error: ResolveError): ResolvedUtility {
@@ -395,5 +417,6 @@ export function buildRegistry(theme: ResolvedTheme, utilities: UtilityDefinition
   for (const utility of utilities) registry.addUtility(utility);
   for (const variant of stateVariants) registry.addVariant(variant);
   for (const variant of breakpointVariants(theme)) registry.addVariant(variant);
+  for (const variant of preferenceVariants) registry.addVariant(variant);
   return registry;
 }

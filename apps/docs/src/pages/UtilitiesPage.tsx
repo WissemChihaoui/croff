@@ -1,4 +1,10 @@
-import { builtinUtilities, createCroff, stateVariants, type UtilityDefinition } from "@croff/core";
+import {
+  builtinUtilities,
+  createCroff,
+  preferenceVariants,
+  stateVariants,
+  type UtilityDefinition,
+} from "@croff/core";
 import { CodeBlock } from "../components/Code";
 import { DocsLayout } from "../components/DocsLayout";
 import {
@@ -128,7 +134,7 @@ function Interactions() {
         </Link>{" "}
         for how they compose and order.
       </p>
-      {stateVariants.map((variant) => (
+      {[...stateVariants, ...preferenceVariants].map((variant) => (
         <section key={variant.name} className="padding-top(8) margin-top(10) border-top(1,line)">
           <h2
             id={variant.name}
@@ -194,7 +200,7 @@ export function UtilitiesPage({ page }: { page: NavPage }) {
   const interactions = page.category === "interactions";
   const headings: Heading[] = interactions
     ? [
-        ...stateVariants.map((variant) => ({
+        ...[...stateVariants, ...preferenceVariants].map((variant) => ({
           id: variant.name,
           text: `${variant.name}:`,
           level: 2,

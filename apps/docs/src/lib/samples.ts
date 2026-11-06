@@ -91,6 +91,24 @@ export const ANATOMY: { name: string; source: string; parts: AnatomyPart[] }[] =
     ],
   },
   {
+    name: "Any property",
+    source: "print:[break-inside:avoid]",
+    parts: [
+      {
+        text: "print:",
+        kind: "variant",
+        label: "Preference",
+        note: "Also dark: and motion-reduce:. They follow what the visitor's device asks for.",
+      },
+      {
+        text: "[break-inside:avoid]",
+        kind: "raw",
+        label: "Arbitrary property",
+        note: "No utility for it? Write the property and its value. The same safety checks apply.",
+      },
+    ],
+  },
+  {
     name: "Raw CSS",
     source: "lg:width[calc(100%-2rem)]",
     parts: [

@@ -18,9 +18,6 @@ const clampText = definePlugin({
       }),
     },
   },
-  variants: {
-    first: { selector: "&:first-child" },
-  },
 });
 
 export default defineConfig({

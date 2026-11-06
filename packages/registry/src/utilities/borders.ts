@@ -1,5 +1,5 @@
 import type { Declarations, UtilityDefinition, UtilityInput } from "../types.js";
-import { color, cssVar, integer, keywords, token, words } from "../values.js";
+import { color, cssVar, integer, keywords, spacing, token, words } from "../values.js";
 import { simple } from "./helpers.js";
 
 const category = "borders";
@@ -139,4 +139,21 @@ export const borderUtilities: UtilityDefinition[] = [
     notes:
       "ring and shadow both set box-shadow and do not compose. ring wins when both apply, because it comes later in the output.",
   },
+  simple({
+    name: "border-collapse",
+    category,
+    description: "Sets whether table cells share their borders.",
+    types: [words("collapse", "separate")],
+    properties: ["border-collapse"],
+    arbitrary: false,
+    examples: ["border-collapse(collapse)"],
+  }),
+  simple({
+    name: "border-spacing",
+    category,
+    description: "Sets the space between the borders of table cells.",
+    types: spacing(),
+    properties: ["border-spacing"],
+    examples: ["border-spacing(2)", "border-spacing[2px_4px]"],
+  }),
 ];

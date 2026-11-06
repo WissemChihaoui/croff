@@ -1,5 +1,5 @@
 import type { UtilityDefinition } from "../types.js";
-import { integer, keywords, spacing } from "../values.js";
+import { integer, keywords, spacing, words } from "../values.js";
 import { simple } from "./helpers.js";
 
 const category = "grid";
@@ -105,4 +105,58 @@ export const gridUtilities: UtilityDefinition[] = [
     arbitrary: ["grid-column"],
     examples: ["grid-span(2)", "grid-span(full)", "grid-span(2,3)", "grid-span[1_/_3]"],
   },
+  ...(
+    [
+      ["grid-auto-rows", "rows"],
+      ["grid-auto-columns", "columns"],
+    ] as const
+  ).map(([name, tracks]) =>
+    simple({
+      name,
+      category,
+      description: `Sets the size of ${tracks} that are created automatically.`,
+      types: [
+        keywords({
+          auto: "auto",
+          min: "min-content",
+          max: "max-content",
+          fr: "minmax(0, 1fr)",
+        }),
+      ],
+      properties: [name],
+      examples: [`${name}(fr)`, `${name}(auto)`, `${name}[minmax(4rem,auto)]`],
+    }),
+  ),
+  simple({
+    name: "grid-row",
+    category,
+    description: "Makes an item span rows.",
+    types: [
+      keywords({ full: "1 / -1" }),
+      integer({
+        min: 1,
+        max: 64,
+        format: (count) => `span ${count} / span ${count}`,
+        label: "span, 1–64",
+      }),
+    ],
+    properties: ["grid-row"],
+    examples: ["grid-row(2)", "grid-row(full)", "grid-row[1_/_3]"],
+  }),
+  simple({
+    name: "grid-area",
+    category,
+    description: "Places an item in a named area, or between grid lines.",
+    types: [words("auto")],
+    properties: ["grid-area"],
+    examples: ["grid-area(auto)", "grid-area[header]", "grid-area[1_/_2_/_3_/_4]"],
+  }),
+  simple({
+    name: "grid-areas",
+    category,
+    description: "Names the areas of a grid.",
+    types: [words("none")],
+    properties: ["grid-template-areas"],
+    examples: ["grid-areas(none)", "grid-areas['head_head'_'side_main']"],
+  }),
 ];

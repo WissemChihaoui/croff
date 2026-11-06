@@ -70,6 +70,8 @@ export const nav: NavSection[] = [
       utilities("Backgrounds", "backgrounds"),
       utilities("Borders", "borders"),
       utilities("Effects", "effects"),
+      utilities("Behavior", "behavior"),
+      utilities("SVG", "svg"),
       utilities("Interactions", "interactions"),
     ],
   },

@@ -297,6 +297,42 @@ describe("tagged templates", () => {
   });
 });
 
+describe("arbitrary properties", () => {
+  it("finds them in a class, with or without variants", () => {
+    expect(
+      extractCandidates('<a class="[float:left] md:hover:[clear:both]">').candidates,
+    ).toMatchObject([
+      { expression: "[float:left]", context: "class" },
+      { expression: "md:hover:[clear:both]", context: "class" },
+    ]);
+  });
+
+  it("finds them in strings and class helpers", () => {
+    expect(expressions('const a = "[float:left]"; cx("[clear:both]")')).toEqual([
+      "[float:left]",
+      "[clear:both]",
+    ]);
+  });
+
+  it("ignores them in plain code, where brackets mean something else", () => {
+    expect(expressions("interface A { [key:string]: number }\nconst b = x ? [a:b] : c;")).toEqual(
+      [],
+    );
+    expect(expressions("const a = { foo:[bar:baz] };\n[note:hello]\n")).toEqual([]);
+  });
+
+  it("still reads an array of class names", () => {
+    expect(expressions('<a class={["gap(4)", "[float:left]"]}>')).toEqual([
+      "gap(4)",
+      "[float:left]",
+    ]);
+  });
+
+  it("ignores brackets without a property", () => {
+    expect(expressions('"[1,2]" "[foo]" "[:x]" "[1:2]"')).toEqual([]);
+  });
+});
+
 describe("robustness", () => {
   it("handles empty, huge and unbalanced input", () => {
     expect(expressions("")).toEqual([]);

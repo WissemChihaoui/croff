@@ -39,7 +39,7 @@ function whitespaceError(start: number): ParseError {
 }
 
 /** Decodes bracket text: `_` becomes a space, except in `url(...)`, and CROFF escapes resolve. */
-function decodeBracket(raw: string): string {
+export function decodeBracket(raw: string): string {
   let out = "";
   let urlDepth = 0;
   let depth = 0;

@@ -1,6 +1,6 @@
 import type { ArgumentNode, ArbitraryNode, Span, UtilityNode, VariantNode } from "./ast.js";
 import type { ParseError } from "./errors.js";
-import { tokenize, type Token } from "./tokenizer.js";
+import { decodeBracket, tokenize, type Token } from "./tokenizer.js";
 
 export type ParseResult = { ok: true; node: UtilityNode } | { ok: false; error: ParseError };
 
@@ -9,6 +9,7 @@ const MAX_DEPTH = 16;
 const UTILITY_NAME = /^[a-z][a-z0-9-]*$/;
 const VARIANT_NAME = /^[a-z0-9][a-z0-9-]*$/;
 const FUNCTION_NAME = /^[a-z-][a-z0-9-]*$/;
+const PROPERTY_NAME = /^(--[a-zA-Z0-9_-]+|-?[a-z][a-z0-9-]*)$/;
 
 /**
  * Variants followed by an opening parenthesis, as in `md:hover:(`. CROFF has no
@@ -23,6 +24,39 @@ class Failure {
 
 function fail(code: ParseError["code"], message: string, span: Span, hint?: string): never {
   throw new Failure({ code, message, span, ...(hint ? { hint } : {}) });
+}
+
+/** Reads `[property:value]`. Only the value is decoded, so a custom property keeps its underscores. */
+function parseProperty(
+  token: Extract<Token, { kind: "bracket" }>,
+): Pick<UtilityNode, "name" | "nameSpan" | "arguments" | "arbitrary" | "property"> {
+  const colon = token.raw.indexOf(":");
+  const name = token.raw.slice(0, Math.max(colon, 0));
+  if (!PROPERTY_NAME.test(name)) {
+    fail(
+      "invalid-property",
+      `"${token.raw}" doesn't start with a CSS property name.`,
+      token.span,
+      "Write a property and a value, such as [float:left], or put a bracket value after a utility, such as width[320px].",
+    );
+  }
+  const raw = token.raw.slice(colon + 1);
+  if (raw.length === 0) {
+    fail("empty-bracket", `The property "${name}" has no value.`, token.span);
+  }
+  const start = token.span.start + 1;
+  return {
+    name,
+    nameSpan: { start, end: start + name.length },
+    arguments: [],
+    arbitrary: {
+      type: "arbitrary",
+      raw,
+      value: decodeBracket(raw),
+      span: { start: start + colon + 1, end: token.span.end - 1 },
+    },
+    property: true,
+  };
 }
 
 class Parser {
@@ -58,6 +92,9 @@ class Parser {
     }
 
     const nameToken = this.next();
+    if (nameToken.kind === "bracket") {
+      return this.finish(source, base, variants, parseProperty(nameToken));
+    }
     if (nameToken.kind !== "word") {
       fail("unexpected-token", "Expected a utility name.", nameToken.span);
     }
@@ -89,21 +126,25 @@ class Parser {
       fail("unexpected-token", `Expected "(" or "[" after "${nameToken.value}".`, after.span);
     }
 
+    return this.finish(source, base, variants, {
+      name: nameToken.value,
+      nameSpan: nameToken.span,
+      arguments: args,
+      ...(arbitrary ? { arbitrary } : {}),
+    });
+  }
+
+  private finish(
+    source: string,
+    span: Span,
+    variants: VariantNode[],
+    body: Pick<UtilityNode, "name" | "nameSpan" | "arguments" | "arbitrary" | "property">,
+  ): UtilityNode {
     const end = this.peek();
     if (end.kind !== "eof") {
       fail("unexpected-token", "Unexpected text after the end of the utility.", end.span);
     }
-
-    return {
-      type: "utility",
-      source,
-      name: nameToken.value,
-      nameSpan: nameToken.span,
-      variants,
-      arguments: args,
-      ...(arbitrary ? { arbitrary } : {}),
-      span: base,
-    };
+    return { type: "utility", source, variants, span, ...body };
   }
 
   private parseCall(depth: number): { args: ArgumentNode[]; end: number } {

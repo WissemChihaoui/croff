@@ -10,7 +10,8 @@ import { layoutUtilities } from "./utilities/layout.js";
 import { sizingUtilities } from "./utilities/sizing.js";
 import { spacingUtilities } from "./utilities/spacing.js";
 import { typographyUtilities } from "./utilities/typography.js";
-import { stateVariants } from "./variants.js";
+import { behaviorUtilities, svgUtilities } from "./utilities/behavior.js";
+import { preferenceVariants, stateVariants } from "./variants.js";
 
 /**
  * Every built-in utility. Order matters: it is the cascade order of the
@@ -26,6 +27,8 @@ export const builtinUtilities: UtilityDefinition[] = [
   ...backgroundUtilities,
   ...borderUtilities,
   ...effectUtilities,
+  ...behaviorUtilities,
+  ...svgUtilities,
 ];
 
 /** Documentation categories, in display order. */
@@ -39,6 +42,8 @@ export const utilityCategories = [
   "backgrounds",
   "borders",
   "effects",
+  "behavior",
+  "svg",
 ] as const;
 
 /** Creates a registry holding the built-in utilities and variants for a theme. */
@@ -53,7 +58,7 @@ export function createRegistry(theme: ResolvedTheme): Registry {
 export function reservedTokenIssues(theme: ResolvedTheme): ThemeIssue[] {
   const issues: ThemeIssue[] = [];
   for (const token of tokenNames(theme, "breakpoints")) {
-    if (stateVariants.some((variant) => variant.name === token)) {
+    if ([...stateVariants, ...preferenceVariants].some((variant) => variant.name === token)) {
       issues.push({
         code: "reserved-token",
         scale: "breakpoints",
@@ -111,4 +116,4 @@ export type {
   VariantDefinition,
 } from "./types.js";
 export * as values from "./values.js";
-export { breakpointVariants, stateVariants } from "./variants.js";
+export { breakpointVariants, preferenceVariants, stateVariants } from "./variants.js";

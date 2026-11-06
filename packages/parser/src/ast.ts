@@ -53,5 +53,7 @@ export interface UtilityNode {
   arguments: ArgumentNode[];
   /** Present only for the bracket form. */
   arbitrary?: ArbitraryNode;
+  /** Set for `[property:value]`, where `name` is a CSS property and not a utility. */
+  property?: true;
   span: Span;
 }

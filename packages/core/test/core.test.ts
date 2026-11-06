@@ -104,8 +104,8 @@ describe("plugins", () => {
       },
     },
     variants: {
-      dark: { atRule: "@media (prefers-color-scheme: dark)" },
-      first: { selector: "&:first-child" },
+      landscape: { atRule: "@media (orientation: landscape)" },
+      even: { selector: "&:nth-child(even)" },
     },
   });
 
@@ -113,14 +113,14 @@ describe("plugins", () => {
     const { css, failures } = createCroff({ plugins: [plugin] }).compile([
       "tab-size(4)",
       "bg(pink)",
-      "dark:first:gradient(sunrise)",
+      "landscape:even:gradient(sunrise)",
     ]);
     expect(failures).toEqual([]);
     expect(css).toContain("--croff-color-pink: #ff00aa;");
     expect(css).toContain("--croff-gradients-sunrise: linear-gradient(red,blue);");
     expect(css).toContain("tab-size: 4;");
-    expect(css).toContain("@media (prefers-color-scheme: dark)");
-    expect(css).toContain(".dark\\:first\\:gradient\\(sunrise\\):first-child");
+    expect(css).toContain("@media (orientation: landscape)");
+    expect(css).toContain(".landscape\\:even\\:gradient\\(sunrise\\):nth-child(even)");
   });
 
   it("gives the user's theme priority over plugins", () => {
@@ -148,11 +148,11 @@ describe("plugins", () => {
 
   it("orders breakpoint variants before plugin at-rules", () => {
     const { rules } = createCroff({ plugins: [plugin] }).compile([
-      "dark:gap(4)",
+      "landscape:gap(4)",
       "xl:gap(4)",
       "gap(4)",
     ]);
-    expect(rules.map((r) => r.expression)).toEqual(["gap(4)", "xl:gap(4)", "dark:gap(4)"]);
+    expect(rules.map((r) => r.expression)).toEqual(["gap(4)", "xl:gap(4)", "landscape:gap(4)"]);
   });
 
   it("rejects conflicts unless the plugin opts in", () => {
@@ -371,6 +371,230 @@ describe("theme names that clash with the language", () => {
     ]);
     expect(createCroff({ theme }, { strict: false }).compile(["md:gap(4)"]).failures).toEqual([]);
   });
+});
+
+describe("everyday variants", () => {
+  const croff = createCroff();
+  const rule = (expression: string) => {
+    const { rules, failures } = croff.compile([expression]);
+    expect(failures).toEqual([]);
+    return rules[0]!;
+  };
+
+  it.each([
+    ["dark:gap(4)", "@media (prefers-color-scheme: dark)"],
+    ["motion-reduce:transition(none)", "@media (prefers-reduced-motion: reduce)"],
+    ["print:display(none)", "@media print"],
+  ])("wraps %s in an at-rule", (expression, atRule) => {
+    expect(rule(expression).atRules).toEqual([atRule]);
+  });
+
+  it("nests a preference inside a breakpoint, and sorts it after them", () => {
+    expect(rule("md:dark:gap(4)").atRules).toEqual([
+      "@media (min-width: 768px)",
+      "@media (prefers-color-scheme: dark)",
+    ]);
+    const { rules } = croff.compile(["dark:gap(4)", "2xl:gap(4)", "gap(4)"]);
+    expect(rules.map((r) => r.expression)).toEqual(["gap(4)", "2xl:gap(4)", "dark:gap(4)"]);
+  });
+
+  it.each([
+    ["first:gap(4)", ":first-child"],
+    ["last:gap(4)", ":last-child"],
+    ["before:gap(4)", "::before"],
+    ["after:gap(4)", "::after"],
+  ])("adds the selector for %s", (expression, suffix) => {
+    expect(rule(expression).selector.endsWith(suffix)).toBe(true);
+  });
+
+  it("gives before: and after: an empty content, so that they render", () => {
+    expect(rule("before:bg(brand)").declarations).toEqual([
+      ["content", 'var(--croff-content, "")'],
+      ["background-color", "var(--croff-color-brand)"],
+    ]);
+  });
+
+  it("lets content replace that default", () => {
+    expect(rule("before:content['x']").declarations).toEqual([
+      ["--croff-content", "'x'"],
+      ["content", "var(--croff-content)"],
+    ]);
+    expect(rule("before:[content:none]").declarations).toEqual([["content", "none"]]);
+    expect(rule("after:content(none)").declarations).toEqual([
+      ["--croff-content", "none"],
+      ["content", "var(--croff-content)"],
+    ]);
+  });
+
+  it("puts a pseudo-element last, wherever it was written", () => {
+    for (const expression of ["before:hover:gap(4)", "hover:before:gap(4)"]) {
+      expect(rule(expression).selector.endsWith(":hover::before")).toBe(true);
+    }
+    expect(rule("before:group-hover:gap(4)").selector).toMatch(/^\.group:hover .*::before$/);
+  });
+
+  it("refuses two pseudo-elements at once", () => {
+    expect(croff.compile(["before:after:gap(4)"]).failures).toMatchObject([
+      { error: { code: "conflicting-variants" } },
+    ]);
+  });
+
+  it("reserves their names in the theme", () => {
+    expect(
+      createCroff(
+        { theme: { breakpoints: { dark: "1px", first: "2px", print: "3px" } } },
+        { strict: false },
+      ).issues.map((issue) => [issue.code, issue.token]),
+    ).toEqual([
+      ["reserved-token", "dark"],
+      ["reserved-token", "first"],
+      ["reserved-token", "print"],
+    ]);
+  });
+
+  it("lets a plugin switch dark: to a class", () => {
+    const plugin = definePlugin({
+      name: "croff-plugin-dark-class",
+      override: true,
+      variants: { dark: { selector: ".dark &" } },
+    });
+    const { rules } = createCroff({ plugins: [plugin] }).compile(["dark:gap(4)"]);
+    expect(rules[0]!.atRules).toEqual([]);
+    expect(rules[0]!.selector).toMatch(/^\.dark \./);
+  });
+});
+
+describe("arbitrary properties", () => {
+  const croff = createCroff();
+
+  it("sets any property", () => {
+    const { rules, failures } = croff.compile(["hover:[tab-size:4]"]);
+    expect(failures).toEqual([]);
+    expect(rules[0]).toMatchObject({
+      selector: ".hover\\:\\[tab-size\\:4\\]:hover",
+      declarations: [["tab-size", "4"]],
+    });
+  });
+
+  it("spaces math and sets custom properties, like other bracket values", () => {
+    expect(croff.compile(["[--width:calc(100%-1px)]"]).rules[0]!.declarations).toEqual([
+      ["--width", "calc(100% - 1px)"],
+    ]);
+  });
+
+  it.each(["[tab-size:4;color:red]", "[tab-size:4}body{color:red]", "[tab-size:url(a]"])(
+    "refuses %s, which could break out of the rule",
+    (expression) => {
+      const { failures, css } = croff.compile([expression]);
+      expect(failures[0]!.error.code).toMatch(
+        /^(unsafe-value|unbalanced-bracket|unterminated-bracket)$/,
+      );
+      expect(css).toBe("");
+    },
+  );
+
+  it("sorts after every utility, so that it wins an equal contest", () => {
+    const { rules } = croff.compile(["[width:1px]", "width(4)", "transform(none)", "scale(105)"]);
+    expect(rules.at(-1)!.expression).toBe("[width:1px]");
+  });
+
+  it("is checked against plugins' variants like any other expression", () => {
+    expect(croff.compile(["nope:[float:left]"]).failures).toMatchObject([
+      { error: { code: "unknown-variant" } },
+    ]);
+  });
+
+  it("is suggested when a bracket value names no utility", () => {
+    const { hint } = croff.compile(["tabsize[4]"]).failures[0]!.error as { hint?: string };
+    expect(hint).toContain("[tabsize:4]");
+  });
+});
+
+describe("added utilities", () => {
+  const croff = createCroff();
+
+  it.each([
+    ["overflow-x(auto)", "overflow-x", "auto"],
+    ["overflow-y(hidden)", "overflow-y", "hidden"],
+    ["object-fit(cover)", "object-fit", "cover"],
+    ["float(left)", "float", "left"],
+    ["clear(both)", "clear", "both"],
+    ["box-sizing(border)", "box-sizing", "border-box"],
+    ["table-layout(fixed)", "table-layout", "fixed"],
+    ["order(first)", "order", "-9999"],
+    ["order(3)", "order", "3"],
+    ["align-self(center)", "align-self", "center"],
+    ["align-content(between)", "align-content", "space-between"],
+    ["justify-self(end)", "justify-self", "end"],
+    ["place-items(center)", "place-items", "center"],
+    ["grid-auto-rows(fr)", "grid-auto-rows", "minmax(0, 1fr)"],
+    ["grid-row(2)", "grid-row", "span 2 / span 2"],
+    ["grid-area(auto)", "grid-area", "auto"],
+    ["grid-areas['a_b'_'c_c']", "grid-template-areas", "'a b' 'c c'"],
+    ["scroll-margin(4)", "scroll-margin", "var(--croff-spacing-4)"],
+    ["font-style(italic)", "font-style", "italic"],
+    ["text-overflow(ellipsis)", "text-overflow", "ellipsis"],
+    ["word-break(all)", "word-break", "break-all"],
+    ["overflow-wrap(anywhere)", "overflow-wrap", "anywhere"],
+    ["hyphens(auto)", "hyphens", "auto"],
+    ["vertical-align(middle)", "vertical-align", "middle"],
+    ["list-style(disc)", "list-style-type", "disc"],
+    ["text-wrap(balance)", "text-wrap", "balance"],
+    ["text-columns(3)", "columns", "3"],
+    ["text-decoration-color(brand)", "text-decoration-color", "var(--croff-color-brand)"],
+    ["underline-offset(4)", "text-underline-offset", "4px"],
+    ["text-shadow(none)", "text-shadow", "none"],
+    ["bg-repeat(none)", "background-repeat", "no-repeat"],
+    ["bg-clip(text)", "background-clip", "text"],
+    ["bg-attachment(fixed)", "background-attachment", "fixed"],
+    ["border-collapse(collapse)", "border-collapse", "collapse"],
+    ["border-spacing(2)", "border-spacing", "var(--croff-spacing-2)"],
+    ["filter(blur(4px),grayscale(100%))", "filter", "blur(4px) grayscale(100%)"],
+    ["backdrop-filter(blur(8px))", "backdrop-filter", "blur(8px)"],
+    ["mix-blend(multiply)", "mix-blend-mode", "multiply"],
+    ["clip-path(none)", "clip-path", "none"],
+    ["mask-image(none)", "mask-image", "none"],
+    ["animation(none)", "animation", "none"],
+    ["animation[spin_1s_linear_infinite]", "animation", "spin 1s linear infinite"],
+    ["delay(fast)", "transition-delay", "var(--croff-duration-fast)"],
+    ["delay(150)", "transition-delay", "150ms"],
+    ["ease(linear)", "transition-timing-function", "linear"],
+    ["transform-origin(top-left)", "transform-origin", "top left"],
+    ["will-change(transform)", "will-change", "transform"],
+    ["pointer-events(none)", "pointer-events", "none"],
+    ["user-select(none)", "user-select", "none"],
+    ["resize(y)", "resize", "vertical"],
+    ["appearance(none)", "appearance", "none"],
+    ["accent-color(brand)", "accent-color", "var(--croff-color-brand)"],
+    ["caret-color(brand)", "caret-color", "var(--croff-color-brand)"],
+    ["scroll-behavior(smooth)", "scroll-behavior", "smooth"],
+    ["touch-action(manipulation)", "touch-action", "manipulation"],
+    ["scroll-snap-type(x)", "scroll-snap-type", "x mandatory"],
+    ["scroll-snap-align(start)", "scroll-snap-align", "start"],
+    ["fill(brand)", "fill", "var(--croff-color-brand)"],
+    ["fill(none)", "fill", "none"],
+    ["stroke(brand)", "stroke", "var(--croff-color-brand)"],
+    ["stroke-width(2)", "stroke-width", "2"],
+  ])("compiles %s", (expression, property, value) => {
+    const { rules, failures } = croff.compile([expression]);
+    expect(failures).toEqual([]);
+    expect(rules[0]!.declarations).toContainEqual([property, value]);
+  });
+
+  it("makes truncate() a single call", () => {
+    expect(croff.compile(["truncate()"]).rules[0]!.declarations).toEqual([
+      ["overflow", "hidden"],
+      ["text-overflow", "ellipsis"],
+      ["white-space", "nowrap"],
+    ]);
+  });
+
+  it.each(["filter(script(1))", "filter(blur(1px;))", "filter(blur)", "filter(blur(1px,2px))"])(
+    "rejects %s in the checked form",
+    (expression) => {
+      expect(croff.compile([expression]).failures).toHaveLength(1);
+    },
+  );
 });
 
 describe("project", () => {

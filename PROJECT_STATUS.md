@@ -43,6 +43,7 @@ Recorded in [docs/adr](./docs/adr):
 6. Docs on Vite and React with prerendering. The playground is a route, not a separate app.
 7. `croff.config.ts`, loaded with jiti.
 8. Variant groups were implemented, evaluated and rejected. There's no grouping syntax, and `hover:(...)` reports `unsupported-group`.
+9. `[property:value]` sets any CSS property, for properties without a utility.
 
 Other deviations from the original plan:
 

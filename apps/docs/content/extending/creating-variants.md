@@ -11,11 +11,10 @@ import { definePlugin } from "@croff/core";
 export default definePlugin({
   name: "croff-plugin-variants",
   variants: {
-    first: { selector: "&:first-child" },
+    even: { selector: "&:nth-child(even)" },
     "not-last": { selector: "&:not(:last-child)" },
     checked: { selector: "&:checked" },
-    dark: { atRule: "@media (prefers-color-scheme: dark)" },
-    print: { atRule: "@media print" },
+    landscape: { atRule: "@media (orientation: landscape)" },
     motion: { atRule: "@media (prefers-reduced-motion: no-preference)" },
     "parent-open": { selector: ".open &" },
   },

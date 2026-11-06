@@ -26,7 +26,7 @@ const typography = definePlugin({
     },
   },
   variants: {
-    first: { selector: "&:first-child" },
+    even: { selector: "&:nth-child(even)" },
   },
 });
 
@@ -36,7 +36,7 @@ export default defineConfig({
 ```
 
 ```html
-<p class="first:line-clamp(2)">A long paragraph.</p>
+<p class="even:line-clamp(2)">A long paragraph.</p>
 ```
 
 ## Lifecycle

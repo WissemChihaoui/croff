@@ -175,6 +175,39 @@ export function transformFunction(): ValueType {
   };
 }
 
+const FILTER_FUNCTIONS = [
+  "blur",
+  "brightness",
+  "contrast",
+  "grayscale",
+  "hue-rotate",
+  "invert",
+  "opacity",
+  "saturate",
+  "sepia",
+];
+
+const FILTER_ARGUMENT = /^(\d+\.?\d*|\.\d+)(px|rem|em|%|deg|turn|rad)?$/;
+
+/** A CSS filter function with one literal argument, e.g. `blur(4px)`. */
+export function filterFunction(): ValueType {
+  return {
+    kind: "function",
+    describe: () => ({
+      label: "filter function",
+      values: FILTER_FUNCTIONS.map((name) => `${name}(…)`),
+    }),
+    resolve(argument) {
+      if (argument.type !== "call" || !FILTER_FUNCTIONS.includes(argument.name)) return undefined;
+      const [value, ...rest] = argument.arguments;
+      if (rest.length > 0 || value?.type !== "word" || !FILTER_ARGUMENT.test(value.value)) {
+        return undefined;
+      }
+      return `${argument.name}(${value.value})`;
+    },
+  };
+}
+
 /** Colors accept tokens, a few keywords, `alpha()` and `var()`. */
 export function color(): ValueType[] {
   const types: ValueType[] = [

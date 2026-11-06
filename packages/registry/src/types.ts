@@ -85,6 +85,8 @@ export interface VariantDefinition {
   description?: string;
   /** Marks variants derived from the theme's breakpoints. */
   breakpoint?: { width: number };
+  /** Declarations added to every rule using this variant, unless the utility sets them itself. */
+  declarations?: Declarations;
 }
 
 export type ResolveErrorCode =
@@ -97,7 +99,8 @@ export type ResolveErrorCode =
   | "bracket-not-supported"
   | "unsafe-value"
   | "utility-error"
-  | "unsafe-output";
+  | "unsafe-output"
+  | "conflicting-variants";
 
 export interface ResolveError {
   code: ResolveErrorCode;

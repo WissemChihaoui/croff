@@ -8,11 +8,12 @@ The first release, for public testing. Nothing has been published to a package r
 - Call form `name(...)` for validated values, and bracket form `name[...]` for raw CSS.
 - Nested functions: `alpha()`, `var()` and transform functions.
 - `color()` and `scale()`: concise, preferred names for setting text color and scaling.
-- Variants that compose: seven state variants, and responsive variants from your theme's breakpoints.
+- Variants that compose: states such as `hover:` and `first:`, the `before:` and `after:` boxes, the preferences `dark:`, `motion-reduce:` and `print:`, and responsive variants from your theme's breakpoints.
+- `[property:value]` for setting any CSS property, with the same safety checks as other bracket values.
 
 ### Compiler
 
-- About 80 utilities across layout, flexbox, grid, sizing, spacing, typography, backgrounds, borders and effects.
+- About 150 utilities across layout, flexbox, grid, sizing, spacing, typography, backgrounds, borders, effects, behavior and SVG.
 - One atomic rule per expression, with the expression as an escaped selector.
 - Deterministic output, independent of input order.
 - Only the rules and theme variables in use are emitted.

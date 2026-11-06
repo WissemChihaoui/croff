@@ -74,6 +74,7 @@ Both are reported by `croff check` and fail `croff build`. Neither stops other e
 | `empty-argument`       | `gap(4,)`                 |
 | `unterminated-bracket` | `width[`                  |
 | `unbalanced-bracket`   | `width[1px)]`             |
+| `invalid-property`     | `[left]`                  |
 | `empty-bracket`        | `width[]`                 |
 | `misplaced-bracket`    | `gap([1px])`              |
 | `trailing-escape`      | `gap(4)\`                 |
@@ -99,6 +100,7 @@ These come from the registry, so the same expression can be valid in one project
 | `call-not-supported`    | A plugin utility that only takes a bracket value.   |
 | `bracket-not-supported` | `flex[row]`                                         |
 | `unsafe-value`          | `width[1px;color:red]`                              |
+| `conflicting-variants`  | `before:after:gap(4)`                               |
 | `utility-error`         | A plugin utility that throws an exception.          |
 | `unsafe-output`         | A plugin utility that returns `1px}body{color:red`. |
 

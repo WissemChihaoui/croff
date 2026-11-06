@@ -194,7 +194,13 @@ export type {
   SourceLocation,
   SourceMapV3,
 } from "@croff/compiler";
-export { builtinUtilities, stateVariants, utilityCategories, values } from "@croff/registry";
+export {
+  builtinUtilities,
+  preferenceVariants,
+  stateVariants,
+  utilityCategories,
+  values,
+} from "@croff/registry";
 export type {
   ArgumentSpec,
   Declarations,

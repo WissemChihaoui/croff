@@ -78,6 +78,9 @@ function endsExpression(source: string, end: number): boolean {
 const CANDIDATE_SHAPE =
   /^(?:(?:[a-z0-9][a-z0-9-]*:)+\(|(?:[a-z0-9][a-z0-9-]*:)*[a-z][a-z0-9-]*[([])/;
 
+/** Variant prefixes then `[property:`. Plain code uses this shape too, so only strings and classes count. */
+const PROPERTY_SHAPE = /^(?:[a-z0-9][a-z0-9-]*:)*\[(?:--[a-zA-Z0-9_-]+|-?[a-z][a-z0-9-]*):/;
+
 interface Span {
   start: number;
   end: number;
@@ -318,8 +321,8 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
       isQuote(previous) ||
       previous === 61 ||
       followsWhitespaceEscape(source, i);
-    // Only letters and digits can start an expression.
-    const startsWord = (code >= 97 && code <= 122) || (code >= 48 && code <= 57);
+    // Only letters, digits and the bracket of an arbitrary property can start an expression.
+    const startsWord = (code >= 97 && code <= 122) || (code >= 48 && code <= 57) || code === 91;
     if (!atBoundary || !startsWord) {
       i++;
       continue;
@@ -333,7 +336,8 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
 
     const token = readToken(source, i);
     const text = source.slice(i, token.end);
-    if (!CANDIDATE_SHAPE.test(text)) {
+    const isProperty = PROPERTY_SHAPE.test(text);
+    if (!isProperty && !CANDIDATE_SHAPE.test(text)) {
       // Not an expression; move past this word, but stay inside any brackets it opens.
       i = Math.max(i + 1, firstBreak(source, i));
       continue;
@@ -341,6 +345,11 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
 
     const context: CandidateContext =
       inDirective || inClassRegion(i) ? "class" : isQuote(previous) ? "string" : "code";
+    if (isProperty && context === "code") {
+      i = Math.max(i + 1, firstBreak(source, i));
+      continue;
+    }
+
     const endsCleanly =
       endsExpression(source, token.end) || (inDirective && source[token.end] === "=");
 

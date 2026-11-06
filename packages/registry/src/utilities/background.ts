@@ -63,4 +63,47 @@ export const backgroundUtilities: UtilityDefinition[] = [
     properties: ["background-position"],
     examples: ["bg-position(center)", "bg-position[10%_20%]"],
   }),
+  simple({
+    name: "bg-repeat",
+    category,
+    description: "Sets how a background image repeats.",
+    types: [
+      keywords({
+        repeat: "repeat",
+        none: "no-repeat",
+        x: "repeat-x",
+        y: "repeat-y",
+        round: "round",
+        space: "space",
+      }),
+    ],
+    properties: ["background-repeat"],
+    arbitrary: false,
+    examples: ["bg-repeat(none)", "bg-repeat(x)"],
+  }),
+  simple({
+    name: "bg-clip",
+    category,
+    description: "Sets how far a background extends. Use text for gradient text.",
+    types: [
+      keywords({
+        border: "border-box",
+        padding: "padding-box",
+        content: "content-box",
+        text: "text",
+      }),
+    ],
+    properties: ["background-clip"],
+    arbitrary: false,
+    examples: ["bg-clip(text)", "bg-clip(padding)"],
+  }),
+  simple({
+    name: "bg-attachment",
+    category,
+    description: "Sets whether a background image scrolls with the page.",
+    types: [words("scroll", "fixed", "local")],
+    properties: ["background-attachment"],
+    arbitrary: false,
+    examples: ["bg-attachment(fixed)"],
+  }),
 ];

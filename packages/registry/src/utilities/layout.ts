@@ -1,5 +1,5 @@
 import type { UtilityDefinition } from "../types.js";
-import { integer, offset, words } from "../values.js";
+import { integer, keywords, offset, words } from "../values.js";
 import { simple } from "./helpers.js";
 
 const category = "layout";
@@ -75,4 +75,76 @@ export const layoutUtilities: UtilityDefinition[] = [
       examples: [`${side}(0)`, `${side}(-2)`, `${side}(1/2)`, `${side}[3px]`],
     }),
   ),
+  ...(["overflow-x", "overflow-y"] as const).map((name) =>
+    simple({
+      name,
+      category,
+      description: `Controls overflow on the ${name.at(-1)} axis.`,
+      types: [words("visible", "hidden", "clip", "scroll", "auto")],
+      properties: [name],
+      examples: [`${name}(auto)`, `${name}(hidden)`],
+    }),
+  ),
+  simple({
+    name: "object-fit",
+    category,
+    description: "Sets how an image or video fills its box.",
+    types: [words("fill", "contain", "cover", "none", "scale-down")],
+    properties: ["object-fit"],
+    arbitrary: false,
+    examples: ["object-fit(cover)", "object-fit(contain)"],
+  }),
+  simple({
+    name: "object-position",
+    category,
+    description: "Sets where an image or video sits in its box.",
+    types: [words("center", "top", "right", "bottom", "left")],
+    properties: ["object-position"],
+    examples: ["object-position(top)", "object-position[25%_75%]"],
+  }),
+  simple({
+    name: "float",
+    category,
+    description: "Floats an element so that text wraps around it.",
+    types: [words("left", "right", "none", "inline-start", "inline-end")],
+    properties: ["float"],
+    arbitrary: false,
+    examples: ["float(left)", "md:float(none)"],
+  }),
+  simple({
+    name: "clear",
+    category,
+    description: "Moves an element below floats.",
+    types: [words("left", "right", "both", "none", "inline-start", "inline-end")],
+    properties: ["clear"],
+    arbitrary: false,
+    examples: ["clear(both)"],
+  }),
+  simple({
+    name: "box-sizing",
+    category,
+    description: "Sets whether width and height include padding and border.",
+    types: [keywords({ border: "border-box", content: "content-box" })],
+    properties: ["box-sizing"],
+    arbitrary: false,
+    examples: ["box-sizing(border)", "box-sizing(content)"],
+  }),
+  simple({
+    name: "isolation",
+    category,
+    description: "Starts a new stacking context.",
+    types: [words("auto", "isolate")],
+    properties: ["isolation"],
+    arbitrary: false,
+    examples: ["isolation(isolate)"],
+  }),
+  simple({
+    name: "table-layout",
+    category,
+    description: "Sets how a table's columns get their widths.",
+    types: [words("auto", "fixed")],
+    properties: ["table-layout"],
+    arbitrary: false,
+    examples: ["table-layout(fixed)"],
+  }),
 ];

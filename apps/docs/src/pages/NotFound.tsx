@@ -4,7 +4,7 @@ import { Link } from "../router";
 export function NotFound() {
   return (
     <main
-      id="content"
+      id="main-content"
       className="grow(1) max-width[88rem] width(full) margin-x(auto) flex(col) align(start) justify(center) gap(6) padding-x(5) md:padding-x(10) padding-y(16) min-height[70vh]"
     >
       <p

@@ -26,7 +26,7 @@ Nothing runs in the browser. The result is ordinary CSS that any browser, framew
 ## What's in version 0.1.0
 
 - A tokenizer, parser and AST for the utility language.
-- About 80 utilities across layout, flexbox, grid, sizing, spacing, typography, backgrounds, borders and effects.
+- About 150 utilities across layout, flexbox, grid, sizing, spacing, typography, backgrounds, borders, effects, behavior and SVG.
 - State and responsive variants that compose freely.
 - A design token system that compiles to CSS custom properties.
 - A source scanner that works on any text file.

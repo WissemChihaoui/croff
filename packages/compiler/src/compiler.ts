@@ -1,5 +1,5 @@
 import { parse, type ParseError } from "@croff/parser";
-import type { Registry, ResolveContext, ResolveError } from "@croff/registry";
+import type { Registry, ResolveContext, ResolveError, VariantDefinition } from "@croff/registry";
 import { themeVariables, tokenKey, tokenVariable, type ResolvedTheme } from "@croff/theme";
 import { classSelector } from "./escape.js";
 import { RESET_CSS } from "./reset.js";
@@ -140,25 +140,35 @@ export class Compiler {
     const breakpoints: number[] = [];
     const otherAtRules: number[] = [];
     const stateOrders: number[] = [];
-    for (const variant of parsed.node.variants) {
-      const definition = registry.getVariant(variant.name)!;
+    const definitions = parsed.node.variants.map((variant) => registry.getVariant(variant.name)!);
+    // A pseudo-element has to end the selector, wherever it was written.
+    const isPseudoElement = (definition: VariantDefinition) => definition.selector?.includes("::");
+    const inOrder = [
+      ...definitions.filter((definition) => !isPseudoElement(definition)),
+      ...definitions.filter(isPseudoElement),
+    ];
+    for (const definition of inOrder) {
       if (definition.selector) {
         selector = definition.selector.replaceAll("&", () => selector);
-        stateOrders.push(registry.variantOrder(variant.name));
+        stateOrders.push(registry.variantOrder(definition.name));
       }
       if (definition.atRule) {
         atRules.push(definition.atRule);
         if (definition.breakpoint) breakpoints.push(definition.breakpoint.width);
-        else otherAtRules.push(registry.variantOrder(variant.name));
+        else otherAtRules.push(registry.variantOrder(definition.name));
       }
     }
+    const declared = new Set(resolved.declarations.map(([property]) => property));
+    const added = definitions
+      .flatMap((definition) => Object.entries(definition.declarations ?? {}))
+      .filter(([property]) => !declared.has(property));
 
     return {
       ok: true,
       rule: {
         expression: parsed.node.source,
         selector,
-        declarations: resolved.declarations,
+        declarations: [...added, ...resolved.declarations],
         atRules,
         tokens: [...tokens],
         sort: {
@@ -172,7 +182,10 @@ export class Compiler {
                   ...otherAtRules.sort((a, b) => a - b),
                 ],
           variants: stateOrders.sort((a, b) => b - a),
-          utility: registry.utilityOrder(parsed.node.name),
+          // An arbitrary property comes last, so that it wins an equal contest with a utility.
+          utility: parsed.node.property
+            ? Number.MAX_SAFE_INTEGER
+            : registry.utilityOrder(parsed.node.name),
         },
       },
     };
