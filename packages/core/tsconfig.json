@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"]
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../parser"
+    },
+    {
+      "path": "../theme"
+    },
+    {
+      "path": "../registry"
+    },
+    {
+      "path": "../compiler"
+    },
+    {
+      "path": "../scanner"
+    },
+    {
+      "path": "../plugin-api"
+    }
+  ]
+}

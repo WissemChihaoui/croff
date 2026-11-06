@@ -1,0 +1,3 @@
+# Prettier requires LF, so keep it on every platform.
+* text=auto eol=lf
+*.png binary

@@ -1,0 +1,42 @@
+{
+  "name": "@croff/postcss",
+  "version": "0.1.0",
+  "description": "PostCSS integration for CROFF.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@croff/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "postcss": "^8.4.0"
+  },
+  "devDependencies": {
+    "postcss": "^8.5.32"
+  },
+  "keywords": [
+    "css",
+    "croff",
+    "postcss",
+    "postcss-plugin"
+  ]
+}

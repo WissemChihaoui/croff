@@ -1,0 +1,336 @@
+@croff reset;
+@croff;
+
+html {
+  color-scheme: dark;
+  background: var(--croff-color-ink);
+  scroll-padding-top: 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--croff-color-brand);
+  color: var(--croff-color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--croff-color-brand);
+  outline-offset: 2px;
+}
+
+/* The chamfered accent from the logo. */
+.chamfer {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.5em;
+  background: var(--croff-color-brand);
+  transform: skewX(-42deg);
+}
+
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------- Code */
+
+code,
+pre,
+kbd {
+  font-family: var(--croff-font-mono);
+  font-variant-ligatures: none;
+}
+
+.code-block {
+  border: 1px solid var(--croff-color-line);
+  background: var(--croff-color-surface);
+  border-radius: 0.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.8125rem;
+}
+
+.code-block + .code-block {
+  margin-top: -0.75rem;
+}
+
+.flush .code-block {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem 0.25rem 0.875rem;
+  border-bottom: 1px solid var(--croff-color-line);
+  color: var(--croff-color-faint);
+  font-family: var(--croff-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+}
+
+.code-copy {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--croff-color-faint);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.125rem;
+  transition: color 120ms;
+}
+
+.code-copy:hover {
+  color: var(--croff-color-brand);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 0.875rem;
+  overflow-x: auto;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.t-comment {
+  color: #8f8d88;
+}
+.t-keyword {
+  color: #d0cec8;
+  font-weight: 500;
+}
+.t-string {
+  color: #a9a7a1;
+}
+.t-number {
+  color: #e6c78b;
+}
+.t-function {
+  color: #e8e6e1;
+}
+.t-tag {
+  color: #8f8d88;
+}
+.t-attr {
+  color: #bdbbb5;
+}
+.t-selector {
+  color: #e8e6e1;
+}
+.t-punct {
+  color: #8f8d88;
+}
+.t-variant {
+  color: #8fb8ff;
+}
+.t-utility {
+  color: var(--croff-color-brand);
+}
+.t-arg {
+  color: var(--croff-color-fg);
+}
+.t-raw {
+  color: #e6c78b;
+}
+
+/* --------------------------------------------------------------- Prose */
+
+.prose {
+  color: var(--croff-color-soft);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+
+.prose > * + * {
+  margin-top: 1rem;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--croff-color-fg);
+  line-height: 1.25;
+}
+
+.prose h2 {
+  margin-top: 3rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--croff-color-line);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.prose h3 {
+  margin-top: 2rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.prose h4 {
+  margin-top: 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.prose .anchor {
+  color: inherit;
+}
+
+.prose .anchor:hover {
+  color: var(--croff-color-brand);
+}
+
+.prose a:not(.anchor) {
+  color: var(--croff-color-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--croff-color-brand);
+  text-underline-offset: 3px;
+}
+
+.prose a:not(.anchor):hover {
+  color: var(--croff-color-brand);
+}
+
+.prose strong {
+  color: var(--croff-color-fg);
+  font-weight: 600;
+}
+
+.prose :not(pre) > code {
+  background: var(--croff-color-raised);
+  color: var(--croff-color-fg);
+  padding: 0.125em 0.35em;
+  border-radius: 0.1875rem;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.25rem;
+}
+
+.prose ul {
+  list-style: none;
+}
+
+.prose ul > li {
+  position: relative;
+}
+
+.prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: -1.125rem;
+  top: 0.72em;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--croff-color-faint);
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li + li {
+  margin-top: 0.375rem;
+}
+
+.prose blockquote {
+  border-left: 2px solid var(--croff-color-brand);
+  padding: 0.125rem 0 0.125rem 1rem;
+  color: var(--croff-color-soft);
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--croff-color-line);
+  margin: 2rem 0;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--croff-color-line);
+  border-radius: 0.25rem;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.prose th {
+  text-align: left;
+  color: var(--croff-color-fg);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prose th,
+.prose td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--croff-color-line);
+  vertical-align: top;
+}
+
+.prose tr:last-child td {
+  border-bottom: none;
+}
+
+/* --------------------------------------------------------------- Editor */
+
+.editor {
+  position: relative;
+  font-family: var(--croff-font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+
+.editor pre,
+.editor textarea {
+  margin: 0;
+  padding: 0.875rem;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+  overflow: auto;
+}
+
+.editor pre,
+.editor textarea {
+  position: absolute;
+  inset: 0;
+}
+
+.editor pre {
+  pointer-events: none;
+}
+
+.editor textarea {
+  display: block;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--croff-color-brand);
+  outline: none;
+}
+
+.editor textarea::selection {
+  background: rgb(200 253 18 / 0.25);
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

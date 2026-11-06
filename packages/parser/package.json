@@ -1,0 +1,33 @@
+{
+  "name": "@croff/parser",
+  "version": "0.1.0",
+  "description": "Tokenizer and parser for the CROFF utility language.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {},
+  "keywords": [
+    "css",
+    "croff",
+    "parser"
+  ]
+}
