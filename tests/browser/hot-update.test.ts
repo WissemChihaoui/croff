@@ -46,10 +46,27 @@ describe("Vite hot updates in a browser", () => {
   it("delivers new utilities without reloading, and applies config edits", async () => {
     const address = server.resolvedUrls!.local[0]!;
     const page = await browser.newPage();
-    // An update sent before the page's websocket is open is lost, so wait for it.
-    const connected = page.waitForEvent("console", {
-      predicate: (message) => message.text().includes("[vite] connected"),
+    // What the page did, so that a timeout says why instead of only that it happened.
+    const history: string[] = [];
+    page.on("console", (message) => history.push(`console: ${message.text()}`));
+    page.on("pageerror", (error) => history.push(`page error: ${error.message}`));
+    page.on("response", (response) => history.push(`${response.status()} ${response.url()}`));
+    page.on("requestfailed", (request) =>
+      history.push(`failed ${request.url()}: ${request.failure()?.errorText}`),
+    );
+    page.on("websocket", (socket) => {
+      history.push(`websocket opening ${socket.url()}`);
+      socket.on("socketerror", (error) => history.push(`websocket error: ${error}`));
+      socket.on("close", () => history.push("websocket closed"));
     });
+    // An update sent before the page's websocket is open is lost, so wait for it.
+    const connected = page
+      .waitForEvent("console", {
+        predicate: (message) => message.text().includes("[vite] connected"),
+      })
+      .catch((error: Error) => {
+        throw new Error(`${error.message}\nAt ${address}:\n${history.join("\n")}`);
+      });
     await page.goto(address);
     await connected;
     const box = page.locator("#box");

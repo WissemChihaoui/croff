@@ -71,7 +71,7 @@ beats `hover:`. We deliberately don't flatten this with `:where()`.
 
 ## Incrementality
 
-- The scanner caches per-file candidates keyed on `mtime` + `size`.
+- The scanner caches per-file candidates keyed on `mtime` + `size`. A file modified in the two seconds before it was read is read again on the next scan, because a same-size edit in the same timestamp tick wouldn't change the key.
 - The compiler memoizes each expression's resolved rule for the life of the
   compiler instance (a new theme or plugin set means a new instance).
 - Integrations only regenerate CSS if the candidate _set_ changed.

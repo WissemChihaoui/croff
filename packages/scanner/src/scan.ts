@@ -58,10 +58,19 @@ export interface ScanResult {
 interface FileEntry {
   mtimeMs: number;
   size: number;
+  /** Whether an edit made after this read is certain to change the timestamp. */
+  settled: boolean;
   candidates: Candidate[];
   dynamic: DynamicExpression[];
   broken: DynamicExpression[];
 }
+
+/**
+ * How old a timestamp must be before an unchanged one proves that a file is unchanged. A same-size
+ * edit within one timestamp tick looks identical, and the coarsest common filesystem ticks every
+ * two seconds.
+ */
+const TIMESTAMP_SETTLE_MS = 2000;
 
 const toPosix = (path: string) => (sep === "\\" ? path.replaceAll("\\", "/") : path);
 
@@ -96,8 +105,9 @@ export class Scanner {
   }
 
   /**
-   * Scans the project. Files whose size and modification time are unchanged are
-   * not read again, and files that disappeared are forgotten.
+   * Scans the project. Files whose size and modification time are unchanged are not read
+   * again, unless they were modified too recently for that to be conclusive. Files that
+   * disappeared are forgotten.
    */
   async scan(): Promise<ScanResult> {
     const paths = await glob(this.content, {
@@ -115,24 +125,28 @@ export class Scanner {
     return this.result();
   }
 
-  /** Updates a single file after a change, an addition or a removal. */
+  /** Reads a single file again after a change, an addition or a removal. */
   async update(path: string): Promise<ScanResult> {
     const rel = this.relativePath(path);
-    if (this.matches(rel)) await this.refresh(rel);
+    if (this.matches(rel)) await this.refresh(rel, true);
     return this.result();
   }
 
-  private async refresh(rel: string): Promise<void> {
+  private async refresh(rel: string, force = false): Promise<void> {
     const absolute = resolve(this.cwd, rel);
     try {
       const info = await stat(absolute);
       const known = this.files.get(rel);
-      if (known && known.mtimeMs === info.mtimeMs && known.size === info.size) return;
+      const unchanged =
+        known?.settled && known.mtimeMs === info.mtimeMs && known.size === info.size;
+      if (unchanged && !force) return;
+      const settled = Date.now() - info.mtimeMs > TIMESTAMP_SETTLE_MS;
       const source = await readFile(absolute, "utf8");
       this.filesRead++;
       this.files.set(rel, {
         mtimeMs: info.mtimeMs,
         size: info.size,
+        settled,
         ...extractCandidates(source, this.extractOptions),
       });
     } catch (error) {

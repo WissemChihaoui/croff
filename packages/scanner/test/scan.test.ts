@@ -1,7 +1,7 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Scanner, watchFiles } from "@croff/scanner";
 
 let cwd: string;
@@ -14,6 +14,11 @@ async function write(path: string, content: string) {
 
 const names = (result: { candidates: { expression: string }[] }) =>
   result.candidates.map((c) => c.expression).sort();
+
+/** Gives a file a chosen timestamp, as if it had been written at that moment. */
+const stamp = (path: string, time: Date) => utimes(join(cwd, path), time, time);
+
+const minuteAgo = () => new Date(Date.now() - 60_000);
 
 beforeEach(async () => {
   cwd = await mkdtemp(join(tmpdir(), "croff-scan-"));
@@ -110,9 +115,54 @@ describe("incremental behavior", () => {
   it("does not re-read unchanged files", async () => {
     await write("src/a.html", '"gap(4)"');
     await write("src/b.html", '"gap(8)"');
+    await stamp("src/a.html", minuteAgo());
+    await stamp("src/b.html", minuteAgo());
     const scanner = new Scanner({ cwd });
     expect(await scanner.scan()).toMatchObject({ filesRead: 2, changed: true });
     expect(await scanner.scan()).toMatchObject({ filesRead: 0, changed: false });
+  });
+
+  it("notices a same-size edit that kept a recent timestamp", async () => {
+    const now = new Date();
+    await write("src/a.html", '"gap(4)"');
+    await stamp("src/a.html", now);
+    const scanner = new Scanner({ cwd });
+    await scanner.scan();
+
+    await write("src/a.html", '"gap(8)"');
+    await stamp("src/a.html", now);
+    const result = await scanner.scan();
+    expect(result).toMatchObject({ filesRead: 1, changed: true });
+    expect(names(result)).toEqual(["gap(8)"]);
+  });
+
+  it("always reads a file again when told that it changed", async () => {
+    const old = minuteAgo();
+    await write("src/a.html", '"gap(4)"');
+    await stamp("src/a.html", old);
+    const scanner = new Scanner({ cwd });
+    await scanner.scan();
+
+    await write("src/a.html", '"gap(8)"');
+    await stamp("src/a.html", old);
+    const result = await scanner.update(join(cwd, "src/a.html"));
+    expect(result).toMatchObject({ filesRead: 1, changed: true });
+    expect(names(result)).toEqual(["gap(8)"]);
+  });
+
+  it("stops reading a file once its timestamp has settled", async () => {
+    await write("src/a.html", '"gap(4)"');
+    const scanner = new Scanner({ cwd });
+    expect(await scanner.scan()).toMatchObject({ filesRead: 1 });
+    expect(await scanner.scan()).toMatchObject({ filesRead: 1 });
+
+    const later = vi.spyOn(Date, "now").mockReturnValue(Date.now() + 3000);
+    try {
+      expect(await scanner.scan()).toMatchObject({ filesRead: 1 });
+      expect(await scanner.scan()).toMatchObject({ filesRead: 0 });
+    } finally {
+      later.mockRestore();
+    }
   });
 
   it("detects changes, additions and removals", async () => {

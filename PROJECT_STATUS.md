@@ -19,7 +19,7 @@ The source is public at [github.com/WissemChihaoui/croff](https://github.com/Wis
 
 ## Remaining before a public release
 
-- **Get CI passing.** It runs on Ubuntu and Windows, with Node 22 and 24. The first run, on `4e74dbf`, passed install, build, type check, lint and format on all four, then failed at "Build examples", because a fresh clone had no `croff` command. That's fixed by the launcher in `packages/cli/bin`, but the tests and browser tests haven't run on GitHub yet.
+- **Get CI passing.** It runs on Ubuntu and Windows, with Node 22 and 24. The run on `e144c02` passed everything on Ubuntu with both Node versions. On Windows it found a scanner bug, since fixed, where a same-size edit in one timestamp tick was missed. It also timed out in the hot-update browser test on Node 22, for a reason not yet known. That test now reports what the page was doing when it times out.
 - **Confirm package names and publish.** Confirm the `@croff` npm scope is available. `published` in `apps/docs/src/site.config.ts` is `false` until then, and the install guide explains building from source.
 - **Deploy the docs site.**
 - **Publish a contact address** for code of conduct reports.

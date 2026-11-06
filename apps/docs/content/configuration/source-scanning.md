@@ -48,7 +48,7 @@ Valid expressions generate CSS in any context. A stray `width(10)` that looks li
 
 ## Speed
 
-Files whose size and modification time haven't changed aren't read again, and watchers only act if the set of expressions changed. See [Performance](/docs/advanced/performance).
+Files whose size and modification time haven't changed aren't read again, unless they were modified within the last two seconds, and watchers only act if the set of expressions changed. See [Performance](/docs/advanced/performance).
 
 ## Limitations
 

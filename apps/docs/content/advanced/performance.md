@@ -41,7 +41,7 @@ A project with 10,000 distinct expressions is far larger than most. A few hundre
 
 ## Where the design helps
 
-- **Incremental scanning.** Files whose size and modification time are unchanged aren't read again.
+- **Incremental scanning.** Files whose size and modification time are unchanged aren't read again, unless they were modified within the last two seconds.
 - **Memoized resolution.** Parsing and resolving happen once per expression per compiler.
 - **No work without change.** Integrations regenerate CSS only if the set of expressions changed.
 
