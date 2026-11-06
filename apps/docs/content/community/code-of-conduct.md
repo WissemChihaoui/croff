@@ -21,4 +21,4 @@ We want CROFF to be a welcoming project for everyone, regardless of background o
 
 ## Enforcement
 
-Maintainers may remove comments or contributions that violate this code, and may temporarily or permanently ban people who repeatedly do so. A contact address for reports will be published with the public repository.
+Maintainers may remove comments or contributions that violate this code, and may temporarily or permanently ban people who repeatedly do so. There's no dedicated address for reports yet. Until there is, contact the maintainer through [GitHub](https://github.com/WissemChihaoui).

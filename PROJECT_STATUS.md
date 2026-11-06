@@ -13,21 +13,21 @@
 | 5. Documentation and playground                                   | Done                             |
 | 6. Validation and release preparation                             | Done, except for the items below |
 
-## Staying local for now
+## Where it lives
 
-Hosting and GitHub are deliberately deferred. The project is in a local git repository with no remote, nothing is published and the docs aren't deployed. Everything is verified locally.
+The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). Nothing is published to a package registry, and the docs site isn't deployed.
 
 ## Remaining before a public release
 
-- **Push to a hosted repository.** Until then CI has never run, and it targets Ubuntu and Node 24 as well, neither of which has been run. Changesets was verified in a throwaway repository.
-- **Confirm package names and publish.** Confirm the `@croff` npm scope is available.
-- **Set the public links.** `apps/docs/src/site.config.ts` holds `githubUrl: null` and `published: false`. Until they're set, the footer says the repository isn't public and the install guide explains building from source.
+- **Get CI passing.** It runs on Ubuntu and Windows, with Node 22 and 24. The first run, on `4e74dbf`, passed install, build, type check, lint and format on all four, then failed at "Build examples", because a fresh clone had no `croff` command. That's fixed by the launcher in `packages/cli/bin`, but the tests and browser tests haven't run on GitHub yet.
+- **Confirm package names and publish.** Confirm the `@croff` npm scope is available. `published` in `apps/docs/src/site.config.ts` is `false` until then, and the install guide explains building from source.
+- **Deploy the docs site.**
 - **Publish a contact address** for code of conduct reports.
 
-## Worth doing, and possible locally
+## Worth doing
 
 - **Replace the logo with a vector.** The site's logo files are derived from the provided PNG with the black background made transparent. The source has a small beige artifact on the first F of the wordmark, which shows up at large sizes.
-- **Test Safari itself and real phones.** Browser tests cover Playwright's Chromium, Firefox and WebKit on Windows.
+- **Test Safari itself and real phones.** Browser tests cover Playwright's Chromium, Firefox and WebKit, verified on Windows so far.
 
 ## Known limitations
 

@@ -5,6 +5,8 @@
 You need Node.js 22.12 or newer and pnpm 11.
 
 ```bash
+git clone https://github.com/WissemChihaoui/croff.git
+cd croff
 pnpm install
 pnpm build
 pnpm test

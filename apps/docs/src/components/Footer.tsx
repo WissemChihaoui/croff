@@ -65,7 +65,7 @@ export function Footer() {
                 GitHub
               </a>
             ) : (
-              <span className="text-color(faint)">GitHub: repository not public yet</span>
+              <span className="text-color(faint)">GitHub: not configured</span>
             )}
           </li>
         </Column>

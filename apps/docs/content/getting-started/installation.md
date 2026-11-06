@@ -12,9 +12,9 @@ description: Get CROFF into a project.
 
 ## Build CROFF from source
 
-From a checkout of the repository:
-
 ```bash
+git clone https://github.com/WissemChihaoui/croff.git
+cd croff
 pnpm install
 pnpm build
 ```

@@ -29,4 +29,4 @@ These are intentions, not commitments, and nothing on this page exists yet.
 - Published plugins for typography and animation.
 - A migration guide for people coming from other utility frameworks.
 
-Suggestions are welcome once the repository is public. See [Contributing](/docs/community/contributing).
+Suggestions are welcome on [GitHub](https://github.com/WissemChihaoui/croff). See [Contributing](/docs/community/contributing).

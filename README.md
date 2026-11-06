@@ -44,6 +44,8 @@
 ## Try it
 
 ```bash
+git clone https://github.com/WissemChihaoui/croff.git
+cd croff
 pnpm install
 pnpm build
 

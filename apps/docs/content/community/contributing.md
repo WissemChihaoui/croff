@@ -3,7 +3,7 @@ title: Contributing
 description: Help build CROFF.
 ---
 
-The repository isn't public yet. When it is, this page will link to it. The guidelines below are also in `CONTRIBUTING.md`.
+The source is on [GitHub](https://github.com/WissemChihaoui/croff). The guidelines below are also in `CONTRIBUTING.md`.
 
 ## Setting up
 
