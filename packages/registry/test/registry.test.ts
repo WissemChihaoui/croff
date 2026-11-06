@@ -17,7 +17,6 @@ const { theme } = createTheme();
 function resolve(source: string, registry = createRegistry(theme)) {
   const parsed = parse(source);
   if (!parsed.ok) throw new Error(parsed.error.message);
-  if (parsed.node.type !== "utility") throw new Error(`"${source}" isn't a single utility`);
   return registry.resolve(parsed.node, {
     theme,
     useToken: (scale, token) => `var(${tokenVariable(scale, token)})`,
@@ -125,7 +124,7 @@ describe("built-in utilities", () => {
       for (const example of utility.examples) {
         const parsed = parse(example);
         expect(parsed.ok, example).toBe(true);
-        if (parsed.ok && parsed.node.type === "utility") {
+        if (parsed.ok) {
           expect(parsed.node.name, example).toBe(utility.name);
           const result = createRegistry(theme).resolve(parsed.node, {
             theme,

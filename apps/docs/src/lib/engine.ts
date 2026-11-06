@@ -1,4 +1,10 @@
-import { createCroff, type CompileFailure, type CroffConfig, type ThemeIssue } from "@croff/core";
+import {
+  createCroff,
+  parse,
+  type CompileFailure,
+  type CroffConfig,
+  type ThemeIssue,
+} from "@croff/core";
 import { extractCandidates } from "@croff/scanner/extract";
 
 export interface LiveProblem {
@@ -37,12 +43,19 @@ export function compileMarkup(markup: string, config: CroffConfig = {}): LiveRes
   const byExpression = new Map(candidates.map((candidate) => [candidate.expression, candidate]));
 
   const problems: LiveProblem[] = compiled.failures
-    .filter((failure) => {
-      const written = failure.phase === "resolve" ? failure.group?.expression : undefined;
-      return byExpression.get(written ?? failure.expression)?.context === "class";
-    })
+    .filter((failure) => byExpression.get(failure.expression)?.context === "class")
     .map(describeFailure);
   for (const item of broken) {
+    const parsed = parse(item.text);
+    if (!parsed.ok && parsed.error.code === "unsupported-group") {
+      problems.push({
+        severity: "error",
+        message: parsed.error.message,
+        expression: item.text,
+        ...(parsed.error.hint ? { hint: parsed.error.hint } : {}),
+      });
+      continue;
+    }
     problems.push({
       severity: "error",
       message: `"${item.text}" contains whitespace inside an expression.`,

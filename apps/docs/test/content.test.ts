@@ -508,9 +508,6 @@ describe("stability markers", () => {
     ["packages/parser/src/ast.ts", "export interface UtilityNode"],
     ["packages/core/src/node.ts", "export class Project"],
     ["packages/parser/src/parser.ts", "export function parse"],
-    ["packages/parser/src/expand.ts", "export function expand"],
-    ["packages/parser/src/expand.ts", "export interface ExpandedExpression"],
-    ["packages/parser/src/ast.ts", "export interface GroupNode"],
   ])("%s marks %s as unstable", (file, declaration) => {
     const source = readFileSync(join(root, "../..", file), "utf8");
     const at = source.indexOf(declaration);
@@ -536,28 +533,33 @@ describe("included content", () => {
   });
 });
 
-describe("variant groups in the docs site", () => {
-  it("has a page, and a playground preset that the real compiler accepts", async () => {
-    expect(allRoutes()).toContain("/docs/concepts/variant-groups");
+describe("variant groups are gone", () => {
+  it("has no page or route for them", () => {
+    expect(allRoutes().some((route) => route.includes("variant-group"))).toBe(false);
+    expect(pages.some(({ slug }) => slug.includes("variant-group"))).toBe(false);
+  });
+
+  it("explains the error, and links nowhere else", () => {
+    for (const { slug, source } of pages) {
+      expect(source, slug).not.toContain("/docs/concepts/variant-groups");
+    }
+    expect(pages.find((page) => page.slug === "concepts/parsing")!.source).toContain(
+      "`unsupported-group`",
+    );
+  });
+
+  it("only has compilable playground presets, except the deliberate mistakes", async () => {
     const { PRESETS } = await import("../src/lib/samples");
-    const { candidates, broken } = extractCandidates(PRESETS["Variant groups"]!);
-    expect(broken).toEqual([]);
-    expect(candidates.some((candidate) => candidate.expression.includes(":("))).toBe(true);
-    expect(createCroff().compile(candidates.map((c) => c.expression)).failures).toEqual([]);
-  });
-
-  it("colors each member of a group, and keeps the text exact", () => {
-    const source = "md:(gap(4),hover:(bg(brand),width[calc(1px+2px)]),font['a,b',serif])";
-    const html = highlightExpression(source);
-    expect(html).toContain('<span class="t-utility">gap</span>');
-    expect(html).toContain('<span class="t-variant">hover</span>');
-    expect(html).toContain('<span class="t-raw">calc(1px+2px)</span>');
-    expect(html.replace(/<[^>]+>/g, "").replaceAll("&#39;", "'")).toBe(source);
-  });
-
-  it("finds it in search", () => {
-    const index = buildSearchIndex();
-    expect(search(index, "variant groups")[0]!.entry.title).toBe("Variant groups");
+    for (const [name, sample] of Object.entries(PRESETS)) {
+      const { candidates, broken } = extractCandidates(sample);
+      const { failures } = createCroff().compile(candidates.map((c) => c.expression));
+      if (name === "A few mistakes") {
+        expect(failures.map((failure) => failure.error.code)).toContain("unsupported-group");
+      } else {
+        expect(broken, name).toEqual([]);
+        expect(failures, name).toEqual([]);
+      }
+    }
   });
 });
 
@@ -576,7 +578,7 @@ describe("color and scale in the docs", () => {
     for (const sample of [...Object.values(PRESETS), HERO_SAMPLE, COMPARE_SAMPLE]) {
       expect(sample).not.toMatch(/\btext-color\(/);
     }
-    expect(PRESETS["Variant groups"]).toContain("scale(105)");
+    expect(PRESETS["Card"]).toContain("scale(105)");
     for (const { slug, source } of pages) {
       expect(source, slug).not.toMatch(/\btext-color[([]/);
     }
@@ -591,9 +593,6 @@ describe("error documentation", () => {
     expect(parsing).toContain("## Two kinds of error");
     expect(parsing).toContain("## Syntax errors");
     expect(parsing).toContain("## Resolution errors");
-    const groups = source("concepts/variant-groups");
-    expect(groups).toContain("Syntax errors reject the whole group");
-    expect(groups).toContain("Resolution errors reject only that member");
   });
 
   it.each([
@@ -612,10 +611,7 @@ describe("error documentation", () => {
     "trailing-escape",
     "duplicate-variant",
     "too-deep",
-    "group-without-variant",
-    "empty-group",
-    "empty-group-member",
-    "unterminated-group",
+    "unsupported-group",
     "unknown-utility",
     "unknown-variant",
     "invalid-argument",

@@ -14,8 +14,7 @@ An expression is zero or more variants, each followed by a colon, then a utility
 ## Grammar
 
 ```text
-expression   = { variant ":" } ( utility | group )
-group        = "(" expression { "," expression } ")"
+expression   = { variant ":" } utility
 utility      = name ( call | bracket )
 call         = "(" [ argument { "," argument } ] ")"
 argument     = function | word
@@ -68,10 +67,6 @@ You never write CSS escapes for the class name itself. The compiler handles that
 ## Naming
 
 Utilities are lowercase and hyphenated, and spell out what they do: `padding-x`, `min-width`, `border-color`. Aliases are avoided. The two deliberate shortcuts are `color`, for `text-color`, and `scale`, for a scaling `transform`.
-
-## Variant groups
-
-`hover:(bg(brand),padding(4))` applies a variant to several utilities. See [Variant groups](/docs/concepts/variant-groups).
 
 ## Bare words are not utilities
 

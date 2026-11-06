@@ -15,7 +15,6 @@ Measured on Node 22.17 on an Intel Core i5-10210U laptop running Windows 11, usi
 | Compile 100 expressions, cold                     | 1.9 ms      |
 | Compile 1,000 expressions, cold                   | 9 ms        |
 | Compile 10,000 expressions, cold                  | 130 ms      |
-| Compile 1,000 variant groups, cold                | 75 ms       |
 | Recompile 10,000 expressions plus 1 new one, warm | 38 ms       |
 | Extract expressions from 295 kB of HTML in memory | 13 ms       |
 | Scan 1,000 files, cold                            | 380 ms      |

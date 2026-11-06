@@ -7,9 +7,7 @@ import {
   CroffConfigError,
   defineConfig,
   definePlugin,
-  expand,
   findDirectives,
-  parse,
   PluginError,
   values,
 } from "@croff/core";
@@ -340,111 +338,70 @@ describe("source maps through a stylesheet", () => {
   });
 });
 
-describe("variant groups through a project", () => {
+describe("unsupported grouping syntax through a project", () => {
   let cwd: string;
   const write = async (path: string, content: string) => {
     const full = join(cwd, path);
     await mkdir(join(full, ".."), { recursive: true });
     await writeFile(full, content);
   };
+  const generate = async () => (await Project.load({ cwd })).generate();
 
   beforeEach(async () => {
-    cwd = await mkdtemp(join(tmpdir(), "croff-groups-"));
+    cwd = await mkdtemp(join(tmpdir(), "croff-unsupported-"));
   });
 
   afterEach(async () => {
     await rm(cwd, { recursive: true, force: true });
   });
 
-  it("compiles a group found in a file", async () => {
-    await write("src/a.html", '<a class="md:(gap(4),hover:bg(brand))">');
-    const { css, diagnostics } = await (await Project.load({ cwd })).generate();
-    expect(diagnostics).toEqual([]);
-    expect(css).toContain(".md\\:\\(gap\\(4\\)\\,hover\\:bg\\(brand\\)\\):hover {");
-  });
-
-  it("points a diagnostic at the failing member", async () => {
-    await write("src/a.html", '\n <a class="md:(gap(4),pad(4))">');
-    const { diagnostics } = await (await Project.load({ cwd })).generate();
+  it("reports an error in a class attribute, and compiles everything else", async () => {
+    await write("src/a.html", '<a class="gap(4) hover:(bg(brand),color(white)) md:bg(brand)">');
+    const { css, diagnostics } = await generate();
     expect(diagnostics).toMatchObject([
       {
         severity: "error",
-        code: "unknown-utility",
-        expression: "md:pad(4)",
-        suggestion: "md:padding(4)",
+        code: "unsupported-group",
+        expression: "hover:(bg(brand),color(white))",
+        hint: expect.stringContaining('each starting with "hover:"'),
         file: "src/a.html",
-        line: 1,
-        // The class starts at column 11; pad(4) is 11 characters into it.
-        column: 22,
+        line: 0,
+        column: 17,
       },
     ]);
-    expect(formatDiagnostic(diagnostics[0]!)).toContain("src/a.html:2:23:");
+    expect(formatDiagnostic(diagnostics[0]!)).toContain("Variant groups aren't supported.");
+    expect(css).toContain(".gap\\(4\\)");
+    expect(css).toContain(".md\\:bg\\(brand\\)");
+    expect(css).not.toContain("hover");
   });
 
-  it("points a syntax error at the broken token", async () => {
-    await write("src/a.html", '<a class="md:(gap(4),)">');
-    const { diagnostics } = await (await Project.load({ cwd })).generate();
-    expect(diagnostics).toMatchObject([
-      { code: "empty-group-member", expression: "md:(gap(4),)", line: 0, column: 21 },
-    ]);
-  });
-
-  it("applies context rules to members", async () => {
-    await write("src/a.ts", 'const known = "md:(gap(zzz))"; const other = "md:(nope(1))";');
-    const { diagnostics } = await (await Project.load({ cwd })).generate();
+  it("warns in other strings, and stays silent in code", async () => {
+    await write("src/a.ts", 'const a = "md:(gap(4))";\nconst b = x ? y:(z(1)) : 0;\n');
+    const { diagnostics } = await generate();
     expect(diagnostics.map((d) => [d.severity, d.code, d.expression])).toEqual([
-      ["warning", "invalid-argument", "md:gap(zzz)"],
+      ["warning", "unsupported-group", "md:(gap(4))"],
     ]);
   });
 
-  it("reports whitespace in a group", async () => {
-    await write("src/a.html", '<a class="md:(gap(4), gap(8))">');
-    const { diagnostics } = await (await Project.load({ cwd })).generate();
-    expect(diagnostics.map((d) => d.code)).toEqual(["whitespace"]);
+  it("reports the real problem when the group also has whitespace", async () => {
+    await write("src/a.html", '<a class="hover:(gap(4), gap(8)) gap(12)">');
+    const { css, diagnostics } = await generate();
+    expect(diagnostics.map((d) => d.code)).toEqual(["unsupported-group"]);
+    expect(css).toContain(".gap\\(12\\)");
   });
 
-  it("drops rules when a group is edited", async () => {
-    await write("src/a.html", '<a class="md:(gap(4),gap(8))">');
-    const project = await Project.load({ cwd });
-    await project.generate();
-    await write("src/a.html", '<a class="md:(gap(8))">');
-    expect((await project.updateFile(join(cwd, "src/a.html"))).changed).toBe(true);
-    const { css } = await project.generate();
-    expect(css).not.toContain("--croff-spacing-4");
-    expect(css).toContain("--croff-spacing-8");
-  });
-
-  it("works with plugin utilities and variants", () => {
-    const croff = createCroff({
-      plugins: [
-        definePlugin({
-          name: "group-plugin",
-          utilities: {
-            "tab-size": {
-              description: "x",
-              args: [{ name: "n", types: [values.integer({ min: 1, max: 8 })] }],
-              properties: ["tab-size"],
-            },
-          },
-          variants: { first: { selector: "&:first-child" } },
-        }),
-      ],
-    });
-    const { css, failures } = croff.compile(["first:(tab-size(4),gap(4))"]);
-    expect(failures).toEqual([]);
-    expect(css).toContain("tab-size: 4;");
-    expect(css).toContain(":first-child");
+  it("still reports other whitespace as whitespace", async () => {
+    await write("src/a.html", '<a class="width[calc(1px - 2px)]">');
+    expect((await generate()).diagnostics.map((d) => d.code)).toEqual(["whitespace"]);
   });
 
   it("works through a stylesheet directive", () => {
-    const { css } = createCroff().processCss("@croff;", ["hover:(display(flex))"], {
-      minify: true,
-    });
-    expect(css).toBe(".hover\\:\\(display\\(flex\\)\\):hover{display:flex}");
-  });
-
-  it("exposes the parser's expansion", () => {
-    const parsed = parse("md:(gap(4))");
-    expect(parsed.ok && expand(parsed.node)[0]!.expression).toBe("md:gap(4)");
+    const { css, failures } = createCroff().processCss(
+      "@croff;",
+      ["hover:(display(flex))", "display(grid)"],
+      { minify: true },
+    );
+    expect(css).toBe(".display\\(grid\\){display:grid}");
+    expect(failures).toMatchObject([{ error: { code: "unsupported-group" } }]);
   });
 });

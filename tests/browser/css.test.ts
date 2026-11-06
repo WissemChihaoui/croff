@@ -333,7 +333,7 @@ describe.each(engineNames)("generated CSS in %s", (engine) => {
   });
 });
 
-describe.each(engineNames)("variant groups in %s", (engine) => {
+describe.each(engineNames)("cascade conflicts in %s", (engine) => {
   let browser: Browser;
   let page: Page;
   const croff = createCroff();
@@ -351,137 +351,110 @@ describe.each(engineNames)("variant groups in %s", (engine) => {
     await browser.close();
   });
 
-  const styleOf = (id: string, properties: string[]) =>
-    page.evaluate(
-      ([target, names]) => {
-        const style = getComputedStyle(document.getElementById(target as string)!);
-        return (names as string[]).map((name) => style.getPropertyValue(name));
-      },
-      [id, properties] as const,
-    );
+  const paddingOf = (id = "x") =>
+    page.evaluate((target) => getComputedStyle(document.getElementById(target)!).paddingTop, id);
 
-  // The same element twice: with a group, and with the expressions written out.
-  async function renderBoth(group: string, expanded: string[]) {
-    const { css, failures } = croff.compile([group, ...expanded], { minify: true });
-    expect(failures).toEqual([]);
+  async function setup(classes: string[], wrapper = false) {
+    const element = `<button id="x" style="width:200px;height:60px" class="${classes.join(" ")}">x</button>`;
     await render(
       page,
-      css,
-      `<button id="grouped" class="${group}">a</button>
-       <button id="written" class="${expanded.join(" ")}">b</button>
-       <div class="group" id="owner" style="padding:20px">
-         <span id="grouped-child" class="${group}">c</span>
-         <span id="written-child" class="${expanded.join(" ")}">d</span>
-       </div>`,
+      croff.compile(classes, { minify: true }).css,
+      wrapper ? `<div class="group" id="owner" style="padding:30px">${element}</div>` : element,
     );
+    await page.mouse.move(0, 0);
   }
 
-  const PROPERTIES = [
-    "background-color",
-    "padding-top",
-    "row-gap",
-    "border-top-left-radius",
-    "color",
-    "opacity",
-  ];
-
-  it("behaves exactly like the written-out form when idle and at a breakpoint", async () => {
-    await renderBoth("md:(padding(4),gap(4),radius(lg))", [
-      "md:padding(4)",
-      "md:gap(4)",
-      "md:radius(lg)",
-    ]);
-    for (const width of [500, 1000]) {
-      await resize(page, width);
-      expect(await styleOf("grouped", PROPERTIES)).toEqual(await styleOf("written", PROPERTIES));
-    }
-    expect((await styleOf("grouped", ["padding-top"]))[0]).toBe("16px");
+  it("md: beats an unprefixed utility, because it comes later", async () => {
+    await setup(["padding[1px]", "md:padding[2px]"]);
+    expect(await paddingOf()).toBe("2px");
     await resize(page, 500);
-    expect((await styleOf("grouped", ["padding-top"]))[0]).not.toBe("16px");
+    expect(await paddingOf()).toBe("1px");
   });
 
-  it("applies state variants", async () => {
-    await renderBoth("hover:(bg(brand),padding(4))", ["hover:bg(brand)", "hover:padding(4)"]);
-    await page.mouse.move(0, 0);
-    const idle = await styleOf("grouped", PROPERTIES);
-    expect(idle[0]).not.toBe("rgb(200, 253, 18)");
-    await page.hover("#grouped");
-    const hovered = await styleOf("grouped", PROPERTIES);
-    expect(hovered[0]).toBe("rgb(200, 253, 18)");
-    expect(hovered[1]).toBe("16px");
-    await page.hover("#written");
-    expect(await styleOf("written", PROPERTIES)).toEqual(hovered);
-  });
-
-  it("applies combined and nested variants", async () => {
-    const group = "md:(padding(4),hover:(bg(brand),opacity(50)))";
-    await renderBoth(group, ["md:padding(4)", "md:hover:bg(brand)", "md:hover:opacity(50)"]);
-    await page.mouse.move(0, 0);
-    await page.hover("#grouped");
-    expect(await styleOf("grouped", ["background-color", "opacity", "padding-top"])).toEqual([
-      "rgb(200, 253, 18)",
-      "0.5",
-      "16px",
-    ]);
-
-    await resize(page, 500);
-    await page.hover("#grouped");
-    expect((await styleOf("grouped", ["background-color"]))[0]).not.toBe("rgb(200, 253, 18)");
-  });
-
-  it("applies group-hover", async () => {
-    const group = "group-hover:(opacity(50),text-color(brand))";
-    await renderBoth(group, ["group-hover:opacity(50)", "group-hover:text-color(brand)"]);
-    await page.mouse.move(0, 0);
-    await page.hover("#owner");
-    expect(await styleOf("grouped-child", ["opacity", "color"])).toEqual([
-      "0.5",
-      "rgb(200, 253, 18)",
-    ]);
-    expect(await styleOf("written-child", ["opacity", "color"])).toEqual([
-      "0.5",
-      "rgb(200, 253, 18)",
-    ]);
-  });
-
-  it("supports arbitrary values and nested functions", async () => {
-    const group = "2xl:(width[calc(100px+20px)],transform(rotate(90deg)),bg(alpha(brand,50)))";
-    await render(
-      page,
-      croff.compile([group], { minify: true }).css,
-      `<div id="x" class="${group}">x</div>`,
-    );
-    const [width, transform, background] = await styleOf("x", [
-      "width",
-      "transform",
-      "background-color",
-    ]);
-    expect(width).toBe("120px");
-    expect(transform).toMatch(/^matrix\(/);
-    expect(background).not.toBe("rgba(0, 0, 0, 0)");
-  });
-
-  it("gives the same cascade as the written-out form", async () => {
-    // padding-top must beat padding, whichever is first in the group.
-    const group = "hover:(padding-top(8),padding(1))";
-    await render(page, croff.compile([group]).css, `<button id="x" class="${group}">x</button>`);
+  it("hover: beats md:, because a pseudo-class adds specificity", async () => {
+    await setup(["hover:padding[3px]", "md:padding[2px]"]);
+    expect(await paddingOf()).toBe("2px");
     await page.hover("#x");
-    expect(await styleOf("x", ["padding-top", "padding-left"])).toEqual(["32px", "4px"]);
+    expect(await paddingOf()).toBe("3px");
   });
 
-  it("shares a rule with the written-out form without conflict", async () => {
-    const group = "hover:(gap(4),opacity(50))";
-    const { css } = croff.compile(["hover:gap(4)", group], { minify: true });
-    await render(
-      page,
-      css,
-      `<div id="a" class="hover:gap(4)">a</div><div id="b" class="${group}">b</div>`,
+  it("md:hover: beats hover: at the breakpoint, and not below it", async () => {
+    await setup(["hover:padding[3px]", "md:hover:padding[4px]"]);
+    await page.hover("#x");
+    expect(await paddingOf()).toBe("4px");
+    await resize(page, 500);
+    await page.hover("#x");
+    expect(await paddingOf()).toBe("3px");
+  });
+
+  it("group-hover: beats hover:, despite coming earlier in the output", async () => {
+    await setup(["hover:padding[3px]", "group-hover:padding[5px]"], true);
+    await page.hover("#x");
+    expect(await paddingOf()).toBe("5px");
+  });
+
+  it("group-hover: beats md:", async () => {
+    await setup(["md:padding[2px]", "group-hover:padding[5px]"], true);
+    expect(await paddingOf()).toBe("2px");
+    await page.hover("#owner");
+    expect(await paddingOf()).toBe("5px");
+  });
+
+  it("states of equal specificity follow output order", async () => {
+    await setup(["hover:padding[3px]", "active:padding[6px]"]);
+    await page.hover("#x");
+    expect(await paddingOf()).toBe("3px");
+    await page.mouse.down();
+    expect(await paddingOf()).toBe("6px");
+    await page.mouse.up();
+  });
+
+  it("stacked states beat a single state, even one later in the output", async () => {
+    const classes = ["focus-visible:padding[6px]", "hover:focus:padding[7px]"];
+    const { css, rules } = croff.compile(classes, { minify: true });
+    // Output order alone would give focus-visible the win, so only specificity can explain 7px.
+    expect(rules.map((rule) => rule.expression)).toEqual([
+      "hover:focus:padding[7px]",
+      "focus-visible:padding[6px]",
+    ]);
+    await render(page, css, `<input id="x" class="${classes.join(" ")}" />`);
+    await page.focus("#x");
+    expect(await paddingOf()).toBe("6px");
+    await page.hover("#x");
+    expect(await paddingOf()).toBe("7px");
+  });
+
+  it("gives the same result whatever order classes are written in", async () => {
+    await setup(
+      ["md:padding[2px]", "group-hover:padding[5px]", "hover:padding[3px]", "padding[1px]"],
+      true,
     );
-    await page.hover("#b");
-    expect((await styleOf("b", ["row-gap"]))[0]).toBe("16px");
-    await page.hover("#a");
-    expect((await styleOf("a", ["row-gap"]))[0]).toBe("16px");
-    expect((await styleOf("a", ["opacity"]))[0]).toBe("1");
+    await page.hover("#x");
+    const first = await paddingOf();
+    await setup(
+      ["padding[1px]", "hover:padding[3px]", "group-hover:padding[5px]", "md:padding[2px]"],
+      true,
+    );
+    await page.hover("#x");
+    expect(await paddingOf()).toBe(first);
+    expect(first).toBe("5px");
+  });
+});
+
+describe.each(engineNames)("unsupported grouping syntax in %s", (engine) => {
+  it("generates no rule for it, and leaves other classes working", async () => {
+    const browser = await launch(engine);
+    const page = await browser.newPage({ viewport: VIEWPORT });
+    const group = "hover:(padding[9px],opacity(50))";
+    const { css, failures } = createCroff().compile([group, "padding[1px]"], { minify: true });
+    expect(failures).toHaveLength(1);
+    await render(page, css, `<button id="x" class="${group} padding[1px]">x</button>`);
+    await page.hover("#x");
+    const paddingTop = await page.evaluate(
+      () => getComputedStyle(document.getElementById("x")!).paddingTop,
+    );
+    expect(paddingTop).toBe("1px");
+    await browser.close();
   });
 });
 
@@ -558,12 +531,12 @@ describe.each(engineNames)("color and scale in %s", (engine) => {
     expect(await style("x", "transform")).toBe(SCALED);
   });
 
-  it("work with responsive and state variants, and in nested groups", async () => {
-    const group = "md:(color(brand),hover:(scale(105),color(white)))";
+  it("work with responsive and state variants, combined", async () => {
+    const classes = ["md:color(brand)", "md:hover:scale(105)", "md:hover:color(white)"];
     await render(
       page,
-      croff.compile([group], { minify: true }).css,
-      `<button id="x" style="width:200px;height:60px" class="${group}">x</button>`,
+      croff.compile(classes, { minify: true }).css,
+      `<button id="x" style="width:200px;height:60px" class="${classes.join(" ")}">x</button>`,
     );
     await page.mouse.move(0, 0);
     expect(await style("x", "color")).toBe("rgb(200, 253, 18)");

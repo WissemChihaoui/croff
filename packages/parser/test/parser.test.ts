@@ -10,7 +10,6 @@ import {
 function ok(source: string): UtilityNode {
   const result = parse(source);
   if (!result.ok) throw new Error(formatParseError(result.error, source));
-  if (result.node.type !== "utility") throw new Error(`"${source}" isn't a single utility`);
   return result.node;
 }
 
@@ -271,5 +270,51 @@ describe("tokenizer", () => {
       "bracket",
       "eof",
     ]);
+  });
+});
+
+describe("unsupported grouping syntax", () => {
+  it.each([
+    "hover:(bg(brand),color(white))",
+    "md:hover:(bg(brand),color(white),scale(105))",
+    "sm:(padding(4),hover:(bg(brand)))",
+    "2xl:(gap(4))",
+    "hover:(gap(4))",
+    // Nothing after the prefix is read, so these get the same clear error.
+    "hover:()",
+    "hover:(",
+    "hover:(gap(4),)",
+    "hover:(gap(4)",
+    "hover:(gap(4), gap(8))",
+    "hover:( gap(4) )",
+    "hover:(gap<4)",
+  ])("%j reports that groups aren't supported", (source) => {
+    expect(errorCode(source)).toBe("unsupported-group");
+  });
+
+  it("says what to do instead, using the variants that were written", () => {
+    const result = parse("md:hover:(bg(brand),color(white))");
+    if (result.ok) throw new Error("expected failure");
+    expect(result.error.message).toBe("Variant groups aren't supported.");
+    expect(result.error.hint).toContain('each starting with "md:hover:"');
+    expect(result.error.hint).toContain("md:hover:bg(brand) md:hover:padding(4)");
+  });
+
+  it("points at the variants and the parenthesis", () => {
+    const result = parse("md:(gap(4))");
+    expect(!result.ok && result.error.span).toEqual({ start: 0, end: 4 });
+  });
+
+  it("gives other syntax its usual errors", () => {
+    expect(errorCode("(gap(4))")).toBe("unexpected-token");
+    expect(errorCode("()")).toBe("unexpected-token");
+    expect(errorCode("gap(a:(b))")).toBe("unexpected-token");
+    expect(errorCode("Hover:(gap(4))")).toBe("invalid-name");
+  });
+
+  it("leaves everything else alone", () => {
+    expect(ok("bg[url(https://a.b/c:(d).png)]").name).toBe("bg");
+    expect(ok("md:hover:bg(alpha(brand,50))").variants).toHaveLength(2);
+    expect(ok("width[calc(100%-1px)]").arbitrary?.value).toBe("calc(100%-1px)");
   });
 });

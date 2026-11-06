@@ -35,8 +35,6 @@ if (result.ok) {
 }
 ```
 
-The node's `type` is `group` for a [variant group](/docs/concepts/variant-groups), which holds its `variants` and `members`. `expand` flattens either kind into ordinary expressions, and that's all the rest of the compiler ever sees.
-
 Every node also carries a `span` with its position in the source, which is how errors can point at the right character. Bracket values appear as an `arbitrary` node holding both the `raw` text and the decoded `value`.
 
 ## Parsing never throws
@@ -58,34 +56,32 @@ An expression can be wrong in two different ways, and CROFF handles them differe
 | **Question**               | Is this shaped like an expression? | Does it mean anything here? |
 | **Found by**               | The parser                         | The registry, after parsing |
 | **Depends on your config** | Never                              | Yes: your theme and plugins |
-| **In a variant group**     | Rejects the whole group            | Rejects only that member    |
 | **Example**                | `gap(4`                            | `gap(banana)`               |
 
-Both are reported by `croff check` and fail `croff build`.
+Both are reported by `croff check` and fail `croff build`. Neither stops other expressions from compiling: each class stands alone, so `croff dev`, Vite and PostCSS report the problem and carry on.
 
 ## Syntax errors
 
-| Code                    | Example                   |
-| ----------------------- | ------------------------- |
-| `empty`                 | An empty string.          |
-| `whitespace`            | `gap( 4 )`                |
-| `invalid-character`     | `gap("4")`                |
-| `invalid-name`          | `Flex(row)`               |
-| `missing-value`         | `flex`                    |
-| `unexpected-token`      | `gap(4)x`                 |
-| `unterminated-call`     | `gap(4`                   |
-| `empty-argument`        | `gap(4,)`                 |
-| `unterminated-bracket`  | `width[`                  |
-| `unbalanced-bracket`    | `width[1px)]`             |
-| `empty-bracket`         | `width[]`                 |
-| `misplaced-bracket`     | `gap([1px])`              |
-| `trailing-escape`       | `gap(4)\`                 |
-| `duplicate-variant`     | `hover:hover:gap(4)`      |
-| `too-deep`              | Nesting beyond 16 levels. |
-| `group-without-variant` | `(gap(4))`                |
-| `empty-group`           | `hover:()`                |
-| `empty-group-member`    | `hover:(gap(4),)`         |
-| `unterminated-group`    | `hover:(gap(4)`           |
+| Code                   | Example                   |
+| ---------------------- | ------------------------- |
+| `empty`                | An empty string.          |
+| `whitespace`           | `gap( 4 )`                |
+| `invalid-character`    | `gap("4")`                |
+| `invalid-name`         | `Flex(row)`               |
+| `missing-value`        | `flex`                    |
+| `unexpected-token`     | `gap(4)x`                 |
+| `unterminated-call`    | `gap(4`                   |
+| `empty-argument`       | `gap(4,)`                 |
+| `unterminated-bracket` | `width[`                  |
+| `unbalanced-bracket`   | `width[1px)]`             |
+| `empty-bracket`        | `width[]`                 |
+| `misplaced-bracket`    | `gap([1px])`              |
+| `trailing-escape`      | `gap(4)\`                 |
+| `duplicate-variant`    | `hover:hover:gap(4)`      |
+| `too-deep`             | Nesting beyond 16 levels. |
+| `unsupported-group`    | `hover:(gap(4),gap(8))`   |
+
+`unsupported-group` means CROFF has no grouping syntax. Write each utility as its own expression: `hover:gap(4) hover:padding(8)`.
 
 Syntax never depends on your configuration. Whether `gap(banana)` is valid isn't the parser's question; that's decided afterwards by the registry and your theme.
 

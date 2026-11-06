@@ -39,7 +39,6 @@
 - **Deterministic.** The stylesheet depends only on the set of expressions in your source.
 - **Design tokens first.** Tokens compile to custom properties, and only those you use are emitted.
 - **Your markup stays yours.** Nothing is rewritten, so the class you see in DevTools is the class you wrote.
-- **Variant groups.** `md:hover:(bg(brand),padding(4))` applies variants to several utilities, and can nest.
 - **Extensible.** Plugins add utilities, variants and tokens through the same path as the built-ins.
 
 ## Try it

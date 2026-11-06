@@ -52,7 +52,7 @@ export const PRESETS: Record<string, string> = {
     <button class="
       width(fit) padding(2,4) radius(sm)
       bg(brand) color(dark) text-weight(semibold)
-      transition(colors) hover:bg(brand-dark)
+      transition(all) hover:bg(brand-dark) hover:scale(105)
       focus-visible:ring(2,light)
     ">
       Read more
@@ -80,24 +80,6 @@ export const PRESETS: Record<string, string> = {
     <div class="bg(gray-800) padding(3)">2fr</div>
   </div>
 </div>`,
-  "Variant groups": `<div class="md:(flex(row),gap(6),padding(8)) flex(col) gap(3) padding(4)">
-  <button class="
-    padding(2,4) radius(sm) bg(gray-800)
-    transition(all)
-    hover:(bg(brand),color(dark),scale(105))
-    focus-visible:(ring(2,light),bg(brand-dark))
-  ">
-    Hover me
-  </button>
-  <p class="
-    color(gray-400)
-    md:(text-size(lg),hover:(color(brand),text-decoration(underline)))
-    width[calc(100%-2rem)]
-    lg:(width[50%],letter-spacing[-0.02em])
-  ">
-    One variant, written once. Each member compiles to the same rule as writing it out in full.
-  </p>
-</div>`,
   "A few mistakes": `<div class="padding(6) flex(col) gap(4)">
   <p class="pad(4)">pad isn't a utility.</p>
   <p class="gap(banana)">banana isn't a spacing token.</p>
@@ -105,5 +87,6 @@ export const PRESETS: Record<string, string> = {
   <p class="hovr:bg(brand)">A typo in a variant.</p>
   <p class="width[calc(100% - 1px)]">Whitespace splits a class attribute.</p>
   <p class="width(320px)">Raw lengths belong in brackets.</p>
+  <p class="hover:(bg(brand),color(white))">Write variants on each utility.</p>
 </div>`,
 };

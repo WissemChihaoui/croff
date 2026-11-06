@@ -15,11 +15,11 @@
 
 ## Staying local for now
 
-Hosting and GitHub are deliberately deferred. The project isn't under version control, nothing is published and the docs aren't deployed. Everything is verified locally.
+Hosting and GitHub are deliberately deferred. The project is in a local git repository with no remote, nothing is published and the docs aren't deployed. Everything is verified locally.
 
 ## Remaining before a public release
 
-- **Create the git repository.** Until then CI has never run, and it targets Ubuntu and Node 24 as well, neither of which has been run. Changesets was verified in a throwaway repository.
+- **Push to a hosted repository.** Until then CI has never run, and it targets Ubuntu and Node 24 as well, neither of which has been run. Changesets was verified in a throwaway repository.
 - **Confirm package names and publish.** Confirm the `@croff` npm scope is available.
 - **Set the public links.** `apps/docs/src/site.config.ts` holds `githubUrl: null` and `published: false`. Until they're set, the footer says the repository isn't public and the install guide explains building from source.
 - **Publish a contact address** for code of conduct reports.
@@ -44,7 +44,7 @@ Recorded in [docs/adr](./docs/adr):
 5. A single `@croff` CSS directive across all integrations.
 6. Docs on Vite and React with prerendering. The playground is a route, not a separate app.
 7. `croff.config.ts`, loaded with jiti.
-8. Variant groups are sugar, expanded right after parsing. Rules select the group's class, since markup isn't rewritten.
+8. Variant groups were implemented, evaluated and rejected. There's no grouping syntax, and `hover:(...)` reports `unsupported-group`.
 
 Other deviations from the original plan:
 

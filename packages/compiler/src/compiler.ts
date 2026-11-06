@@ -1,4 +1,4 @@
-import { expand, parse, type ExpandedExpression, type ParseError, type Span } from "@croff/parser";
+import { parse, type ParseError } from "@croff/parser";
 import type { Registry, ResolveContext, ResolveError } from "@croff/registry";
 import { themeVariables, tokenKey, tokenVariable, type ResolvedTheme } from "@croff/theme";
 import { classSelector } from "./escape.js";
@@ -19,16 +19,8 @@ export type CompileInput = string | { expression: string; location?: SourceLocat
 
 /** @unstable The shape of a compiled rule may change between 0.x releases. */
 export interface CompiledRule {
-  /** The ordinary expression this rule implements. */
   expression: string;
-  /** The classes this rule applies to: the expression itself, and groups containing it. */
-  classes: string[];
-  /** One selector for each of `classes`. */
-  selectors: string[];
-  /** The selector list, as it appears in the CSS. */
   selector: string;
-  /** The rule's selector with `&` in place of the class. */
-  selectorTemplate: string;
   declarations: [property: string, value: string][];
   atRules: string[];
   /** `scale/token` keys this rule depends on. */
@@ -38,14 +30,7 @@ export interface CompiledRule {
 
 export type CompileFailure =
   | { expression: string; phase: "parse"; error: ParseError }
-  | {
-      /** The ordinary expression that failed. */
-      expression: string;
-      phase: "resolve";
-      error: ResolveError;
-      /** For a member of a variant group: the class as written, and the member's position in it. */
-      group?: { expression: string; span: Span };
-    };
+  | { expression: string; phase: "resolve"; error: ResolveError };
 
 export type ResolveResult =
   { ok: true; rule: CompiledRule } | { ok: false; failure: CompileFailure };
@@ -98,24 +83,6 @@ function compareRules(a: CompiledRule, b: CompiledRule): number {
   );
 }
 
-/** A copy of a rule that selects the given classes. */
-function withClasses(rule: CompiledRule, classes: Set<string>): CompiledRule {
-  const sorted = [...classes].sort((a, b) => {
-    if (a === rule.expression) return -1;
-    if (b === rule.expression) return 1;
-    return a < b ? -1 : 1;
-  });
-  const selectors = sorted.map((name) =>
-    rule.selectorTemplate.replaceAll("&", () => classSelector(name)),
-  );
-  return { ...rule, classes: sorted, selectors, selector: selectors.join(", ") };
-}
-
-function failureKey(failure: CompileFailure): string {
-  const written = failure.phase === "resolve" ? failure.group?.expression : undefined;
-  return `${written ?? failure.expression}\0${failure.expression}`;
-}
-
 /** Writes text while tracking the current line and column, for source maps. */
 class Writer {
   text = "";
@@ -136,33 +103,10 @@ class Writer {
 
 export class Compiler {
   private readonly cache = new Map<string, ResolveResult>();
-  private readonly expansions = new Map<string, ExpandedExpression[] | CompileFailure>();
 
   constructor(private readonly context: CompilerContext) {}
 
-  /**
-   * The ordinary expressions a written class stands for: itself, or a group's
-   * members. Everything after this point handles ordinary expressions only.
-   */
-  private expansionOf(expression: string): ExpandedExpression[] | CompileFailure {
-    const cached = this.expansions.get(expression);
-    if (cached) return cached;
-    let result: ExpandedExpression[] | CompileFailure;
-    if (!expression.includes(":(")) {
-      // It can't be a group, so don't parse it twice.
-      const source = expression.trim();
-      result = [{ expression: source, span: { start: 0, end: source.length } }];
-    } else {
-      const parsed = parse(expression);
-      result = parsed.ok
-        ? expand(parsed.node)
-        : { expression: expression.trim(), phase: "parse", error: parsed.error };
-    }
-    this.expansions.set(expression, result);
-    return result;
-  }
-
-  /** Resolves one ordinary expression. Results are memoized for the life of the compiler. */
+  /** Resolves one expression. Results are memoized for the life of the compiler. */
   resolve(expression: string): ResolveResult {
     const cached = this.cache.get(expression);
     if (cached) return cached;
@@ -175,14 +119,6 @@ export class Compiler {
     const parsed = parse(expression);
     if (!parsed.ok) {
       return { ok: false, failure: { expression, phase: "parse", error: parsed.error } };
-    }
-    if (parsed.node.type === "group") {
-      const error: ParseError = {
-        code: "unexpected-group",
-        message: "Expected a single utility, not a group. Expand the group first.",
-        span: parsed.node.span,
-      };
-      return { ok: false, failure: { expression, phase: "parse", error } };
     }
 
     const { registry, theme } = this.context;
@@ -199,7 +135,7 @@ export class Compiler {
       return { ok: false, failure: { expression, phase: "resolve", error: resolved.error } };
     }
 
-    let selectorTemplate = "&";
+    let selector = classSelector(parsed.node.source);
     const atRules: string[] = [];
     const breakpoints: number[] = [];
     const otherAtRules: number[] = [];
@@ -207,7 +143,7 @@ export class Compiler {
     for (const variant of parsed.node.variants) {
       const definition = registry.getVariant(variant.name)!;
       if (definition.selector) {
-        selectorTemplate = definition.selector.replaceAll("&", () => selectorTemplate);
+        selector = definition.selector.replaceAll("&", () => selector);
         stateOrders.push(registry.variantOrder(variant.name));
       }
       if (definition.atRule) {
@@ -217,15 +153,11 @@ export class Compiler {
       }
     }
 
-    const selector = selectorTemplate.replaceAll("&", () => classSelector(parsed.node.source));
     return {
       ok: true,
       rule: {
         expression: parsed.node.source,
-        classes: [parsed.node.source],
-        selectors: [selector],
         selector,
-        selectorTemplate,
         declarations: resolved.declarations,
         atRules,
         tokens: [...tokens],
@@ -250,57 +182,21 @@ export class Compiler {
   compile(inputs: Iterable<CompileInput>, options: CompileOptions = {}): CompileResult {
     const seen = new Set<string>();
     const locations = new Map<string, SourceLocation>();
-    const found = new Map<string, CompiledRule>();
-    // Only filled in for groups, so that plain expressions don't pay for them.
-    const groupClasses = new Map<string, Set<string>>();
-    const direct = new Set<string>();
+    const rules: CompiledRule[] = [];
     const failures: CompileFailure[] = [];
 
     for (const input of inputs) {
-      const written = typeof input === "string" ? input : input.expression;
+      const expression = typeof input === "string" ? input : input.expression;
       const location = typeof input === "string" ? undefined : input.location;
-      const expansion = this.expansionOf(written);
-      const members = Array.isArray(expansion) ? expansion : [];
-
-      for (const { expression, span } of members) {
-        if (location && !locations.has(expression)) {
-          locations.set(expression, { ...location, column: location.column + span.start });
-        }
-      }
-      if (seen.has(written)) continue;
-      seen.add(written);
-      if (!Array.isArray(expansion)) failures.push(expansion);
-
-      for (const { expression, span } of members) {
-        const result = this.resolve(expression);
-        const isDirect = expression === written.trim();
-        if (result.ok) {
-          found.set(expression, result.rule);
-          if (isDirect) {
-            direct.add(expression);
-          } else {
-            const classes = groupClasses.get(expression) ?? new Set();
-            groupClasses.set(expression, classes.add(written.trim()));
-          }
-        } else if (isDirect || result.failure.phase === "parse") {
-          failures.push(result.failure);
-        } else {
-          failures.push({ ...result.failure, group: { expression: written.trim(), span } });
-        }
-      }
+      if (location && !locations.has(expression)) locations.set(expression, location);
+      if (seen.has(expression)) continue;
+      seen.add(expression);
+      const result = this.resolve(expression);
+      if (result.ok) rules.push(result.rule);
+      else failures.push(result.failure);
     }
-    const rules = [...found.values()].map((rule) => {
-      const classes = groupClasses.get(rule.expression);
-      if (!classes) return rule;
-      if (direct.has(rule.expression)) classes.add(rule.expression);
-      return withClasses(rule, classes);
-    });
     rules.sort(compareRules);
-    failures.sort((a, b) => {
-      const left = failureKey(a);
-      const right = failureKey(b);
-      return left < right ? -1 : left > right ? 1 : 0;
-    });
+    failures.sort((a, b) => (a.expression < b.expression ? -1 : 1));
 
     const { css, mappings } = this.print(rules, locations, options);
     return {
@@ -408,9 +304,9 @@ export class Compiler {
     }
     if (minify) {
       const body = rule.declarations.map(([property, value]) => `${property}:${value}`).join(";");
-      writer.write(`${rule.selectors.join(",")}{${body}}`);
+      writer.write(`${rule.selector}{${body}}`);
     } else {
-      writer.write(`${rule.selectors.join(`,\n${indent}`)} {\n`);
+      writer.write(`${rule.selector} {\n`);
       for (const [property, value] of rule.declarations) {
         writer.write(`${indent}  ${property}: ${value};\n`);
       }

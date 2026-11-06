@@ -31,11 +31,32 @@ Stack variants in any order. All of them apply.
 
 Selector variants combine, and at-rule variants nest. Different orders are technically different class names, but select the same elements under the same conditions, so pick one convention.
 
-To apply the same variants to several utilities, use a [variant group](/docs/concepts/variant-groups): `md:hover:(bg(brand),padding(4))`.
+Each utility carries its own variants. CROFF has no grouping syntax, so write `hover:bg(brand) hover:padding(4)`. `hover:(bg(brand),padding(4))` is reported as the error `unsupported-group`.
 
-## Cascade order
+## How conflicts are decided
 
-CROFF sorts rules so that the usual expectations hold, whatever order they appear in your markup:
+When two utilities on an element set the same property, the browser decides using the normal CSS rules: **specificity first, then order**. CROFF keeps native selectors, so it controls the order, but not specificity.
+
+| Expression                          | Selector                                  | Specificity |
+| ----------------------------------- | ----------------------------------------- | ----------- |
+| `padding(1)`                        | `.x`                                      | 0,1,0       |
+| `md:padding(1)`                     | `.x` in a media query, which adds nothing | 0,1,0       |
+| `hover:padding(1)` and other states | `.x:hover`                                | 0,2,0       |
+| `md:hover:padding(1)`               | `.x:hover` in a media query               | 0,2,0       |
+| `hover:focus:padding(1)`            | `.x:hover:focus`                          | 0,3,0       |
+| `group-hover:padding(1)`            | `.group:hover .x`                         | 0,3,0       |
+
+### What this means
+
+- **`md:` beats an unprefixed utility**, from that width up. They have equal specificity, and `md:` comes later.
+- **`hover:` beats `md:`**, at every width, because a state adds specificity and a breakpoint doesn't. Hovering `md:padding(2) hover:padding(4)` gives `padding(4)`.
+- **`md:hover:` beats `hover:`**, from that width up. To change a hover style at a breakpoint, use both variants.
+- **`group-hover:` beats `hover:`**, and `md:`. It has the highest specificity of any single variant, even though it comes earliest in the output. Plain `hover:` can't override it.
+- **Stacked states beat single states**, wherever those sort: `hover:focus:` beats `focus-visible:`.
+
+### Order
+
+Where specificity is equal, the later rule wins. CROFF's order doesn't depend on where classes appear in your markup:
 
 1. Rules without at-rules come first, then breakpoints from narrowest to widest, then other at-rules.
 2. Within those, states go in the order of the table above, so `active:` beats `focus:`, which beats `hover:`.

@@ -50,11 +50,6 @@ escaped:
 No source rewriting happens. What you read in DevTools is what you wrote. See
 [ADR 0002](./adr/0002-atomic-escaped-selectors.md).
 
-A [variant group](./adr/0008-variant-groups.md) is one class that stands for several
-expressions. The compiler expands it straight after parsing, and each member is compiled
-as an ordinary expression. Each resulting rule selects every class that contains it, so a
-group shares rules, ordering and cascade with the written-out form.
-
 ## Deterministic ordering
 
 Output order is a total order computed only from the rules themselves, so the
@@ -69,6 +64,10 @@ order in which files are scanned can never change the output:
 Utility registry order is the cascade contract: general utilities are declared
 before specific ones (`padding` before `padding-x` before `padding-top`), so
 specific utilities win.
+
+Selectors keep native CSS specificity, which is decided before order. A state adds
+specificity and a breakpoint doesn't, so `hover:` beats `md:`, and `group-hover:`
+beats `hover:`. We deliberately don't flatten this with `:where()`.
 
 ## Incrementality
 

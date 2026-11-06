@@ -9,7 +9,7 @@ description: What the compiler produces, and why.
 <div class="md:hover:bg(brand)"></div>
 ```
 
-The selector is the expression itself, escaped. (A [variant group](/docs/concepts/variant-groups) is the exception, since one class stands for several rules.) Your markup isn't rewritten, and no hashes are involved, so DevTools shows what you wrote and any tool that renders a `class` attribute works.
+The selector is the expression itself, escaped. Your markup isn't rewritten, and no hashes are involved, so DevTools shows what you wrote and any tool that renders a `class` attribute works.
 
 ## Only what you use
 
@@ -24,6 +24,8 @@ Rules are sorted by a fixed scheme, independent of where expressions appear:
 3. State variants, then utility registry order, then the expression's text.
 
 Two builds of the same source are byte-identical, and tests hold the compiler to this by shuffling its input.
+
+Order only settles ties. Specificity comes first, so `hover:` beats `md:` even though it's earlier. See [How conflicts are decided](/docs/concepts/variants#how-conflicts-are-decided).
 
 ## Escaping
 

@@ -205,8 +205,10 @@ describe.each(engineNames)("documentation site in %s", (engine) => {
         .getByRole("link", { name, exact: true })
         .evaluate((element) => getComputedStyle(element).color);
 
-    await page.locator("#cascade-order").evaluate((heading) => heading.scrollIntoView());
-    await expect.poll(() => color("Cascade order")).toBe("rgb(200, 253, 18)");
+    await page
+      .locator("#how-conflicts-are-decided")
+      .evaluate((heading) => heading.scrollIntoView());
+    await expect.poll(() => color("How conflicts are decided")).toBe("rgb(200, 253, 18)");
 
     // The last section is too short to reach the top, so the end of the page selects it.
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
@@ -293,6 +295,7 @@ describe.each(engineNames)("documentation site in %s", (engine) => {
       for (const expected of [
         'Did you mean "padding"',
         'Unknown variant "hovr"',
+        "Variant groups aren't supported.",
         "whitespace",
         "brackets",
       ]) {
@@ -364,30 +367,5 @@ describe.each(engineNames)("documentation site in %s", (engine) => {
       );
       await page.close();
     });
-  });
-});
-
-describe("variant groups in the playground", () => {
-  it("compiles the preset with the real compiler, and renders it", async () => {
-    const browser = await launch("chromium");
-    try {
-      const { page, errors } = await open(browser, "/playground");
-      await page.getByRole("button", { name: "Variant groups" }).click();
-      const output = page.locator("section[aria-label=Output] code").first();
-      await expect.poll(() => output.textContent()).toContain("hover\\:\\(bg\\(brand\\)");
-      expect(await page.locator("section[aria-label=Problems]").textContent()).toContain(
-        "No problems",
-      );
-      const frame = page.frameLocator("section[aria-label=Preview] iframe");
-      const button = frame.locator("button");
-      await button.hover();
-      await expect
-        .poll(() => button.evaluate((element) => getComputedStyle(element).backgroundColor))
-        .toBe("rgb(200, 253, 18)");
-      expect(errors).toEqual([]);
-      await page.close();
-    } finally {
-      await browser.close();
-    }
   });
 });

@@ -150,8 +150,7 @@ export class Project {
     const byExpression = new Map(scan.candidates.map((c) => [c.expression, c]));
     const diagnostics: Diagnostic[] = [];
     for (const failure of failures) {
-      const written = failure.phase === "resolve" ? failure.group?.expression : undefined;
-      const diagnostic = diagnoseFailure(failure, byExpression.get(written ?? failure.expression));
+      const diagnostic = diagnoseFailure(failure, byExpression.get(failure.expression));
       if (diagnostic) diagnostics.push(diagnostic);
     }
     for (const item of scan.dynamic) {

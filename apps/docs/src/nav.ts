@@ -52,7 +52,6 @@ export const nav: NavSection[] = [
       page("Utility language", "concepts/utility-language"),
       page("Parsing", "concepts/parsing"),
       page("Variants", "concepts/variants"),
-      page("Variant groups", "concepts/variant-groups"),
       page("Responsive design", "concepts/responsive-design"),
       page("Arbitrary values", "concepts/arbitrary-values"),
       page("Theme tokens", "concepts/theme-tokens"),

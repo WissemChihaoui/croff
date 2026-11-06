@@ -38,8 +38,6 @@ Must start with `@`. Stacked at-rules nest in the order written.
 
 Names follow the same rules as built-in variants, and definitions can't contain `{`, `}` or `;`. A clash with an existing variant is an error unless the plugin sets `override: true`.
 
-Custom variants work in [variant groups](/docs/concepts/variant-groups) like any other.
-
 ## Ordering
 
 Plugin variants sort after the built-ins, in registration order. At-rule variants come after all breakpoints.

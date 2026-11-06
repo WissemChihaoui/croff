@@ -16,11 +16,7 @@ export type ParseErrorCode =
   | "trailing-escape"
   | "duplicate-variant"
   | "too-deep"
-  | "group-without-variant"
-  | "empty-group"
-  | "empty-group-member"
-  | "unterminated-group"
-  | "unexpected-group";
+  | "unsupported-group";
 
 export interface ParseError {
   code: ParseErrorCode;

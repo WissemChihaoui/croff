@@ -111,24 +111,6 @@ for (const size of [100, 1_000, 10_000]) {
   );
 }
 
-// Variant groups of four members, drawn from a shared pool, so that some rules are shared.
-{
-  const pool = expressions(9_000).filter((expression) => !expression.includes(":"));
-  const groups = Array.from(
-    { length: 1_000 },
-    (_, i) => `2xl:(${[i, i * 7, i * 13, i * 31].map((n) => pool[n % pool.length]).join(",")})`,
-  );
-  let engine;
-  await measure(
-    "Compile 1,000 variant groups (cold)",
-    1_000,
-    () => engine.compile(groups, { minify: true }),
-    () => {
-      engine = createCroff();
-    },
-  );
-}
-
 // Recompiling with one new expression, which is what a watcher does.
 {
   const list = expressions(10_000);

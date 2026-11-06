@@ -1,21 +1,21 @@
-import type {
-  ArgumentNode,
-  ArbitraryNode,
-  ExpressionNode,
-  GroupNode,
-  Span,
-  VariantNode,
-} from "./ast.js";
+import type { ArgumentNode, ArbitraryNode, Span, UtilityNode, VariantNode } from "./ast.js";
 import type { ParseError } from "./errors.js";
 import { tokenize, type Token } from "./tokenizer.js";
 
-export type ParseResult = { ok: true; node: ExpressionNode } | { ok: false; error: ParseError };
+export type ParseResult = { ok: true; node: UtilityNode } | { ok: false; error: ParseError };
 
 const MAX_DEPTH = 16;
 
 const UTILITY_NAME = /^[a-z][a-z0-9-]*$/;
 const VARIANT_NAME = /^[a-z0-9][a-z0-9-]*$/;
 const FUNCTION_NAME = /^[a-z-][a-z0-9-]*$/;
+
+/**
+ * Variants followed by an opening parenthesis, as in `md:hover:(`. CROFF has no
+ * grouping syntax, so this is recognized by its start alone, and nothing after
+ * it is read. It exists only to give a clear error. See ADR 0008.
+ */
+const GROUP_PREFIX = /^((?:[a-z0-9][a-z0-9-]*:)+)\(/;
 
 class Failure {
   constructor(readonly error: ParseError) {}
@@ -28,10 +28,7 @@ function fail(code: ParseError["code"], message: string, span: Span, hint?: stri
 class Parser {
   private index = 0;
 
-  constructor(
-    private readonly tokens: Token[],
-    private readonly source: string,
-  ) {}
+  constructor(private readonly tokens: Token[]) {}
 
   private peek(offset = 0): Token {
     return this.tokens[Math.min(this.index + offset, this.tokens.length - 1)]!;
@@ -43,32 +40,9 @@ class Parser {
     return token;
   }
 
-  parseRoot(): ExpressionNode {
-    const node = this.parseNode(new Set(), 0, false);
-    const end = this.peek();
-    if (end.kind !== "eof") {
-      fail("unexpected-token", "Unexpected text after the end of the expression.", end.span);
-    }
-    return node;
-  }
-
-  /** Where the most recently consumed token ended. */
-  private previousEnd(): number {
-    return this.tokens[this.index - 1]!.span.end;
-  }
-
-  /**
-   * Parses an utility or a group. `inherited` holds the variants of enclosing
-   * groups, because a repeated variant is an error however it's spelled.
-   */
-  private parseNode(
-    inherited: ReadonlySet<string>,
-    depth: number,
-    inGroup: boolean,
-  ): ExpressionNode {
-    const start = this.peek().span.start;
+  parseExpression(source: string, base: Span): UtilityNode {
     const variants: VariantNode[] = [];
-    const seen = new Set(inherited);
+    const seen = new Set<string>();
 
     while (this.peek().kind === "word" && this.peek(1).kind === "colon") {
       const word = this.next() as Extract<Token, { kind: "word" }>;
@@ -81,10 +55,6 @@ class Parser {
       }
       seen.add(word.value);
       variants.push({ type: "variant", name: word.value, span: word.span });
-    }
-
-    if (this.peek().kind === "lparen") {
-      return this.parseGroup(variants, seen, start, depth);
     }
 
     const nameToken = this.next();
@@ -104,14 +74,11 @@ class Parser {
     let args: ArgumentNode[] = [];
     let arbitrary: ArbitraryNode | undefined;
     if (after.kind === "lparen") {
-      args = this.parseCall(depth).args;
+      args = this.parseCall(0).args;
     } else if (after.kind === "bracket") {
       this.next();
       arbitrary = { type: "arbitrary", raw: after.raw, value: after.value, span: after.span };
-    } else if (
-      after.kind === "eof" ||
-      (inGroup && (after.kind === "comma" || after.kind === "rparen"))
-    ) {
+    } else if (after.kind === "eof") {
       fail(
         "missing-value",
         `"${nameToken.value}" has no value. A utility always has "(...)" or "[...]".`,
@@ -122,71 +89,20 @@ class Parser {
       fail("unexpected-token", `Expected "(" or "[" after "${nameToken.value}".`, after.span);
     }
 
-    const span = { start, end: this.previousEnd() };
+    const end = this.peek();
+    if (end.kind !== "eof") {
+      fail("unexpected-token", "Unexpected text after the end of the utility.", end.span);
+    }
+
     return {
       type: "utility",
-      source: this.source.slice(span.start, span.end),
+      source,
       name: nameToken.value,
       nameSpan: nameToken.span,
       variants,
       arguments: args,
       ...(arbitrary ? { arbitrary } : {}),
-      span,
-    };
-  }
-
-  private parseGroup(
-    variants: VariantNode[],
-    seen: ReadonlySet<string>,
-    start: number,
-    depth: number,
-  ): GroupNode {
-    const open = this.next();
-    if (variants.length === 0) {
-      fail(
-        "group-without-variant",
-        "A group needs a variant in front of it.",
-        open.span,
-        "Write the variant before the parentheses: hover:(bg(brand),gap(4)).",
-      );
-    }
-    if (depth >= MAX_DEPTH) {
-      fail("too-deep", `Groups cannot be nested more than ${MAX_DEPTH} levels deep.`, open.span);
-    }
-    if (this.peek().kind === "rparen") {
-      fail("empty-group", "This group has no utilities in it.", {
-        start: open.span.start,
-        end: this.next().span.end,
-      });
-    }
-
-    const members: ExpressionNode[] = [];
-    for (;;) {
-      const first = this.peek();
-      if (first.kind === "comma" || first.kind === "rparen") {
-        fail("empty-group-member", "A utility is missing here.", first.span);
-      }
-      if (first.kind === "eof") {
-        fail("unterminated-group", 'This "(" has no matching ")".', open.span);
-      }
-      members.push(this.parseNode(seen, depth + 1, true));
-      const token = this.next();
-      if (token.kind === "rparen") break;
-      if (token.kind === "eof") {
-        fail("unterminated-group", 'This "(" has no matching ")".', open.span);
-      }
-      if (token.kind !== "comma") {
-        fail("unexpected-token", 'Expected "," or ")" here.', token.span);
-      }
-    }
-
-    const span = { start, end: this.previousEnd() };
-    return {
-      type: "group",
-      source: this.source.slice(span.start, span.end),
-      variants,
-      members,
-      span,
+      span: base,
     };
   }
 
@@ -256,16 +172,30 @@ class Parser {
  */
 export function parse(input: string): ParseResult {
   const source = input.trim();
+  const span = { start: 0, end: source.length };
   if (source.length === 0) {
     return {
       ok: false,
       error: { code: "empty", message: "The expression is empty.", span: { start: 0, end: 0 } },
     };
   }
+  const group = GROUP_PREFIX.exec(source);
+  if (group) {
+    const variants = group[1]!;
+    return {
+      ok: false,
+      error: {
+        code: "unsupported-group",
+        message: "Variant groups aren't supported.",
+        span: { start: 0, end: group[0].length },
+        hint: `Write each utility as its own expression, each starting with "${variants}": ${variants}bg(brand) ${variants}padding(4).`,
+      },
+    };
+  }
   const tokenized = tokenize(source);
   if (!tokenized.ok) return tokenized;
   try {
-    return { ok: true, node: new Parser(tokenized.tokens, source).parseRoot() };
+    return { ok: true, node: new Parser(tokenized.tokens).parseExpression(source, span) };
   } catch (thrown) {
     if (thrown instanceof Failure) return { ok: false, error: thrown.error };
     throw thrown;

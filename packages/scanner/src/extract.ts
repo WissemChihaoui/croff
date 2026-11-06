@@ -53,7 +53,10 @@ function isQuote(code: number): boolean {
   return code === 34 || code === 39 || code === 96;
 }
 
-/** Variant prefixes then a utility name then `(` or `[`; or variants then a group's `(`. */
+/**
+ * Variant prefixes then a utility name then `(` or `[`. Also variants then `(`, which CROFF
+ * doesn't support: such a token has to reach the parser, so that it can be reported.
+ */
 const CANDIDATE_SHAPE =
   /^(?:(?:[a-z0-9][a-z0-9-]*:)+\(|(?:[a-z0-9][a-z0-9-]*:)*[a-z][a-z0-9-]*[([])/;
 

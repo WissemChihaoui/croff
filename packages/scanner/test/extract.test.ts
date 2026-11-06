@@ -184,7 +184,7 @@ describe("robustness", () => {
   });
 });
 
-describe("variant groups", () => {
+describe("unsupported grouping syntax, which must reach the parser to be reported", () => {
   it("reads an entire group as one candidate", () => {
     expect(expressions('<div class="hover:(bg(brand),padding(4),radius(lg)) gap(4)">')).toEqual([
       "hover:(bg(brand),padding(4),radius(lg))",

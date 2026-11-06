@@ -11,7 +11,6 @@ CROFF 0.1.0 is the first version, for public testing. It's a utility-first CSS f
 ## What you can do with it
 
 - Style with validated expressions: `gap(4)`, `bg(alpha(brand,50))`, `md:hover:width(1/2)`.
-- Apply variants to several utilities at once: `md:hover:(bg(brand),padding(4))`.
 - Use raw CSS explicitly: `width[calc(100%-var(--sidebar-width))]`.
 - Define colors, spacing, type and breakpoints as tokens, which compile to custom properties.
 - Generate only the CSS you use, deterministically, with Vite, PostCSS or the standalone CLI.

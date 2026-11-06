@@ -390,18 +390,31 @@ describe("source maps with an input stylesheet", () => {
   });
 });
 
-describe("variant groups", () => {
-  it("builds them, and removes them when unused", async () => {
-    await write("src/a.html", '<a class="md:hover:(gap(4),padding(2))">');
-    expect((await croff("build", "--cwd", cwd, "-o", "a.css")).code).toBe(0);
-    expect(await read("a.css")).toContain(".md\\:hover\\:\\(gap\\(4\\)\\,padding\\(2\\)\\):hover{");
+describe("unsupported grouping syntax", () => {
+  beforeEach(async () => {
+    await write("src/a.html", '<a class="gap(4) hover:(bg(brand),color(white))">');
   });
 
-  it("check reports a member at its own position, and fails the build", async () => {
-    await write("src/a.html", '<a class="md:(gap(4),pad(4))">');
-    const check = await croff("check", "--cwd", cwd);
-    expect(check.code).toBe(1);
-    expect(check.stderr).toContain('src/a.html:1:22: error unknown-utility: Unknown utility "pad"');
-    expect((await croff("build", "--cwd", cwd, "-o", "a.css")).code).toBe(1);
+  it("is reported by check, with its position and what to do instead", async () => {
+    const { code, stderr } = await croff("check", "--cwd", cwd);
+    expect(code).toBe(1);
+    expect(stderr).toContain("src/a.html:1:18: error unsupported-group");
+    expect(stderr).toContain("Variant groups aren't supported.");
+    expect(stderr).toContain('each starting with "hover:"');
+  });
+
+  it("doesn't stop dev from compiling everything else", async () => {
+    const { code, stderr } = await croff("dev", "--cwd", cwd, "-o", "a.css", "--once");
+    expect(code).toBe(0);
+    expect(stderr).toContain("unsupported-group");
+    const css = await read("a.css");
+    expect(css).toContain(".gap\\(4\\)");
+    expect(css).not.toContain("hover");
+  });
+
+  it("fails build, like any other invalid class", async () => {
+    const { code } = await croff("build", "--cwd", cwd, "-o", "a.css");
+    expect(code).toBe(1);
+    expect(existsSync(join(cwd, "a.css"))).toBe(false);
   });
 });

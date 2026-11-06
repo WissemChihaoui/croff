@@ -9,7 +9,6 @@ The first release, for public testing. Nothing has been published to a package r
 - Nested functions: `alpha()`, `var()` and transform functions.
 - `color()` and `scale()`: concise, preferred names for setting text color and scaling.
 - Variants that compose: seven state variants, and responsive variants from your theme's breakpoints.
-- Variant groups: `md:hover:(bg(brand),padding(4))` applies variants to several utilities, and can nest.
 
 ### Compiler
 

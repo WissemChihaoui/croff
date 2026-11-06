@@ -14,58 +14,16 @@ const span = (kind: string, text: string) => `<span class="t-${kind}">${escapeHt
 
 const EXPRESSION = /^((?:[a-z0-9][a-z0-9-]*:)*)([a-z][a-z0-9-]*)([([])(.*)([)\]])$/s;
 
-const GROUP = /^((?:[a-z0-9][a-z0-9-]*:)+)\((.*)\)$/s;
-
-/** Splits on commas that aren't inside brackets or quotes. */
-function splitMembers(text: string): string[] {
-  const members: string[] = [];
-  let depth = 0;
-  let quote = "";
-  let current = "";
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i]!;
-    if (ch === "\\") {
-      current += ch + (text[++i] ?? "");
-      continue;
-    }
-    if (quote) {
-      if (ch === quote) quote = "";
-    } else if (ch === "'" || ch === '"') {
-      quote = ch;
-    } else if (ch === "(" || ch === "[") {
-      depth++;
-    } else if (ch === ")" || ch === "]") {
-      depth--;
-    } else if (ch === "," && depth === 0) {
-      members.push(current);
-      current = "";
-      continue;
-    }
-    current += ch;
-  }
-  members.push(current);
-  return members;
-}
-
-function highlightVariants(variants: string): string {
-  return variants
+/** Colors one expression: variants, utility name, value. */
+export function highlightExpression(text: string): string {
+  const match = EXPRESSION.exec(text);
+  if (!match) return span("string", text);
+  const [, variants, name, open, inner, close] = match;
+  const prefix = variants!
     .split(":")
     .filter(Boolean)
     .map((variant) => `${span("variant", variant)}${span("punct", ":")}`)
     .join("");
-}
-
-/** Colors one expression: variants, utility name, value. Groups color each member. */
-export function highlightExpression(text: string): string {
-  const group = GROUP.exec(text);
-  if (group) {
-    const members = splitMembers(group[2]!).map(highlightExpression).join(span("punct", ","));
-    return `${highlightVariants(group[1]!)}${span("punct", "(")}${members}${span("punct", ")")}`;
-  }
-  const match = EXPRESSION.exec(text);
-  if (!match) return span("string", text);
-  const [, variants, name, open, inner, close] = match;
-  const prefix = highlightVariants(variants!);
   const kind = open === "[" ? "raw" : "arg";
   return `${prefix}${span("utility", name!)}${span("punct", open!)}${inner ? span(kind, inner) : ""}${span("punct", close!)}`;
 }
@@ -86,7 +44,7 @@ function highlightQuoted(text: string): string {
 
 /** Whether a string's content looks like class names and not prose. */
 function hasExpression(text: string): boolean {
-  return text.split(/\s+/).some((part) => GROUP.test(part) || EXPRESSION.test(part));
+  return text.split(/\s+/).some((part) => EXPRESSION.test(part));
 }
 
 function tokenize(code: string, rules: [RegExp, (match: RegExpExecArray) => string][]): string {

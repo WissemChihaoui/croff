@@ -24,8 +24,6 @@ CompiledRule { selector, declarations, atRules, sort }
 CSS
 ```
 
-A [variant group](/docs/concepts/variant-groups) is expanded right after parsing. Each member then goes through the stages above as an ordinary expression, so there's no separate path for groups. The only trace left is in printing, where each rule also selects the groups containing it.
-
 ## The registry is data
 
 Utilities are definitions, not branches in the compiler. The compiler doesn't know what `gap` is. A definition declares arguments made of value types, and the properties they set or a function that computes declarations. That's why plugin utilities have the same powers as built-ins, and why the utility reference can be generated.

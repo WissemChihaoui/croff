@@ -109,19 +109,14 @@ describe("PostCSS watch mode", () => {
   });
 });
 
-describe("variant groups through PostCSS", () => {
-  it("compiles them", async () => {
-    await write("src/a.html", '<a class="md:(gap(8),hover:bg(brand))">');
-    const { css } = await run("@croff;");
-    expect(css).toContain("@media (min-width: 768px)");
-    expect(css).toContain(".md\\:\\(gap\\(8\\)\\,hover\\:bg\\(brand\\)\\):hover");
-  });
-
-  it("reports failing members as warnings", async () => {
-    await write("src/a.html", '<a class="md:(pad(4))">');
+describe("unsupported grouping syntax through PostCSS", () => {
+  it("warns, and compiles everything else", async () => {
+    await write("src/a.html", '<a class="gap(8) md:(gap(4),hover:bg(brand))">');
     const result = await run("@croff;");
+    expect(result.css).toContain(".gap\\(8\\)");
+    expect(result.css).not.toContain("hover");
     expect(result.warnings().map((w) => w.text)).toEqual([
-      expect.stringContaining('Unknown utility "pad"'),
+      expect.stringContaining("Variant groups aren't supported."),
     ]);
   });
 });

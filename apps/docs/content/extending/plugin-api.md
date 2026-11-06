@@ -11,7 +11,7 @@ Before 1.0, any release can change anything, including the language itself. Noth
 
 | API                                                               | Status                                                         |
 | ----------------------------------------------------------------- | -------------------------------------------------------------- |
-| Utility expressions and the grammar, including variant groups     | Not final. Changes will be called out in the changelog.        |
+| Utility expressions and the grammar                               | Not final. Changes will be called out in the changelog.        |
 | `@croff` directives, `defineConfig`, config options, CLI commands | Intended to stay. Changes will be called out in the changelog. |
 | `createCroff` and its `compile` and `processCss` methods          | Intended to stay.                                              |
 | `parse`, `expand`, the AST and compiled rule shapes               | Unstable, marked `@unstable` in the code.                      |

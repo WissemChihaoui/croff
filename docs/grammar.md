@@ -29,9 +29,7 @@ keeps source scanning precise.
 ## 2. Grammar (EBNF)
 
 ```ebnf
-expression   = { variant , ":" } , ( utility | group ) ;
-
-group        = "(" , expression , { "," , expression } , ")" ;   (* needs at least one variant *)
+expression   = { variant , ":" } , utility ;
 
 variant      = variant-name ;
 utility      = utility-name , ( call | arbitrary ) ;
@@ -107,7 +105,7 @@ You never write CSS escapes in markup.
 
 ## 5. Nested functions
 
-An argument may itself be a function call. Calls and variant groups share a limit of 16 levels of nesting. A function's
+An argument may itself be a function call, to any depth up to 16. A function's
 meaning is defined by the argument type of the utility that receives it:
 
 ```text
@@ -151,22 +149,16 @@ md:hover:focus:bg(brand)
   but select the same elements under the same conditions.
 - A repeated variant (`hover:hover:x`) is a `duplicate-variant` error.
 
-## 8. Variant groups
+## 8. No grouping syntax
 
-A group applies its variants to every member. A member is any expression, so groups nest:
+Applying variants to a parenthesized list of utilities isn't part of the language:
 
 ```text
-md:hover:(bg(brand),padding(4))
-sm:(padding(4),hover:(bg(brand),color(white)))
+hover:(bg(brand),color(white))    Error: unsupported-group
+hover:bg(brand) hover:color(white)    Write this instead
 ```
 
-- **A group needs a variant.** `(gap(4))` is a `group-without-variant` error, as is a group directly inside a group: `hover:((gap(4)))`.
-- **Sugar only.** `expand()` flattens a group into ordinary expressions, in source order and without repeats. Members inherit the variants of every enclosing group, outermost first, then add their own. Later stages handle ordinary expressions only.
-- **Whitespace** is an error here as everywhere, because the class attribute would split.
-- **Repeated variants** are an error across levels: `hover:(hover:gap(4))` is `duplicate-variant`.
-- **The parser decides nothing about meaning.** `nonsense:(whatever(1))` parses. The registry rejects each member afterwards.
-- **The class name is the whole group.** Since markup isn't rewritten, generated rules select the group as written, escaped. See [ADR 0008](./adr/0008-variant-groups.md).
-- **Failures.** A syntax error, found by the parser, rejects the whole group. A resolution error, found by the registry, rejects only that member, and diagnostics point at the member. Valid members still compile.
+`parse` recognizes the prefix, variants followed by `(`, and reports `unsupported-group` without reading any further. See [ADR 0008](./adr/0008-variant-groups.md) for why.
 
 ## 9. Errors
 
@@ -174,28 +166,24 @@ The parser never throws on bad input. `parse()` returns
 `{ ok: false, error }` where `error` has a stable `code`, a human `message`, a
 source `span` and, when possible, a `hint`.
 
-| Code                    | Trigger                                            |
-| ----------------------- | -------------------------------------------------- |
-| `empty`                 | The expression is empty.                           |
-| `whitespace`            | Whitespace inside an expression.                   |
-| `invalid-character`     | A character outside the grammar.                   |
-| `invalid-name`          | A malformed utility/variant/function name.         |
-| `missing-value`         | A bare word with no `(…)` or `[…]`.                |
-| `unexpected-token`      | A token out of place, e.g. `a(b)c`.                |
-| `unterminated-call`     | A `(` with no matching `)`.                        |
-| `empty-argument`        | `gap(,4)` or `gap(4,)`.                            |
-| `unterminated-bracket`  | A `[` with no matching `]`.                        |
-| `unbalanced-bracket`    | Mismatched nesting inside `[…]`.                   |
-| `empty-bracket`         | `width[]`.                                         |
-| `misplaced-bracket`     | A bracket value used as an argument.               |
-| `trailing-escape`       | An expression ending in `\`.                       |
-| `duplicate-variant`     | The same variant used twice.                       |
-| `too-deep`              | Nesting deeper than 16 levels.                     |
-| `group-without-variant` | A group with no variant in front of it.            |
-| `empty-group`           | `hover:()`.                                        |
-| `empty-group-member`    | `hover:(gap(4),)` or `hover:(,gap(4))`.            |
-| `unterminated-group`    | A group's `(` with no matching `)`.                |
-| `unexpected-group`      | A group passed where a single utility is required. |
+| Code                   | Trigger                                              |
+| ---------------------- | ---------------------------------------------------- |
+| `empty`                | The expression is empty.                             |
+| `whitespace`           | Whitespace inside an expression.                     |
+| `invalid-character`    | A character outside the grammar.                     |
+| `invalid-name`         | A malformed utility/variant/function name.           |
+| `missing-value`        | A bare word with no `(…)` or `[…]`.                  |
+| `unexpected-token`     | A token out of place, e.g. `a(b)c`.                  |
+| `unterminated-call`    | A `(` with no matching `)`.                          |
+| `empty-argument`       | `gap(,4)` or `gap(4,)`.                              |
+| `unterminated-bracket` | A `[` with no matching `]`.                          |
+| `unbalanced-bracket`   | Mismatched nesting inside `[…]`.                     |
+| `empty-bracket`        | `width[]`.                                           |
+| `misplaced-bracket`    | A bracket value used as an argument.                 |
+| `trailing-escape`      | An expression ending in `\`.                         |
+| `duplicate-variant`    | The same variant used twice.                         |
+| `too-deep`             | Nesting deeper than 16 levels.                       |
+| `unsupported-group`    | Variants followed by `(`, as in `hover:(a(1),b(2))`. |
 
 Name and value resolution (`unknown-utility`, `invalid-argument`, …) happens
 later, in the registry. Syntax errors never depend on configuration.

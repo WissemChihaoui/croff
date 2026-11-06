@@ -226,11 +226,11 @@ describe("configuration changes in the dev server", () => {
   });
 });
 
-describe("variant groups through Vite", () => {
-  it("survive the production pipeline and its CSS minifier", async () => {
+describe("unsupported grouping syntax through Vite", () => {
+  it("doesn't stop a build from compiling everything else", async () => {
     await write(
       "index.html",
-      '<div class="md:(gap(4),hover:bg(brand))"></div><script type="module" src="/src/main.js"></script>',
+      '<div class="gap(4) md:(gap(8),hover:bg(brand))"></div><script type="module" src="/src/main.js"></script>',
     );
     await write("src/main.js", 'import "./style.css";');
     await build({ root, logLevel: "silent", plugins: [croff()], build: { outDir: "dist" } });
@@ -244,6 +244,7 @@ describe("variant groups through Vite", () => {
       "utf8",
     );
     expect(css).toContain("--croff-spacing-4:1rem");
-    expect(css).toMatch(/\.md\\:\\\(gap\\\(4\\\)\\,hover\\:bg\\\(brand\\\)\\\):hover/);
+    expect(css).not.toContain("--croff-spacing-8");
+    expect(css).not.toContain("hover");
   });
 });

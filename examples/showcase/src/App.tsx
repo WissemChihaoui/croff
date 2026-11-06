@@ -25,7 +25,7 @@ function Buttons() {
       >
         Secondary
       </button>
-      <button className={`${button} hover:(bg(gray-800),color(brand))`}>Ghost</button>
+      <button className={`${button} hover:bg(gray-800) hover:color(brand)`}>Ghost</button>
       <button disabled className={`${button} bg(brand) color(dark)`}>
         Disabled
       </button>

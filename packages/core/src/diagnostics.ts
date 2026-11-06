@@ -1,5 +1,5 @@
 import type { CompileFailure } from "@croff/compiler";
-import { formatParseError } from "@croff/parser";
+import { formatParseError, parse } from "@croff/parser";
 import type { ScannedCandidate, ScannedExpression } from "@croff/scanner";
 
 export type DiagnosticSeverity = "error" | "warning";
@@ -37,16 +37,17 @@ export function diagnoseFailure(
   const context = candidate?.context ?? "class";
   if (context === "code") return undefined;
 
-  // Point at the exact place in the class: the broken token, or the failing member of a group.
-  const offset =
-    failure.phase === "parse" ? failure.error.span.start : (failure.group?.span.start ?? 0);
+  // Point at the exact place in the class.
+  const offset = failure.phase === "parse" ? failure.error.span.start : 0;
   const where = candidate ? { ...location(candidate), column: candidate.column + offset } : {};
   const { expression } = failure;
 
   if (failure.phase === "parse") {
-    if (context !== "class") return undefined;
+    // Text that merely fails to parse may be anything, but this shape is recognizable.
+    const isGroup = failure.error.code === "unsupported-group";
+    if (context !== "class" && !isGroup) return undefined;
     return {
-      severity: "error",
+      severity: context === "class" ? "error" : "warning",
       code: failure.error.code,
       message: formatParseError(failure.error, expression),
       expression,
@@ -85,6 +86,18 @@ export function diagnoseDynamic(item: ScannedExpression): Diagnostic | undefined
 }
 
 export function diagnoseBroken(item: ScannedExpression): Diagnostic {
+  // Whitespace in `hover:(a(1), b(2))` isn't the real problem, so report the real one.
+  const parsed = parse(item.text);
+  if (!parsed.ok && parsed.error.code === "unsupported-group") {
+    return {
+      severity: "error",
+      code: parsed.error.code,
+      message: formatParseError(parsed.error, item.text),
+      expression: item.text,
+      ...(parsed.error.hint ? { hint: parsed.error.hint } : {}),
+      ...location(item),
+    };
+  }
   return {
     severity: "error",
     code: "whitespace",

@@ -7,7 +7,7 @@ import { parse, formatParseError } from "@croff/parser";
 
 const result = parse("md:bg(alpha(brand,50))");
 if (result.ok)
-  console.log(result.node.type); // "utility", or "group" for hover:(a(1),b(2))
+  console.log(result.node.name); // "bg"
 else console.error(formatParseError(result.error, "md:bg(alpha(brand,50))"));
 ```
 

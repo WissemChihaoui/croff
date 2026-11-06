@@ -179,16 +179,7 @@ export function createCroff(
 
 export { findDirectives, type Directive, type DirectiveError } from "./directive.js";
 export { definePlugin, PLUGIN_API_VERSION, PluginError, type CroffPlugin };
-export {
-  expand,
-  formatParseError,
-  parse,
-  type ExpandedExpression,
-  type ExpressionNode,
-  type GroupNode,
-  type ParseError,
-  type UtilityNode,
-} from "@croff/parser";
+export { formatParseError, parse, type ParseError, type UtilityNode } from "@croff/parser";
 export type {
   CompiledRule,
   CompileFailure,

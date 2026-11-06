@@ -44,7 +44,7 @@ export interface ArbitraryNode {
  */
 export interface UtilityNode {
   type: "utility";
-  /** The expression as written, without surrounding whitespace. In a group, just this member. */
+  /** The full expression as written, without surrounding whitespace. */
   source: string;
   name: string;
   nameSpan: Span;
@@ -55,22 +55,3 @@ export interface UtilityNode {
   arbitrary?: ArbitraryNode;
   span: Span;
 }
-
-/**
- * A variant group, such as `md:(gap(4),hover:bg(brand))`. Syntactic sugar: `expand`
- * turns it into ordinary expressions, which is all that later stages ever see.
- *
- * @unstable The AST may change between 0.x releases.
- */
-export interface GroupNode {
-  type: "group";
-  /** The whole group as written. */
-  source: string;
-  /** The variants directly in front of this group's parentheses. */
-  variants: VariantNode[];
-  /** Spans in members are positions in the outermost group's source. */
-  members: ExpressionNode[];
-  span: Span;
-}
-
-export type ExpressionNode = UtilityNode | GroupNode;

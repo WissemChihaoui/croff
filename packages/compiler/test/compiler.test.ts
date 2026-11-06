@@ -359,3 +359,143 @@ describe("snapshots", () => {
     ).toMatchSnapshot();
   });
 });
+
+describe("color and scale", () => {
+  const names = (result: { rules: { expression: string }[] }) =>
+    result.rules.map((rule) => rule.expression);
+
+  it("apply responsive and state variants", () => {
+    const output = css(["md:color(white)", "hover:scale(105)", "md:hover:scale(110)"]);
+    expect(output).toContain(".hover\\:scale\\(105\\):hover {\n  transform: scale(1.05);");
+    expect(output).toContain(
+      "@media (min-width: 768px) {\n  .md\\:color\\(white\\) {\n    color: var(--croff-color-white);",
+    );
+    expect(output).toContain(".md\\:hover\\:scale\\(110\\):hover {\n    transform: scale(1.1);");
+  });
+
+  it("combine several variants, and take bracket values", () => {
+    const { failures, rules } = makeCompiler().compile([
+      "sm:focus:color(brand)",
+      "lg:color[#ff00aa]",
+      "lg:hover:scale[1.2,0.8]",
+    ]);
+    expect(failures).toEqual([]);
+    expect(rules.map((rule) => rule.declarations)).toEqual([
+      [["color", "var(--croff-color-brand)"]],
+      [["color", "#ff00aa"]],
+      [["transform", "scale(1.2,0.8)"]],
+    ]);
+  });
+
+  it("emit only the tokens they use", () => {
+    const output = css(["color(brand)", "scale(105)"]);
+    expect(output).toContain("--croff-color-brand");
+    expect(output).not.toContain("--croff-color-white");
+  });
+
+  it("respect a custom theme", () => {
+    const compiler = makeCompiler({ colors: { accent: "#123456", white: null } });
+    expect(compiler.compile(["color(accent)"]).css).toContain("--croff-color-accent: #123456;");
+    expect(compiler.compile(["color(white)"]).failures).toMatchObject([
+      { error: { code: "invalid-argument" } },
+    ]);
+  });
+
+  it("win over their longer forms, in any written order", () => {
+    expect(names(makeCompiler().compile(["color(white)", "text-color(brand)"]))).toEqual([
+      "text-color(brand)",
+      "color(white)",
+    ]);
+    expect(names(makeCompiler().compile(["scale(105)", "transform(rotate(5deg))"]))).toEqual([
+      "transform(rotate(5deg))",
+      "scale(105)",
+    ]);
+  });
+
+  it("report invalid values as resolution errors, and leave valid expressions compiling", () => {
+    const { rules, failures } = makeCompiler().compile([
+      "color(nope)",
+      "scale(105)",
+      "scale(1.05)",
+    ]);
+    expect(names({ rules })).toEqual(["scale(105)"]);
+    expect(failures.map((failure) => [failure.expression, failure.error.code])).toEqual([
+      ["color(nope)", "invalid-argument"],
+      ["scale(1.05)", "invalid-argument"],
+    ]);
+  });
+});
+
+describe("unsupported grouping syntax", () => {
+  it("is reported as a syntax error, without generating any CSS for it", () => {
+    const {
+      rules,
+      failures,
+      css: output,
+    } = makeCompiler().compile(["hover:(bg(brand),color(white))"]);
+    expect(rules).toEqual([]);
+    expect(output).toBe("");
+    expect(failures).toMatchObject([
+      {
+        expression: "hover:(bg(brand),color(white))",
+        phase: "parse",
+        error: { code: "unsupported-group" },
+      },
+    ]);
+  });
+
+  it("doesn't stop other expressions from compiling", () => {
+    const { rules, failures } = makeCompiler().compile([
+      "gap(4)",
+      "hover:(bg(brand),color(white))",
+      "md:(padding(4))",
+      "hover:bg(brand)",
+    ]);
+    expect(rules.map((rule) => rule.expression)).toEqual(["gap(4)", "hover:bg(brand)"]);
+    expect(failures.map((failure) => failure.expression)).toEqual([
+      "hover:(bg(brand),color(white))",
+      "md:(padding(4))",
+    ]);
+  });
+
+  it("gives the same output in any input order", () => {
+    const input = ["hover:(a(1))", "gap(4)", "md:(b(2))", "bg(brand)"];
+    const first = makeCompiler().compile(input);
+    const second = makeCompiler().compile([...input].reverse());
+    expect(second.css).toBe(first.css);
+    expect(second.failures).toEqual(first.failures);
+  });
+});
+
+describe("cascade: output order", () => {
+  it("puts states and breakpoints in the documented order", () => {
+    const { rules } = makeCompiler().compile([
+      "md:hover:padding[6px]",
+      "md:padding[2px]",
+      "hover:padding[3px]",
+      "group-hover:padding[4px]",
+      "focus:padding[5px]",
+      "padding[1px]",
+    ]);
+    expect(rules.map((rule) => rule.expression)).toEqual([
+      "padding[1px]",
+      "group-hover:padding[4px]",
+      "hover:padding[3px]",
+      "focus:padding[5px]",
+      "md:padding[2px]",
+      "md:hover:padding[6px]",
+    ]);
+  });
+
+  it("keeps native selectors, without flattening specificity", () => {
+    const { rules, css: output } = makeCompiler().compile([
+      "hover:gap[1px]",
+      "group-hover:gap[2px]",
+    ]);
+    expect(rules.map((rule) => rule.selector)).toEqual([
+      ".group:hover .group-hover\\:gap\\[2px\\]",
+      ".hover\\:gap\\[1px\\]:hover",
+    ]);
+    expect(output).not.toContain(":where(");
+  });
+});
