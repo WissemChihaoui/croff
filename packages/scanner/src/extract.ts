@@ -71,6 +71,18 @@ function endsExpression(source: string, end: number): boolean {
   return code === 92 && "nrtf\"'`".includes(source[end + 1] ?? " ");
 }
 
+/** Whether a quote is open at `offset`, reading only its own line, as JavaScript strings do. */
+function insideStringOnLine(source: string, offset: number): boolean {
+  let open = 0;
+  for (let i = source.lastIndexOf("\n", offset - 1) + 1; i < offset; i++) {
+    const code = source.charCodeAt(i);
+    if (code === 92) i++;
+    else if (open === 0 && isQuote(code)) open = code;
+    else if (code === open) open = 0;
+  }
+  return open !== 0;
+}
+
 /**
  * Variant prefixes then a utility name then `(` or `[`. Also variants then `(`, which CROFF
  * doesn't support: such a token has to reach the parser, so that it can be reported.
@@ -344,7 +356,11 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
     }
 
     const context: CandidateContext =
-      inDirective || inClassRegion(i) ? "class" : isQuote(previous) ? "string" : "code";
+      inDirective || inClassRegion(i)
+        ? "class"
+        : isQuote(previous) || (isProperty && insideStringOnLine(source, i))
+          ? "string"
+          : "code";
     if (isProperty && context === "code") {
       i = Math.max(i + 1, firstBreak(source, i));
       continue;

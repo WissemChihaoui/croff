@@ -23,7 +23,7 @@ When there's no utility for a property, put the property inside the brackets as 
 
 This takes variants and follows the same rules as any bracket value, including everything below. It sorts after all utilities, so it wins when both set the same property with equal specificity. CROFF doesn't check the property name against a list of real properties, so a typo reaches the stylesheet and the browser ignores it.
 
-The scanner only reads this form in class attributes, class helpers and strings. In plain code, `[key:string]` means something else.
+The scanner only reads this form in class attributes, class helpers and strings. In plain code, `[key:string]` means something else. A string is only recognized on the line where it opens, so in a template literal spanning several lines, use a class helper such as `cx`.
 
 ## Spaces
 

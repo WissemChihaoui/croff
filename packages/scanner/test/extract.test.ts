@@ -314,6 +314,21 @@ describe("arbitrary properties", () => {
     ]);
   });
 
+  it("finds them anywhere in a string on one line", () => {
+    expect(
+      extractCandidates('const a = "gap(4) [float:left] md:[clear:both]";').candidates,
+    ).toMatchObject([
+      { expression: "gap(4)", context: "string" },
+      { expression: "[float:left]", context: "string" },
+      { expression: "md:[clear:both]", context: "string" },
+    ]);
+  });
+
+  it("isn't fooled by a string that has closed", () => {
+    expect(expressions('const a = on ? "x" : [b:c];')).toEqual([]);
+    expect(expressions(`const a = 'it\\'s' + [b:c];`)).toEqual([]);
+  });
+
   it("ignores them in plain code, where brackets mean something else", () => {
     expect(expressions("interface A { [key:string]: number }\nconst b = x ? [a:b] : c;")).toEqual(
       [],
