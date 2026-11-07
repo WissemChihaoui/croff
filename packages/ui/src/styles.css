@@ -1,0 +1,54 @@
+@croff;
+
+:root {
+  color-scheme: dark;
+}
+
+/* The light theme. Lime stays the fill, but it's too pale for text, so accent darkens. */
+[data-theme="light"] {
+  color-scheme: light;
+  --croff-color-ink: #f7f6f1;
+  --croff-color-surface: #ffffff;
+  --croff-color-raised: #eeece5;
+  --croff-color-line: #dddad0;
+  --croff-color-line-strong: #a9a596;
+  --croff-color-fg: #12120f;
+  --croff-color-soft: #45443d;
+  --croff-color-faint: #6b6a60;
+  --croff-color-brand-dark: #a4d30b;
+  --croff-color-accent: #4f6400;
+  --croff-color-danger: #b8231a;
+  --croff-color-on-danger: #ffffff;
+  --croff-color-warning: #8a5a00;
+  --croff-color-success: #146c3c;
+  --croff-color-info: #0b5cad;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@keyframes croff-ui-sweep {
+  from {
+    background-position: -80% 0;
+  }
+  to {
+    background-position: 180% 0;
+  }
+}
+
+@keyframes croff-ui-sheen {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
+}
+
+@keyframes croff-ui-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}

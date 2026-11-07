@@ -7,7 +7,15 @@ const links = [
   {
     label: "Docs",
     href: FIRST_DOC,
-    match: (path: string) => path.startsWith("/docs") && !path.startsWith("/docs/utilities"),
+    match: (path: string) =>
+      path.startsWith("/docs") &&
+      !path.startsWith("/docs/utilities") &&
+      !path.startsWith("/docs/components"),
+  },
+  {
+    label: "Components",
+    href: "/docs/components/overview",
+    match: (path: string) => path.startsWith("/docs/components"),
   },
   {
     label: "Utilities",

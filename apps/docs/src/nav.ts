@@ -3,7 +3,7 @@ export interface NavPage {
   /** The path below /docs/. Markdown lives at content/<slug>.md. */
   slug: string;
   /** Generated from the registry instead of Markdown. */
-  kind?: "utilities";
+  kind?: "utilities" | "components";
   /** The registry category, for generated pages. */
   category?: string;
 }
@@ -73,6 +73,13 @@ export const nav: NavSection[] = [
       utilities("Behavior", "behavior"),
       utilities("SVG", "svg"),
       utilities("Interactions", "interactions"),
+    ],
+  },
+  {
+    title: "Components",
+    pages: [
+      page("Overview", "components/overview"),
+      { title: "Gallery", slug: "components/gallery", kind: "components" },
     ],
   },
   {

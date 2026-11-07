@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import { DocsLayout } from "./components/DocsLayout";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
+import { ComponentsPage } from "./pages/ComponentsPage";
 import { DocPage } from "./pages/DocPage";
 import { Landing } from "./pages/Landing";
 import { NotFound } from "./pages/NotFound";
@@ -117,6 +118,7 @@ export function App({
             </DocsLayout>
           )}
           {route.kind === "utilities" && <UtilitiesPage page={route.page} />}
+          {route.kind === "components" && <ComponentsPage page={route.page} />}
           {route.kind === "not-found" && <NotFound />}
         </div>
         {route.kind !== "playground" && <Footer />}

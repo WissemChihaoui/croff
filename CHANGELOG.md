@@ -25,6 +25,10 @@ The first release, for public testing. Nothing has been published to a package r
 - Merging over a default theme, token removal with `null`, and an empty preset.
 - Validation of token names and values, including a scale that isn't an object, and names that collide with each other, with a keyword or with a variant.
 
+### Components
+
+- `@croff/ui`: ready-to-use components in the Chamfer design system, with dark and light themes. They work in any framework through functions that return class names, with React components on top.
+
 ### Tooling
 
 - A source scanner that works on any text file, with incremental rescans and file watching.

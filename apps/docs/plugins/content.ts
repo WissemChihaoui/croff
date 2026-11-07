@@ -1,11 +1,12 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { builtinUtilities, createCroff, stateVariants } from "@croff/core";
+import { builtinUtilities, createCroff, preferenceVariants, stateVariants } from "@croff/core";
 import type { Plugin } from "vite";
 import { parseFrontmatter, pageSections, renderMarkdown } from "../src/lib/markdown.ts";
 import type { SearchEntry } from "../src/lib/search.ts";
 import { flatPages, nav, utilityPath } from "../src/nav.ts";
+import { SAMPLES } from "../src/lib/component-samples.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const contentDir = resolve(here, "../content");
@@ -30,7 +31,7 @@ export function buildSearchIndex(): SearchEntry[] {
   const entries: SearchEntry[] = [];
 
   for (const page of flatPages()) {
-    if (page.kind === "utilities") continue;
+    if (page.kind) continue;
     const file = join(contentDir, `${page.slug}.md`);
     const { source } = applyIncludes(readFileSync(file, "utf8"), file);
     const { data } = parseFrontmatter(source);
@@ -63,7 +64,17 @@ export function buildSearchIndex(): SearchEntry[] {
       kind: "utility",
     });
   }
-  for (const variant of stateVariants) {
+  for (const sample of SAMPLES) {
+    entries.push({
+      title: sample.title,
+      heading: "",
+      group: "Components",
+      path: `/docs/components/gallery#${sample.id}`,
+      text: sample.description,
+      kind: "page",
+    });
+  }
+  for (const variant of [...stateVariants, ...preferenceVariants]) {
     entries.push({
       title: `${variant.name}:`,
       heading: "",

@@ -1,4 +1,5 @@
 import { builtinUtilities, createCroff } from "@croff/core";
+import { Badge, Button, Card, CardBody, Checkbox, Progress, Radio, Switch } from "@croff/ui/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { CodeBlock, CodeEditor, PreviewFrame } from "../components/Code";
 import { compileMarkup } from "../lib/engine";
@@ -26,6 +27,7 @@ const ECOSYSTEM = [
   ["@croff/vite", "Vite plugin with hot updates"],
   ["@croff/postcss", "PostCSS plugin"],
   ["@croff/plugin-api", "Add utilities, variants and tokens"],
+  ["@croff/ui", "Ready-to-use components, in the Chamfer design system"],
 ];
 
 const PIPELINE = [
@@ -367,12 +369,59 @@ function Reasons() {
   );
 }
 
-function Compare() {
-  const { displayCss } = useMemo(() => compileMarkup(COMPARE_SAMPLE), []);
+function Components() {
   return (
     <div className="border-top(1,line) bg(surface)">
       <section className={section}>
-        <SectionHead index="04" label="Input and output" title="What you read is what you debug.">
+        <SectionHead index="04" label="Components" title="Ready to use, and built with CROFF.">
+          @croff/ui is a set of components with a design system of its own, taken from the shapes of
+          the logo. Every color and size is a token you can change.
+        </SectionHead>
+        <div className="reveal display(grid) columns(1) md:columns(3) gap(3)">
+          <Card title="Buttons">
+            <div className="flex(row) flex-wrap(wrap) gap(2)">
+              <Button>Primary</Button>
+              <Button tone="secondary">Secondary</Button>
+              <Button tone="ghost">Ghost</Button>
+            </div>
+            <CardBody>Cut corners on anything you can press.</CardBody>
+          </Card>
+          <Card title="Status">
+            <div className="flex(row) flex-wrap(wrap) gap(2)">
+              <Badge tone="brand">New</Badge>
+              <Badge tone="success">Passing</Badge>
+              <Badge tone="danger">Failed</Badge>
+            </div>
+            <Progress value={64} label="Example progress" />
+            <CardBody>The logo's slash marks status, and leads the way.</CardBody>
+          </Card>
+          <Card title="Controls">
+            <div className="flex(col) gap(3)">
+              <Checkbox label="Checked shows a slash" defaultChecked />
+              <Radio label="Radio buttons are diamonds" name="landing-demo" defaultChecked />
+              <Switch label="The thumb slides across" defaultChecked />
+            </div>
+          </Card>
+        </div>
+        <div className="flex(row) flex-wrap(wrap) gap(3)">
+          <Link href="/docs/components/gallery" className={primaryButton}>
+            See every component <span aria-hidden="true">→</span>
+          </Link>
+          <Link href="/docs/components/overview" className={secondaryButton}>
+            How to use them
+          </Link>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Compare() {
+  const { displayCss } = useMemo(() => compileMarkup(COMPARE_SAMPLE), []);
+  return (
+    <div className="border-top(1,line)">
+      <section className={section}>
+        <SectionHead index="05" label="Input and output" title="What you read is what you debug.">
           Each expression becomes one rule whose selector is that expression. Nothing in your markup
           is rewritten, so the class you see in DevTools is the class you wrote.
         </SectionHead>
@@ -392,7 +441,7 @@ function Compare() {
 function Guarantees() {
   return (
     <section className={section}>
-      <SectionHead index="05" label={`In version ${site.version}`} title="Rules you can rely on." />
+      <SectionHead index="06" label={`In version ${site.version}`} title="Rules you can rely on." />
       <div className="display(grid) columns(1) lg:columns(2) gap(3)">
         <div className="reveal flex(col) gap(5) padding(6) md:padding(8) bg(surface) border(1,line)">
           <p aria-hidden="true" className="glyphs font(mono) text-size(6xl) line-height(none)">
@@ -446,7 +495,7 @@ function Install() {
     <div className="border-top(1,line) bg(surface)">
       <section className={section}>
         <SectionHead
-          index="06"
+          index="07"
           label="Installation"
           title="Add it to a Vite project in three steps."
         />
@@ -483,7 +532,7 @@ function Install() {
 function Ecosystem() {
   return (
     <section className={section}>
-      <SectionHead index="07" label="Ecosystem" title="Small packages, each with one job." />
+      <SectionHead index="08" label="Ecosystem" title="Small packages, each with one job." />
       <ol className="reveal display(grid) columns(2) md:columns(3) xl:columns(6) gap(px) bg(line) border(1,line)">
         {PIPELINE.map(([name, note], index) => (
           <li
@@ -559,8 +608,11 @@ export function Landing() {
       <Bench />
       <Anatomy />
       <Reasons />
+      <Components />
       <Compare />
-      <Guarantees />
+      <div className="border-top(1,line)">
+        <Guarantees />
+      </div>
       <Install />
       <Ecosystem />
       <FinalCall />

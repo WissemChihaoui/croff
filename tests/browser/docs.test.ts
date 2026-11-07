@@ -1,4 +1,6 @@
 import { spawn, type ChildProcess } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { builtinUtilities } from "@croff/core";
@@ -11,6 +13,17 @@ import {
   type Browser,
   type Page,
 } from "./helpers.js";
+
+const axePath = createRequire(import.meta.url).resolve("axe-core/axe.min.js");
+
+interface AxeRunner {
+  run(
+    context: string,
+    options: { resultTypes: string[] },
+  ): Promise<{
+    violations: { id: string; nodes: { target: string[]; failureSummary: string }[] }[];
+  }>;
+}
 
 const PORT = 4177;
 const BASE = `http://127.0.0.1:${PORT}`;
@@ -345,6 +358,151 @@ describe.each(engineNames)("documentation site in %s", (engine) => {
       await second.close();
       await page.close();
     });
+  });
+
+  describe("component gallery", () => {
+    const GALLERY = "/docs/components/gallery";
+    const demo = (page: Page, id: string) => page.getByTestId(`demo-${id}`);
+
+    it("switches the examples between themes", async () => {
+      const { page } = await open(browser, GALLERY);
+      const background = () =>
+        demo(page, "button").evaluate((element) => getComputedStyle(element).backgroundColor);
+      expect(await background()).toBe("rgb(10, 10, 10)");
+      await page.getByRole("button", { name: "Light", exact: true }).click();
+      await expect.poll(background).toBe("rgb(247, 246, 241)");
+      await page.close();
+    });
+
+    it("toggles real form controls", async () => {
+      const { page } = await open(browser, GALLERY);
+      const controls = demo(page, "choices");
+      const unchecked = controls.getByRole("checkbox", { name: "Not checked" });
+      await unchecked.click();
+      expect(await unchecked.isChecked()).toBe(true);
+      await expect
+        .poll(() => unchecked.evaluate((element) => getComputedStyle(element).backgroundColor))
+        .toBe("rgb(200, 253, 18)");
+
+      const off = controls.getByRole("switch", { name: "Off" });
+      const position = () =>
+        off.evaluate((element) => getComputedStyle(element).backgroundPosition);
+      const before = await position();
+      await off.click();
+      await expect.poll(position).not.toBe(before);
+
+      const yearly = controls.getByRole("radio", { name: "Yearly" });
+      await yearly.click();
+      expect(await yearly.isChecked()).toBe(true);
+      expect(await controls.getByRole("radio", { name: "Monthly" }).isChecked()).toBe(false);
+      await page.close();
+    });
+
+    it("moves between tabs with the keyboard", async () => {
+      const { page } = await open(browser, GALLERY);
+      const tabs = demo(page, "tabs");
+      await tabs.getByRole("tab", { name: "CSS" }).focus();
+      await page.keyboard.press("ArrowRight");
+      const selected = tabs.getByRole("tab", { name: "Source map" });
+      await expect.poll(() => selected.getAttribute("aria-selected")).toBe("true");
+      expect(await selected.evaluate((element) => element === document.activeElement)).toBe(true);
+      expect(await tabs.getByRole("tabpanel").textContent()).toContain("Where each rule");
+      await page.keyboard.press("End");
+      await expect
+        .poll(() => tabs.getByRole("tab", { name: "Report" }).getAttribute("aria-selected"))
+        .toBe("true");
+      await page.keyboard.press("ArrowRight");
+      await expect
+        .poll(() => tabs.getByRole("tab", { name: "CSS" }).getAttribute("aria-selected"))
+        .toBe("true");
+      await page.close();
+    });
+
+    it("opens a dialog, and closes it with Escape and from outside", async () => {
+      const { page } = await open(browser, GALLERY);
+      const opener = demo(page, "dialog").getByRole("button", { name: "Delete project" });
+      const dialog = page.getByRole("dialog", { name: "Delete this project?" });
+
+      // From the keyboard, because Safari-family browsers don't focus a button that's clicked.
+      await page.locator("h1").click();
+      await opener.focus();
+      await page.keyboard.press("Enter");
+      await dialog.waitFor();
+      await page.keyboard.press("Escape");
+      await dialog.waitFor({ state: "hidden" });
+      expect(await opener.evaluate((element) => element === document.activeElement)).toBe(true);
+
+      await opener.click();
+      await dialog.waitFor();
+      await page.mouse.click(5, 450);
+      await dialog.waitFor({ state: "hidden" });
+
+      // A click inside must not close it.
+      await opener.click();
+      await dialog.waitFor();
+      await dialog.getByText("This can't be undone").click();
+      expect(await dialog.isVisible()).toBe(true);
+      await dialog.getByRole("button", { name: "Keep it" }).click();
+      await dialog.waitFor({ state: "hidden" });
+      await page.close();
+    });
+
+    it("opens one accordion item at a time", async () => {
+      const { page } = await open(browser, GALLERY);
+      const accordion = demo(page, "accordion");
+      await accordion.getByText("Does it need a runtime?").click();
+      await accordion.getByText("Do I need React?").click();
+      await expect.poll(() => accordion.locator("details[open]").count()).toBe(1);
+      expect(await accordion.locator("details[open]").textContent()).toContain("Do I need React?");
+      await page.close();
+    });
+
+    it("gives up the cut corner while focused, so that the outline shows", async () => {
+      const { page } = await open(browser, GALLERY);
+      const box = demo(page, "choices").getByRole("checkbox", { name: "Not checked" });
+      expect(await box.evaluate((element) => getComputedStyle(element).clipPath)).not.toBe("none");
+      await box.focus();
+      await page.keyboard.press("Space");
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+      expect(await box.evaluate((element) => element === document.activeElement)).toBe(true);
+      const style = await box.evaluate((element) => {
+        const computed = getComputedStyle(element);
+        return { clip: computed.clipPath, outline: computed.outlineStyle };
+      });
+      expect(style).toEqual({ clip: "none", outline: "solid" });
+      await page.close();
+    });
+
+    it("has no horizontal overflow on a phone", async () => {
+      const { page } = await open(browser, GALLERY, { width: 390, height: 844 });
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(0);
+      await page.close();
+    });
+
+    it.runIf(engine === "chromium").each(["Dark", "Light"])(
+      "has no accessibility violations in axe, in the %s theme",
+      async (theme) => {
+        const { page } = await open(browser, GALLERY);
+        await page.getByRole("button", { name: theme, exact: true }).click();
+        await page.addScriptTag({ content: readFileSync(axePath, "utf8") });
+        const violations = await page.evaluate(async () => {
+          const axe = (window as unknown as { axe: AxeRunner }).axe;
+          const { violations: found } = await axe.run('[data-testid^="demo-"]', {
+            resultTypes: ["violations"],
+          });
+          return found.map((violation) => ({
+            id: violation.id,
+            nodes: violation.nodes.map((node) => `${node.target}: ${node.failureSummary}`),
+          }));
+        });
+        expect(violations).toEqual([]);
+        await page.close();
+      },
+    );
   });
 
   it("serves a real 404 page", async () => {

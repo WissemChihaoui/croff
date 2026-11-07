@@ -47,6 +47,7 @@ export function Footer() {
           <Item href={FIRST_DOC}>Documentation</Item>
           <Item href="/docs/getting-started/installation">Getting started</Item>
           <Item href="/docs/utilities/layout">Utilities</Item>
+          <Item href="/docs/components/overview">Components</Item>
           <Item href="/playground">Playground</Item>
         </Column>
         <Column title="Reference">

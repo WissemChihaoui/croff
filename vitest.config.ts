@@ -14,11 +14,14 @@ const packages = [
   "core",
   "postcss",
   "vite",
+  "ui",
 ];
 
 export const aliases = [
   { find: "@croff/scanner/extract", replacement: src("scanner", "extract.ts") },
   { find: "@croff/core/node", replacement: src("core", "node.ts") },
+  { find: "@croff/ui/plugin", replacement: src("ui", "plugin.ts") },
+  { find: "@croff/ui/react", replacement: src("ui", "react/index.tsx") },
   ...packages.map((pkg) => ({ find: `@croff/${pkg}`, replacement: src(pkg) })),
 ];
 

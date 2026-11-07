@@ -7,7 +7,8 @@
     "sourceMap": false,
     "noEmit": true,
     "types": ["node"],
-    "lib": ["ES2023", "DOM", "DOM.Iterable"]
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx"
   },
   "include": ["packages/*/test/**/*.ts", "tests/**/*.ts", "vitest.config.ts"]
 }

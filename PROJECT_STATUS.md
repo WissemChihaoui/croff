@@ -44,6 +44,7 @@ Recorded in [docs/adr](./docs/adr):
 7. `croff.config.ts`, loaded with jiti.
 8. Variant groups were implemented, evaluated and rejected. There's no grouping syntax, and `hover:(...)` reports `unsupported-group`.
 9. `[property:value]` sets any CSS property, for properties without a utility.
+10. `@croff/ui` ships a prebuilt stylesheet, because the scanner ignores `node_modules`.
 
 Other deviations from the original plan:
 

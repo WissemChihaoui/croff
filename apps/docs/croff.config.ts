@@ -1,23 +1,10 @@
 import { defineConfig, definePlugin, values } from "@croff/core";
-
-/** The logo's angled cut, taken from the top left and bottom right corners. */
-const cut = (size: string) =>
-  `polygon(${size} 0, 100% 0, 100% calc(100% - ${size}), calc(100% - ${size}) 100%, 0 100%, 0 ${size})`;
+import { uiPlugin } from "@croff/ui/plugin";
 
 // The documentation site is built with CROFF. This plugin adds what only the brand needs.
 const brand = definePlugin({
   name: "croff-plugin-docs-brand",
   utilities: {
-    cut: {
-      description: "Cuts two corners at the angle of the logo.",
-      args: [
-        {
-          name: "size",
-          types: [values.keywords({ sm: cut("0.5rem"), md: cut("0.875rem"), lg: cut("2rem") })],
-        },
-      ],
-      properties: ["clip-path"],
-    },
     stretch: {
       description: "Sets the font width on variable fonts with a width axis.",
       args: [{ name: "width", types: [values.keywords({ normal: "100%", wide: "125%" })] }],
@@ -38,7 +25,7 @@ const brand = definePlugin({
 
 export default defineConfig({
   content: ["src/**/*.tsx"],
-  plugins: [brand],
+  plugins: [uiPlugin, brand],
   variables: "all",
   theme: {
     colors: {

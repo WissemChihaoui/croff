@@ -6,6 +6,7 @@ export type RouteData =
   | { kind: "playground" }
   | { kind: "doc"; page: NavPage; data: DocPageData }
   | { kind: "utilities"; page: NavPage }
+  | { kind: "components"; page: NavPage }
   | { kind: "not-found" };
 
 const pages = import.meta.glob<{ default: DocPageData }>("../content/**/*.md");
@@ -18,6 +19,7 @@ export async function loadRoute(pathname: string): Promise<RouteData> {
   if (path.startsWith("/docs/")) {
     const page = findPage(path.slice("/docs/".length));
     if (page?.kind === "utilities") return { kind: "utilities", page };
+    if (page?.kind === "components") return { kind: "components", page };
     if (page) {
       const load = pages[`../content/${page.slug}.md`];
       if (load) return { kind: "doc", page, data: (await load()).default };
@@ -47,6 +49,12 @@ export function routeHead(route: RouteData): { title: string; description: strin
       return {
         title: `${route.page.title} utilities | ${suffix}`,
         description: `Reference for CROFF's ${route.page.title.toLowerCase()} utilities, generated from the registry.`,
+      };
+    case "components":
+      return {
+        title: `Component gallery | ${suffix}`,
+        description:
+          "Every component in @croff/ui, live, in the Chamfer design system's dark and light themes.",
       };
     case "not-found":
       return { title: `Not found | ${suffix}`, description: "This page doesn't exist." };

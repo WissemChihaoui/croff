@@ -24,6 +24,7 @@ import {
   slugify,
 } from "../src/lib/markdown";
 import { generatedCss, signatures, usageExamples } from "../src/lib/reference";
+import { SAMPLES } from "../src/lib/component-samples";
 import { ANATOMY } from "../src/lib/samples";
 import { search } from "../src/lib/search";
 import { allRoutes, flatPages, nav } from "../src/nav";
@@ -56,7 +57,7 @@ function codeBlocks(source: string): { language: string; meta: string[]; code: s
 describe("navigation", () => {
   it("has a Markdown file for every page", () => {
     for (const page of flatPages()) {
-      if (page.kind === "utilities") continue;
+      if (page.kind) continue;
       expect(existsSync(join(contentDir, `${page.slug}.md`)), page.slug).toBe(true);
     }
   });
@@ -81,6 +82,7 @@ describe("navigation", () => {
       "Getting Started",
       "Core Concepts",
       "Utilities",
+      "Components",
       "Configuration",
       "Integrations",
       "Extending CROFF",
@@ -267,6 +269,21 @@ describe("search", () => {
           expect(rendered.html, `${slug}#${section.id}`).toContain(`id="${section.id}"`);
       }
     }
+  });
+});
+
+describe("component gallery", () => {
+  it("can be found by search, and so can preference variants", () => {
+    const index = buildSearchIndex();
+    expect(search(index, "accordion")[0]!.entry.path).toBe("/docs/components/gallery#accordion");
+    expect(search(index, "motion-reduce")[0]!.entry.path).toBe(
+      "/docs/utilities/interactions#motion-reduce",
+    );
+  });
+
+  it("has a live example for every sample, and no class outside the stylesheet", () => {
+    const source = readFileSync(join(root, "src/pages/ComponentsPage.tsx"), "utf8");
+    for (const { id } of SAMPLES) expect(source, id).toMatch(new RegExp(`\\b${id}: `));
   });
 });
 
