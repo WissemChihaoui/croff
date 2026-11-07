@@ -1,4 +1,4 @@
-import type { CssLayer } from "@croff/compiler";
+import type { CssLayer } from "@croffcss/compiler";
 
 export interface Directive {
   /** Offset of the `@`. */

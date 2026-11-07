@@ -6,7 +6,7 @@ description: Add utilities, variants and tokens.
 A plugin is an object that contributes to the registry and theme. Built-in utilities are registered through the same path.
 
 ```ts
-import { defineConfig, definePlugin, values } from "@croff/core";
+import { defineConfig, definePlugin, values } from "@croffcss/core";
 
 const typography = definePlugin({
   name: "croff-plugin-typography",

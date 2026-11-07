@@ -27,7 +27,7 @@ It looks at your project, then:
 ## What you get
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: ["src/**/*.{html,js,jsx,ts,tsx,vue,svelte,astro,md,mdx}", "index.html"],

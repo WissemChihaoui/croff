@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { basename, dirname, relative } from "node:path";
-import type { SourceMapV3 } from "@croff/core";
-import type { Diagnostic, Project } from "@croff/core/node";
+import type { SourceMapV3 } from "@croffcss/core";
+import type { Diagnostic, Project } from "@croffcss/core/node";
 
 export interface GenerateOptions {
   input: string | undefined;

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { build, createServer, type ViteDevServer } from "vite";
-import croff from "@croff/vite";
+import croff from "@croffcss/vite";
 
 let root: string;
 const write = async (path: string, content: string) => {

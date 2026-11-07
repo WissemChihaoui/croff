@@ -1,5 +1,14 @@
-import { builtinUtilities, createCroff } from "@croff/core";
-import { Badge, Button, Card, CardBody, Checkbox, Progress, Radio, Switch } from "@croff/ui/react";
+import { builtinUtilities, createCroff } from "@croffcss/core";
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  Progress,
+  Radio,
+  Switch,
+} from "@croffcss/ui/react";
 import { useMemo, useState, type ReactNode } from "react";
 import { CodeBlock, CodeEditor, PreviewFrame } from "../components/Code";
 import { compileMarkup } from "../lib/engine";
@@ -17,17 +26,17 @@ import { site } from "../site.config";
 const engine = createCroff();
 
 const ECOSYSTEM = [
-  ["@croff/core", "Public API, configuration and project orchestration"],
-  ["@croff/parser", "Tokenizer, parser and AST for the utility language"],
-  ["@croff/compiler", "Deterministic CSS generation and source maps"],
-  ["@croff/theme", "Design tokens and CSS variable generation"],
-  ["@croff/registry", "Utility and variant definitions"],
-  ["@croff/scanner", "Source scanning and file watching"],
-  ["@croff/cli", "croff init, dev, build and check"],
-  ["@croff/vite", "Vite plugin with hot updates"],
-  ["@croff/postcss", "PostCSS plugin"],
-  ["@croff/plugin-api", "Add utilities, variants and tokens"],
-  ["@croff/ui", "Ready-to-use components, in the Chamfer design system"],
+  ["@croffcss/core", "Public API, configuration and project orchestration"],
+  ["@croffcss/parser", "Tokenizer, parser and AST for the utility language"],
+  ["@croffcss/compiler", "Deterministic CSS generation and source maps"],
+  ["@croffcss/theme", "Design tokens and CSS variable generation"],
+  ["@croffcss/registry", "Utility and variant definitions"],
+  ["@croffcss/scanner", "Source scanning and file watching"],
+  ["@croffcss/cli", "croff init, dev, build and check"],
+  ["@croffcss/vite", "Vite plugin with hot updates"],
+  ["@croffcss/postcss", "PostCSS plugin"],
+  ["@croffcss/plugin-api", "Add utilities, variants and tokens"],
+  ["@croffcss/ui", "Ready-to-use components, in the Chamfer design system"],
 ];
 
 const PIPELINE = [
@@ -374,8 +383,8 @@ function Components() {
     <div className="border-top(1,line) bg(surface)">
       <section className={section}>
         <SectionHead index="04" label="Components" title="Ready to use, and built with CROFF.">
-          @croff/ui is a set of components with a design system of its own, taken from the shapes of
-          the logo. Every color and size is a token you can change.
+          @croffcss/ui is a set of components with a design system of its own, taken from the shapes
+          of the logo. Every color and size is a token you can change.
         </SectionHead>
         <div className="reveal display(grid) columns(1) md:columns(3) gap(3)">
           <Card title="Buttons">
@@ -483,11 +492,11 @@ function Guarantees() {
 
 function Install() {
   const steps = [
-    ["bash", "Install", `pnpm add -D @croff/core @croff/vite`],
+    ["bash", "Install", `pnpm add -D @croffcss/core @croffcss/vite`],
     [
       "ts",
       "vite.config.ts",
-      `import croff from "@croff/vite";\n\nexport default {\n  plugins: [croff()],\n};`,
+      `import croff from "@croffcss/vite";\n\nexport default {\n  plugins: [croff()],\n};`,
     ],
     ["css", "src/croff.css", `@croff reset;\n@croff;`],
   ] as const;

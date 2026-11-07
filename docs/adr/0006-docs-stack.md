@@ -8,8 +8,8 @@
 
 **Why.**
 
-- The site dogfoods `@croff/vite`, so every docs build is also an integration test of our primary integration.
-- The playground needs the compiler in the browser. In a plain Vite app this is an ordinary import of `@croff/core`, with no framework boundary to manage.
+- The site dogfoods `@croffcss/vite`, so every docs build is also an integration test of our primary integration.
+- The playground needs the compiler in the browser. In a plain Vite app this is an ordinary import of `@croffcss/core`, with no framework boundary to manage.
 - Prerendering takes about 80 lines and yields plain HTML files for any static host.
 - A separate `apps/playground` would duplicate the shell and brand with no benefit.
 

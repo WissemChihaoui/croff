@@ -1,9 +1,16 @@
 {
-  "name": "@croff/core",
+  "name": "@croffcss/core",
   "version": "0.1.0",
   "description": "The public CROFF API: configuration, engine and project orchestration.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WissemChihaoui/croff.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://croff.wisecode.tn",
+  "bugs": "https://github.com/WissemChihaoui/croff/issues",
   "sideEffects": false,
   "engines": {
     "node": ">=22.12.0"
@@ -29,12 +36,12 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@croff/parser": "workspace:*",
-    "@croff/theme": "workspace:*",
-    "@croff/registry": "workspace:*",
-    "@croff/compiler": "workspace:*",
-    "@croff/scanner": "workspace:*",
-    "@croff/plugin-api": "workspace:*",
+    "@croffcss/parser": "workspace:*",
+    "@croffcss/theme": "workspace:*",
+    "@croffcss/registry": "workspace:*",
+    "@croffcss/compiler": "workspace:*",
+    "@croffcss/scanner": "workspace:*",
+    "@croffcss/plugin-api": "workspace:*",
     "jiti": "^2.7.0"
   },
   "keywords": [

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import postcss from "postcss";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import croff from "@croff/postcss";
+import croff from "@croffcss/postcss";
 
 let cwd: string;
 const write = async (path: string, content: string) => {

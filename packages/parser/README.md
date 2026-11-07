@@ -1,9 +1,9 @@
-# @croff/parser
+# @croffcss/parser
 
 Tokenizer, parser and AST for the CROFF utility language. No dependencies, and no knowledge of utilities or themes.
 
 ```ts
-import { parse, formatParseError } from "@croff/parser";
+import { parse, formatParseError } from "@croffcss/parser";
 
 const result = parse("md:bg(alpha(brand,50))");
 if (result.ok)
@@ -11,4 +11,4 @@ if (result.ok)
 else console.error(formatParseError(result.error, "md:bg(alpha(brand,50))"));
 ```
 
-Part of [CROFF](../../README.md), version 0.1.0 (pre-release, not published yet).
+Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).

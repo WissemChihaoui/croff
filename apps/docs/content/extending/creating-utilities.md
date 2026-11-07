@@ -8,7 +8,7 @@ description: Define a utility and its accepted values.
 Use `properties` when one value goes into one or more CSS properties.
 
 ```ts
-import { definePlugin, values } from "@croff/core";
+import { definePlugin, values } from "@croffcss/core";
 
 export default definePlugin({
   name: "croff-plugin-tabs",
@@ -30,7 +30,7 @@ The bracket form is available automatically. Set `arbitrary: false` to turn it o
 Use `compile` when output depends on the arguments.
 
 ```ts
-import { definePlugin, values } from "@croff/core";
+import { definePlugin, values } from "@croffcss/core";
 
 export default definePlugin({
   name: "croff-plugin-stack",

@@ -52,7 +52,7 @@ These follow what the visitor's device asks for.
 To control dark mode with your own toggle, replace the variant with a plugin, and put the class `dark` on an ancestor:
 
 ```ts
-import { definePlugin } from "@croff/core";
+import { definePlugin } from "@croffcss/core";
 
 export default definePlugin({
   name: "croff-plugin-dark-class",

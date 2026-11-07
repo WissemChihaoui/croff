@@ -1,9 +1,16 @@
 {
-  "name": "@croff/scanner",
+  "name": "@croffcss/scanner",
   "version": "0.1.0",
   "description": "Finds CROFF expressions in project source files.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WissemChihaoui/croff.git",
+    "directory": "packages/scanner"
+  },
+  "homepage": "https://croff.wisecode.tn",
+  "bugs": "https://github.com/WissemChihaoui/croff/issues",
   "sideEffects": false,
   "engines": {
     "node": ">=22.12.0"

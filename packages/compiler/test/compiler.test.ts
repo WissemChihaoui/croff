@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Compiler, escapeCssIdentifier, minifyCss, type CompileOptions } from "@croff/compiler";
-import { createRegistry } from "@croff/registry";
-import { createTheme, type ThemeConfig } from "@croff/theme";
+import { Compiler, escapeCssIdentifier, minifyCss, type CompileOptions } from "@croffcss/compiler";
+import { createRegistry } from "@croffcss/registry";
+import { createTheme, type ThemeConfig } from "@croffcss/theme";
 
 function makeCompiler(themeConfig?: ThemeConfig) {
   const { theme } = createTheme(themeConfig ? [themeConfig] : []);

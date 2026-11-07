@@ -1,6 +1,6 @@
 ## 0.1.0 (pre-release)
 
-The first release, for public testing. Nothing has been published to a package registry yet.
+The first release, for public testing, published on npm under the `@croffcss` scope.
 
 ### Language
 
@@ -27,7 +27,7 @@ The first release, for public testing. Nothing has been published to a package r
 
 ### Components
 
-- `@croff/ui`: ready-to-use components in the Chamfer design system, with dark and light themes. They work in any framework through functions that return class names, with React components on top.
+- `@croffcss/ui`: ready-to-use components in the Chamfer design system, with dark and light themes. They work in any framework through functions that return class names, with React components on top.
 
 ### Tooling
 

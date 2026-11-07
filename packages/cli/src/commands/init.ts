@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
-import { findConfigFile } from "@croff/core/node";
+import { findConfigFile } from "@croffcss/core/node";
 import { paint, stringOption, UsageError, type Command } from "../shared.js";
 
 export type Integration = "vite" | "postcss" | "cli";
@@ -80,7 +80,7 @@ export function configTemplate(detected: Detected, stylesheet: string): string {
     detected.integration === "cli"
       ? `\n  input: "${stylesheet}",\n  output: "dist/croff.css",`
       : "";
-  return `import { defineConfig } from "@croff/core";
+  return `import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: [${content}],${cliOptions}
@@ -100,14 +100,14 @@ export const STYLESHEET = `@croff reset;
 
 /** Adds the plugin to a Vite config. Returns `undefined` if the file's shape isn't recognized. */
 export function patchViteConfig(source: string): string | undefined {
-  if (source.includes("@croff/vite")) return source;
+  if (source.includes("@croffcss/vite")) return source;
   const plugins = /plugins\s*:\s*\[/.exec(source);
   if (!plugins) return undefined;
   const insertAt = plugins.index + plugins[0].length;
   const empty = /^\s*\]/.test(source.slice(insertAt));
   const patched = `${source.slice(0, insertAt)}${empty ? "croff()" : "croff(), "}${source.slice(insertAt)}`;
   const lastImport = [...patched.matchAll(/^import .*$/gm)].at(-1);
-  const line = `import croff from "@croff/vite";\n`;
+  const line = `import croff from "@croffcss/vite";\n`;
   if (!lastImport) return line + patched;
   const end = lastImport.index + lastImport[0].length + 1;
   return patched.slice(0, end) + line + patched.slice(end);
@@ -183,10 +183,10 @@ export const initCommand: Command = {
     }
     await create(stylesheet, STYLESHEET);
 
-    const packages = ["@croff/core"];
+    const packages = ["@croffcss/core"];
 
     if (detected.integration === "vite") {
-      packages.push("@croff/vite");
+      packages.push("@croffcss/vite");
       let patched = false;
       if (detected.viteConfig) {
         const path = join(cwd, detected.viteConfig);
@@ -202,23 +202,23 @@ export const initCommand: Command = {
       }
       if (!patched) {
         next.push(
-          `Add the plugin to your Vite config:\n      import croff from "@croff/vite";\n      plugins: [croff()]`,
+          `Add the plugin to your Vite config:\n      import croff from "@croffcss/vite";\n      plugins: [croff()]`,
         );
       }
       next.push(`Import the stylesheet from your entry file: import "./croff.css";`);
     } else if (detected.integration === "postcss") {
-      packages.push("@croff/postcss");
+      packages.push("@croffcss/postcss");
       if (!detected.postcssConfig) {
         await create(
           "postcss.config.mjs",
-          `export default {\n  plugins: { "@croff/postcss": {} },\n};\n`,
+          `export default {\n  plugins: { "@croffcss/postcss": {} },\n};\n`,
         );
       } else {
-        next.push(`Add "@croff/postcss" to the plugins in ${detected.postcssConfig}.`);
+        next.push(`Add "@croffcss/postcss" to the plugins in ${detected.postcssConfig}.`);
       }
       next.push(`Import ${stylesheet} from your entry file or layout.`);
     } else {
-      packages.push("@croff/cli");
+      packages.push("@croffcss/cli");
       next.push(`Run "croff dev" while developing and "croff build" for production.`);
       next.push(`Link dist/croff.css from your HTML.`);
     }

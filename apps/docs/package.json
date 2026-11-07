@@ -1,5 +1,5 @@
 {
-  "name": "@croff/docs",
+  "name": "@croffcss/docs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@croff/core": "workspace:*",
-    "@croff/scanner": "workspace:*",
-    "@croff/ui": "workspace:*",
+    "@croffcss/core": "workspace:*",
+    "@croffcss/scanner": "workspace:*",
+    "@croffcss/ui": "workspace:*",
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
@@ -20,9 +20,9 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@croff/cli": "workspace:*",
-    "@croff/postcss": "workspace:*",
-    "@croff/vite": "workspace:*",
+    "@croffcss/cli": "workspace:*",
+    "@croffcss/postcss": "workspace:*",
+    "@croffcss/vite": "workspace:*",
     "@types/node": "^24.0.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

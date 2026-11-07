@@ -1,6 +1,6 @@
-import type { CompileFailure } from "@croff/compiler";
-import { formatParseError, parse } from "@croff/parser";
-import type { ScannedCandidate, ScannedExpression } from "@croff/scanner";
+import type { CompileFailure } from "@croffcss/compiler";
+import { formatParseError, parse } from "@croffcss/parser";
+import type { ScannedCandidate, ScannedExpression } from "@croffcss/scanner";
 
 export type DiagnosticSeverity = "error" | "warning";
 

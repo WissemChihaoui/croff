@@ -1,9 +1,9 @@
-# @croff/plugin-api
+# @croffcss/plugin-api
 
-The plugin interface, validation and registration. Plugin authors should import `definePlugin` from `@croff/core`.
+The plugin interface, validation and registration. Plugin authors should import `definePlugin` from `@croffcss/core`.
 
 ```ts
-import { definePlugin } from "@croff/plugin-api";
+import { definePlugin } from "@croffcss/plugin-api";
 
 export default definePlugin({
   name: "croff-plugin-example",
@@ -11,4 +11,4 @@ export default definePlugin({
 });
 ```
 
-Part of [CROFF](../../README.md), version 0.1.0 (pre-release, not published yet).
+Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).

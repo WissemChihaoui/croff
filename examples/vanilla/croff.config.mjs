@@ -1,4 +1,4 @@
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: ["*.html"],

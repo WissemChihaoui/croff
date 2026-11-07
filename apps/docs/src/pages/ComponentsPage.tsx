@@ -1,4 +1,4 @@
-import { page as pageRecipe } from "@croff/ui";
+import { page as pageRecipe } from "@croffcss/ui";
 import {
   Accordion,
   Alert,
@@ -23,7 +23,7 @@ import {
   Table,
   Tabs,
   Textarea,
-} from "@croff/ui/react";
+} from "@croffcss/ui/react";
 import { useState, type ReactNode } from "react";
 import { CodeBlock } from "../components/Code";
 import { DocsLayout } from "../components/DocsLayout";
@@ -118,7 +118,7 @@ const DEMOS: Record<string, ReactNode> = {
         Two expressions couldn't be compiled.
       </Alert>
       <Alert tone="info" title="Pre-release">
-        This version isn't on a package registry yet.
+        The API may still change before 1.0.
       </Alert>
     </div>
   ),
@@ -224,9 +224,9 @@ const DEMOS: Record<string, ReactNode> = {
         { key: "job", label: "Job" },
       ]}
       rows={[
-        { id: "parser", name: "@croff/parser", job: "Reads the grammar" },
-        { id: "compiler", name: "@croff/compiler", job: "Orders and prints the CSS" },
-        { id: "ui", name: "@croff/ui", job: "These components" },
+        { id: "parser", name: "@croffcss/parser", job: "Reads the grammar" },
+        { id: "compiler", name: "@croffcss/compiler", job: "Orders and prints the CSS" },
+        { id: "ui", name: "@croffcss/ui", job: "These components" },
       ]}
     />
   ),
@@ -254,7 +254,7 @@ export function ComponentsPage({ page }: { page: NavPage }) {
           Component gallery
         </h1>
         <p className="text-size(xl) text-color(soft) line-height(snug)">
-          Everything in @croff/ui, live. Try them with a keyboard, too.
+          Everything in @croffcss/ui, live. Try them with a keyboard, too.
         </p>
       </header>
       <div

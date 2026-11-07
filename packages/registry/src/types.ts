@@ -1,5 +1,5 @@
-import type { ArgumentNode, UtilityNode } from "@croff/parser";
-import type { ResolvedTheme } from "@croff/theme";
+import type { ArgumentNode, UtilityNode } from "@croffcss/parser";
+import type { ResolvedTheme } from "@croffcss/theme";
 
 /** Passed to value types while resolving an argument. */
 export interface ResolveContext {

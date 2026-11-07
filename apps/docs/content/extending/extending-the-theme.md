@@ -6,7 +6,7 @@ description: Contribute tokens and new scales.
 ## Tokens in existing scales
 
 ```ts
-import { definePlugin } from "@croff/core";
+import { definePlugin } from "@croffcss/core";
 
 export default definePlugin({
   name: "croff-plugin-brand",
@@ -24,7 +24,7 @@ Those tokens work in every utility that reads the scale. Users can still overrid
 Any other key creates a scale, and a utility can read it with `values.token`.
 
 ```ts
-import { definePlugin, values } from "@croff/core";
+import { definePlugin, values } from "@croffcss/core";
 
 export default definePlugin({
   name: "croff-plugin-gradients",

@@ -1,9 +1,16 @@
 {
-  "name": "@croff/cli",
+  "name": "@croffcss/cli",
   "version": "0.1.0",
   "description": "The croff command line interface.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WissemChihaoui/croff.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://croff.wisecode.tn",
+  "bugs": "https://github.com/WissemChihaoui/croff/issues",
   "sideEffects": false,
   "engines": {
     "node": ">=22.12.0"
@@ -26,8 +33,8 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@croff/core": "workspace:*",
-    "@croff/scanner": "workspace:*"
+    "@croffcss/core": "workspace:*",
+    "@croffcss/scanner": "workspace:*"
   },
   "bin": {
     "croff": "./bin/croff.js"

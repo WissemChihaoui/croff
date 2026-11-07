@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
-import { createCroff, findDirectives } from "@croff/core";
-import { loadConfig, Project, type Diagnostic } from "@croff/core/node";
+import { createCroff, findDirectives } from "@croffcss/core";
+import { loadConfig, Project, type Diagnostic } from "@croffcss/core/node";
 import {
   COMMON_OPTIONS,
   paint,

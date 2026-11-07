@@ -5,7 +5,7 @@ import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { App } from "./App";
 import { loadRoute } from "./routes";
-import "@croff/ui/styles.css";
+import "@croffcss/ui/styles.css";
 import "./styles.css";
 
 const container = document.getElementById("root")!;

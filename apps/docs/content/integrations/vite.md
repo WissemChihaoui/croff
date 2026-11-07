@@ -4,7 +4,7 @@ description: The native Vite plugin.
 ---
 
 ```ts
-import croff from "@croff/vite";
+import croff from "@croffcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({

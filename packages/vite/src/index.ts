@@ -1,5 +1,5 @@
 import { basename, dirname, relative, resolve } from "node:path";
-import { CONFIG_FILES, formatDiagnostic, Project } from "@croff/core/node";
+import { CONFIG_FILES, formatDiagnostic, Project } from "@croffcss/core/node";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
 export interface CroffViteOptions {

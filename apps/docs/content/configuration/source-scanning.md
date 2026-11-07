@@ -8,7 +8,7 @@ The scanner reads files as text. It doesn't parse JavaScript, doesn't run your c
 ## Which files
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: ["src/**/*.{ts,tsx}", "templates/**/*.php"],
@@ -37,7 +37,7 @@ Where a candidate appears decides what happens if it's invalid.
 Class attributes are `class`, `className`, `:class` and `class:list`, and Svelte's `class:gap(4)={on}` counts too. Helpers are the functions in `classFunctions`, called or used as a template tag, like ``cx`gap(4) bg(brand)` ``. Add your own:
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   classFunctions: ["cx", "tw", "styles"],

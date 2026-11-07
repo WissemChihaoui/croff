@@ -1,6 +1,6 @@
 # Project status
 
-**Version 0.1.0: implemented and verified, locally and on CI. Not published to a package registry.**
+**Version 0.1.0: implemented and verified, locally and on CI. Published on npm under the `@croffcss` scope.**
 
 ## Phases
 
@@ -15,11 +15,10 @@
 
 ## Where it lives
 
-The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). The docs site is live at [croff.wisecode.tn](https://croff.wisecode.tn). Nothing is published to a package registry.
+The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). The docs site is live at [croff.wisecode.tn](https://croff.wisecode.tn). The packages are on [npm](https://www.npmjs.com/org/croffcss), under `@croffcss` because the `@croff` scope belongs to someone else.
 
 ## Remaining before a public release
 
-- **Confirm package names and publish.** Confirm the `@croff` npm scope is available. `published` in `apps/docs/src/site.config.ts` is `false` until then, and the install guide explains building from source.
 - **Publish a contact address** for code of conduct reports.
 
 ## Worth doing
@@ -44,7 +43,7 @@ Recorded in [docs/adr](./docs/adr):
 7. `croff.config.ts`, loaded with jiti.
 8. Variant groups were implemented, evaluated and rejected. There's no grouping syntax, and `hover:(...)` reports `unsupported-group`.
 9. `[property:value]` sets any CSS property, for properties without a utility.
-10. `@croff/ui` ships a prebuilt stylesheet, because the scanner ignores `node_modules`.
+10. `@croffcss/ui` ships a prebuilt stylesheet, because the scanner ignores `node_modules`.
 
 Other deviations from the original plan:
 
@@ -65,5 +64,5 @@ pnpm test:browser
 pnpm bench
 
 pnpm docs:dev      # docs in development
-pnpm --filter @croff/docs preview   # the built docs, served like a static host
+pnpm --filter @croffcss/docs preview   # the built docs, served like a static host
 ```

@@ -6,7 +6,7 @@ description: Set the rhythm of your layouts.
 The spacing scale drives `padding`, `margin`, `gap`, `width`, `height`, `inset` and `basis`, among others.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {

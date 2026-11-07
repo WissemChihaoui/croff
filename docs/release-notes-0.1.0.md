@@ -19,9 +19,11 @@ CROFF 0.1.0 is the first version, for public testing. It's a utility-first CSS f
 
 ## Packages
 
-All at 0.1.0: `@croff/core`, `@croff/parser`, `@croff/theme`, `@croff/registry`, `@croff/compiler`, `@croff/scanner`, `@croff/plugin-api`, `@croff/cli`, `@croff/vite` and `@croff/postcss`.
+All at 0.1.0: `@croffcss/core`, `@croffcss/parser`, `@croffcss/theme`, `@croffcss/registry`, `@croffcss/compiler`, `@croffcss/scanner`, `@croffcss/plugin-api`, `@croffcss/cli`, `@croffcss/vite`, `@croffcss/postcss` and `@croffcss/ui`, on npm:
 
-**Not published to a package registry yet.** Build from source, from [GitHub](https://github.com/WissemChihaoui/croff).
+```bash
+pnpm add -D @croffcss/core @croffcss/vite @croffcss/cli
+```
 
 ## Known limitations
 

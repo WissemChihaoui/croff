@@ -8,7 +8,7 @@ description: Add, change and remove tokens.
 Tokens merge over the defaults, one at a time.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {
@@ -27,7 +27,7 @@ export default defineConfig({
 `null` removes a token or a whole group.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {
@@ -57,7 +57,7 @@ Replacing a token from an earlier layer is fine, however it's written. That's ho
 ## Start from nothing
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   preset: "none",

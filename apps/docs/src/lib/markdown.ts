@@ -1,5 +1,5 @@
-import { createCroff } from "@croff/core";
-import { extractCandidates } from "@croff/scanner/extract";
+import { createCroff } from "@croffcss/core";
+import { extractCandidates } from "@croffcss/scanner/extract";
 import { Marked, type Tokens } from "marked";
 import { escapeHtml, highlight } from "./highlight.ts";
 

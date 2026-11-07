@@ -6,7 +6,7 @@ import {
   type CompileOptions,
   type CompileResult,
   type Mapping,
-} from "@croff/compiler";
+} from "@croffcss/compiler";
 import {
   definePlugin,
   PLUGIN_API_VERSION,
@@ -15,9 +15,14 @@ import {
   registerPlugins,
   validatePlugin,
   type CroffPlugin,
-} from "@croff/plugin-api";
-import { createRegistry, reservedTokenIssues, type Registry } from "@croff/registry";
-import { createTheme, type ResolvedTheme, type ThemeConfig, type ThemeIssue } from "@croff/theme";
+} from "@croffcss/plugin-api";
+import { createRegistry, reservedTokenIssues, type Registry } from "@croffcss/registry";
+import {
+  createTheme,
+  type ResolvedTheme,
+  type ThemeConfig,
+  type ThemeIssue,
+} from "@croffcss/theme";
 import {
   directiveLayers,
   findDirectives,
@@ -183,7 +188,7 @@ export function createCroff(
 
 export { findDirectives, type Directive, type DirectiveError } from "./directive.js";
 export { definePlugin, PLUGIN_API_VERSION, PluginError, type CroffPlugin };
-export { formatParseError, parse, type ParseError, type UtilityNode } from "@croff/parser";
+export { formatParseError, parse, type ParseError, type UtilityNode } from "@croffcss/parser";
 export type {
   CompiledRule,
   CompileFailure,
@@ -193,14 +198,14 @@ export type {
   CssLayer,
   SourceLocation,
   SourceMapV3,
-} from "@croff/compiler";
+} from "@croffcss/compiler";
 export {
   builtinUtilities,
   preferenceVariants,
   stateVariants,
   utilityCategories,
   values,
-} from "@croff/registry";
+} from "@croffcss/registry";
 export type {
   ArgumentSpec,
   Declarations,
@@ -208,6 +213,6 @@ export type {
   UtilityInput,
   ValueType,
   VariantDefinition,
-} from "@croff/registry";
-export { defaultTheme } from "@croff/theme";
-export type { ResolvedTheme, ThemeConfig, ThemeIssue, TokenGroup } from "@croff/theme";
+} from "@croffcss/registry";
+export { defaultTheme } from "@croffcss/theme";
+export type { ResolvedTheme, ThemeConfig, ThemeIssue, TokenGroup } from "@croffcss/theme";

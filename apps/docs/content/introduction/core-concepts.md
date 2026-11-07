@@ -26,7 +26,7 @@ Parentheses take validated values: theme tokens, keywords, bounded numbers and r
 Your design decisions live in a theme. A token compiles to a custom property, and only the tokens you use reach the output.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {

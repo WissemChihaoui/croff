@@ -4,7 +4,7 @@ description: Build a palette.
 ---
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {

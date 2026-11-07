@@ -1,4 +1,4 @@
-import { hasToken } from "@croff/theme";
+import { hasToken } from "@croffcss/theme";
 import type { Declarations, UtilityDefinition, UtilityInput } from "../types.js";
 import {
   cssVar,

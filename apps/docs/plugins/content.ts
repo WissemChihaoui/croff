@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { builtinUtilities, createCroff, preferenceVariants, stateVariants } from "@croff/core";
+import { builtinUtilities, createCroff, preferenceVariants, stateVariants } from "@croffcss/core";
 import type { Plugin } from "vite";
 import { parseFrontmatter, pageSections, renderMarkdown } from "../src/lib/markdown.ts";
 import type { SearchEntry } from "../src/lib/search.ts";

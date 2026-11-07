@@ -6,7 +6,7 @@ description: Every option in croff.config.
 CROFF looks for `croff.config.ts`, `.mts`, `.js` or `.mjs` in the project root. The file is optional.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: ["src/**/*.{ts,tsx}", "index.html"],

@@ -1,6 +1,6 @@
-import { parse, type ParseError } from "@croff/parser";
-import type { Registry, ResolveContext, ResolveError, VariantDefinition } from "@croff/registry";
-import { themeVariables, tokenKey, tokenVariable, type ResolvedTheme } from "@croff/theme";
+import { parse, type ParseError } from "@croffcss/parser";
+import type { Registry, ResolveContext, ResolveError, VariantDefinition } from "@croffcss/registry";
+import { themeVariables, tokenKey, tokenVariable, type ResolvedTheme } from "@croffcss/theme";
 import { classSelector } from "./escape.js";
 import { RESET_CSS } from "./reset.js";
 import { encodeSourceMap, type Mapping, type SourceMapV3 } from "./sourcemap.js";

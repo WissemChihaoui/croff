@@ -7,16 +7,16 @@ description: From a string to a stylesheet.
 
 ```text
 "md:gap(4)"
-    │  tokenize                (@croff/parser)
+    │  tokenize                (@croffcss/parser)
     ▼
 word colon word lparen word rparen eof
     │  parse
     ▼
 UtilityNode { name, variants, arguments }
-    │  resolve                 (@croff/registry)
+    │  resolve                 (@croffcss/registry)
     ▼
 [["gap", "var(--croff-spacing-4)"]]   + tokens used
-    │  apply variants          (@croff/compiler)
+    │  apply variants          (@croffcss/compiler)
     ▼
 CompiledRule { selector, declarations, atRules, sort }
     │  sort and print

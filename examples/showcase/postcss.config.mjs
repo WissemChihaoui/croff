@@ -1,4 +1,4 @@
-import croff from "@croff/postcss";
+import croff from "@croffcss/postcss";
 
 export default {
   plugins: [croff()],

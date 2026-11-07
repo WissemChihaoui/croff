@@ -1,6 +1,6 @@
 import { statSync } from "node:fs";
 import { resolve } from "node:path";
-import { findConfigFile, formatDiagnostic, Project } from "@croff/core/node";
+import { findConfigFile, formatDiagnostic, Project } from "@croffcss/core/node";
 import type { AtRule, PluginCreator } from "postcss";
 
 export interface CroffPostcssOptions {
@@ -46,7 +46,7 @@ function getProject(cwd: string, config: string | undefined): Promise<Project> {
 
 /** Replaces `@croff` at-rules with the generated CSS. */
 const croff: PluginCreator<CroffPostcssOptions> = (options = {}) => ({
-  postcssPlugin: "@croff/postcss",
+  postcssPlugin: "@croffcss/postcss",
   async Once(root, { result, postcss }) {
     const directives: AtRule[] = [];
     root.walkAtRules("croff", (rule) => {
@@ -67,7 +67,7 @@ const croff: PluginCreator<CroffPostcssOptions> = (options = {}) => ({
       const glob = pattern.slice(staticPart.join("/").length).replace(/^\//, "");
       result.messages.push({
         type: "dir-dependency",
-        plugin: "@croff/postcss",
+        plugin: "@croffcss/postcss",
         dir: resolve(cwd, staticPart.join("/")),
         glob,
         ...(from ? { parent: from } : {}),
@@ -76,7 +76,7 @@ const croff: PluginCreator<CroffPostcssOptions> = (options = {}) => ({
     if (project.configPath) {
       result.messages.push({
         type: "dependency",
-        plugin: "@croff/postcss",
+        plugin: "@croffcss/postcss",
         file: project.configPath,
         ...(from ? { parent: from } : {}),
       });
@@ -101,7 +101,7 @@ const croff: PluginCreator<CroffPostcssOptions> = (options = {}) => ({
 
     const { diagnostics } = await project.generate({ layers: [] });
     for (const diagnostic of diagnostics) {
-      result.warn(formatDiagnostic(diagnostic), { plugin: "@croff/postcss" });
+      result.warn(formatDiagnostic(diagnostic), { plugin: "@croffcss/postcss" });
     }
   },
 });

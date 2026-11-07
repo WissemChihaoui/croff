@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createServer, type ViteDevServer } from "vite";
-import croff from "@croff/vite";
+import croff from "@croffcss/vite";
 import { launch, type Browser } from "./helpers.js";
 
 // The other Vite tests stop at the server. This one goes all the way to a page.

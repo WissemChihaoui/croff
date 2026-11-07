@@ -3,7 +3,7 @@ title: Plugin API reference
 description: The public types and functions.
 ---
 
-Plugin APIs are exported from `@croff/core`.
+Plugin APIs are exported from `@croffcss/core`.
 
 ## Stability
 
@@ -18,7 +18,7 @@ Before 1.0, any release can change anything, including the language itself. Noth
 | `definePlugin`, `values`, utility and variant definitions         | Unstable, marked `@unstable` in the code.                      |
 | `Project`, `Registry`                                             | Unstable, marked `@unstable` in the code.                      |
 
-Your editor shows `@unstable` when you hover over one of these. The other `@croff/*` packages are implementation details: use them through `@croff/core`.
+Your editor shows `@unstable` when you hover over one of these. The other `@croffcss/*` packages are implementation details: use them through `@croffcss/core`.
 
 ## definePlugin
 
@@ -63,7 +63,7 @@ function definePlugin(plugin: CroffPlugin): CroffPlugin;
 The engine, without any file access. It's safe to use in a browser.
 
 ```ts
-import { createCroff } from "@croff/core";
+import { createCroff } from "@croffcss/core";
 
 const croff = createCroff({ theme: { colors: { accent: "#ff5c00" } } });
 const { css, rules, failures } = croff.compile(["bg(accent)", "md:gap(4)"]);
@@ -79,10 +79,10 @@ const { css, rules, failures } = croff.compile(["bg(accent)", "md:gap(4)"]);
 
 ## Project
 
-`@croff/core/node` adds files on top of the engine. Integrations are built on this.
+`@croffcss/core/node` adds files on top of the engine. Integrations are built on this.
 
 ```ts
-import { Project } from "@croff/core/node";
+import { Project } from "@croffcss/core/node";
 
 const project = await Project.load({ cwd: process.cwd() });
 await project.scan();

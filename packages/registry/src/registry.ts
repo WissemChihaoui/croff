@@ -1,5 +1,5 @@
-import type { ArgumentNode, UtilityNode } from "@croff/parser";
-import { isSafeCssValue, type ResolvedTheme } from "@croff/theme";
+import type { ArgumentNode, UtilityNode } from "@croffcss/parser";
+import { isSafeCssValue, type ResolvedTheme } from "@croffcss/theme";
 import { normalizeArbitraryValue } from "./arbitrary.js";
 import { closest } from "./suggest.js";
 import type {

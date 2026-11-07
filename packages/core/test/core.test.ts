@@ -10,8 +10,8 @@ import {
   findDirectives,
   PluginError,
   values,
-} from "@croff/core";
-import { ConfigLoadError, formatDiagnostic, loadConfig, Project } from "@croff/core/node";
+} from "@croffcss/core";
+import { ConfigLoadError, formatDiagnostic, loadConfig, Project } from "@croffcss/core/node";
 
 describe("createCroff", () => {
   it("compiles with defaults", () => {

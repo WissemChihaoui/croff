@@ -5,7 +5,7 @@ import {
   tokenize,
   type ParseErrorCode,
   type UtilityNode,
-} from "@croff/parser";
+} from "@croffcss/parser";
 
 function ok(source: string): UtilityNode {
   const result = parse(source);

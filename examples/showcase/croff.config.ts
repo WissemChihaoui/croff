@@ -1,4 +1,4 @@
-import { defineConfig, definePlugin, values } from "@croff/core";
+import { defineConfig, definePlugin, values } from "@croffcss/core";
 
 // A small local plugin: a utility, a variant and a token.
 const clampText = definePlugin({

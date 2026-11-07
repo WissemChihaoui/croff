@@ -54,7 +54,7 @@ export function routeHead(route: RouteData): { title: string; description: strin
       return {
         title: `Component gallery | ${suffix}`,
         description:
-          "Every component in @croff/ui, live, in the Chamfer design system's dark and light themes.",
+          "Every component in @croffcss/ui, live, in the Chamfer design system's dark and light themes.",
       };
     case "not-found":
       return { title: `Not found | ${suffix}`, description: "This page doesn't exist." };

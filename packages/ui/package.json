@@ -1,9 +1,16 @@
 {
-  "name": "@croff/ui",
+  "name": "@croffcss/ui",
   "version": "0.1.0",
   "description": "Ready-to-use components for CROFF, with the Chamfer design system.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WissemChihaoui/croff.git",
+    "directory": "packages/ui"
+  },
+  "homepage": "https://croff.wisecode.tn",
+  "bugs": "https://github.com/WissemChihaoui/croff/issues",
   "sideEffects": [
     "*.css"
   ],
@@ -37,7 +44,7 @@
     "build:css": "croff build"
   },
   "dependencies": {
-    "@croff/core": "workspace:*"
+    "@croffcss/core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=19.0.0"
@@ -48,7 +55,7 @@
     }
   },
   "devDependencies": {
-    "@croff/cli": "workspace:*",
+    "@croffcss/cli": "workspace:*",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "react": "^19.3.1",

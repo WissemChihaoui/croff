@@ -4,8 +4,8 @@ import {
   type CompileFailure,
   type CroffConfig,
   type ThemeIssue,
-} from "@croff/core";
-import { extractCandidates } from "@croff/scanner/extract";
+} from "@croffcss/core";
+import { extractCandidates } from "@croffcss/scanner/extract";
 
 export interface LiveProblem {
   severity: "error" | "warning";

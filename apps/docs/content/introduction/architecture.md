@@ -16,24 +16,24 @@ CROFF is a pipeline of small packages, each independently tested.
 
 ## Packages
 
-| Package             | Responsibility                                                          |
-| ------------------- | ----------------------------------------------------------------------- |
-| `@croff/parser`     | Tokenizer, parser and AST. Knows nothing about utilities or themes.     |
-| `@croff/theme`      | Token scales, merging, validation, CSS variables and the default theme. |
-| `@croff/registry`   | Utility and variant definitions, and turning an AST into declarations.  |
-| `@croff/compiler`   | Caching, ordering, selectors, printing and source maps.                 |
-| `@croff/scanner`    | Finding expressions in text, and scanning and watching files.           |
-| `@croff/plugin-api` | The plugin interface and its validation.                                |
-| `@croff/core`       | The public API. `@croff/core/node` adds config loading and projects.    |
-| `@croff/cli`        | The `croff` command.                                                    |
-| `@croff/vite`       | The Vite plugin.                                                        |
-| `@croff/postcss`    | The PostCSS plugin.                                                     |
+| Package                | Responsibility                                                          |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `@croffcss/parser`     | Tokenizer, parser and AST. Knows nothing about utilities or themes.     |
+| `@croffcss/theme`      | Token scales, merging, validation, CSS variables and the default theme. |
+| `@croffcss/registry`   | Utility and variant definitions, and turning an AST into declarations.  |
+| `@croffcss/compiler`   | Caching, ordering, selectors, printing and source maps.                 |
+| `@croffcss/scanner`    | Finding expressions in text, and scanning and watching files.           |
+| `@croffcss/plugin-api` | The plugin interface and its validation.                                |
+| `@croffcss/core`       | The public API. `@croffcss/core/node` adds config loading and projects. |
+| `@croffcss/cli`        | The `croff` command.                                                    |
+| `@croffcss/vite`       | The Vite plugin.                                                        |
+| `@croffcss/postcss`    | The PostCSS plugin.                                                     |
 
-Most projects only touch `@croff/core` and one integration.
+Most projects only touch `@croffcss/core` and one integration.
 
 ## Browser-safe by construction
 
-`@croff/core` and `@croff/scanner/extract` have no Node dependencies. The [playground](/playground) imports exactly those two entry points, so it runs the same compiler as your build.
+`@croffcss/core` and `@croffcss/scanner/extract` have no Node dependencies. The [playground](/playground) imports exactly those two entry points, so it runs the same compiler as your build.
 
 ## Separation of stages
 

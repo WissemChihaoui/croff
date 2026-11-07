@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { builtinUtilities } from "@croff/core";
+import { builtinUtilities } from "@croffcss/core";
 import { allRoutes } from "../../apps/docs/src/nav.js";
 import {
   engineNames,

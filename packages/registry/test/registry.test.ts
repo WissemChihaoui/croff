@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parse } from "@croff/parser";
+import { parse } from "@croffcss/parser";
 import {
   builtinUtilities,
   createRegistry,
@@ -9,8 +9,8 @@ import {
   utilityCategories,
   values,
   type ResolveErrorCode,
-} from "@croff/registry";
-import { createTheme, tokenVariable } from "@croff/theme";
+} from "@croffcss/registry";
+import { createTheme, tokenVariable } from "@croffcss/theme";
 
 const { theme } = createTheme();
 

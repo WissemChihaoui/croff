@@ -1,5 +1,5 @@
-import { defineConfig, definePlugin, values } from "@croff/core";
-import { uiPlugin } from "@croff/ui/plugin";
+import { defineConfig, definePlugin, values } from "@croffcss/core";
+import { uiPlugin } from "@croffcss/ui/plugin";
 
 // The documentation site is built with CROFF. This plugin adds what only the brand needs.
 const brand = definePlugin({

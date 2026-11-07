@@ -1,5 +1,5 @@
 {
-  "name": "@croff/example-vanilla",
+  "name": "@croffcss/example-vanilla",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "check": "croff check"
   },
   "devDependencies": {
-    "@croff/cli": "workspace:*",
-    "@croff/core": "workspace:*"
+    "@croffcss/cli": "workspace:*",
+    "@croffcss/core": "workspace:*"
   }
 }

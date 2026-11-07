@@ -11,9 +11,9 @@ import {
   utilityCategories,
   type CroffConfig,
   type CroffPlugin,
-} from "@croff/core";
+} from "@croffcss/core";
 import { COMMANDS, run } from "../../../packages/cli/src/index.js";
-import { extractCandidates } from "@croff/scanner/extract";
+import { extractCandidates } from "@croffcss/scanner/extract";
 import { buildSearchIndex } from "../plugins/content";
 import { highlight, highlightExpression } from "../src/lib/highlight";
 import {
@@ -367,8 +367,8 @@ describe("highlighter", () => {
 describe("playground", () => {
   it("uses the real compiler and scanner, not samples", () => {
     const engine = readFileSync(join(root, "src/lib/engine.ts"), "utf8");
-    expect(engine).toContain('from "@croff/core"');
-    expect(engine).toContain('from "@croff/scanner/extract"');
+    expect(engine).toContain('from "@croffcss/core"');
+    expect(engine).toContain('from "@croffcss/scanner/extract"');
   });
 });
 
@@ -513,7 +513,7 @@ describe("code samples beyond markup", () => {
   it("has config and plugin samples that the real engine accepts", async () => {
     let checked = 0;
     for (const [index, block] of programs.entries()) {
-      if (!/from "@croff\/core"/.test(block.code) || !block.code.includes("export default"))
+      if (!/from "@croffcss\/core"/.test(block.code) || !block.code.includes("export default"))
         continue;
       const module = (await import(/* @vite-ignore */ join(samplesDir, `sample-${index}.ts`))) as {
         default: CroffConfig | CroffPlugin;

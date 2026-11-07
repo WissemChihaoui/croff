@@ -1,4 +1,4 @@
-import { sortedBreakpoints, type ResolvedTheme } from "@croff/theme";
+import { sortedBreakpoints, type ResolvedTheme } from "@croffcss/theme";
 import type { VariantDefinition } from "./types.js";
 
 /**

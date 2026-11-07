@@ -1,5 +1,5 @@
-import type { Registry, UtilityDefinition, VariantDefinition } from "@croff/registry";
-import type { ThemeConfig } from "@croff/theme";
+import type { Registry, UtilityDefinition, VariantDefinition } from "@croffcss/registry";
+import type { ThemeConfig } from "@croffcss/theme";
 
 /**
  * The plugin API version implemented by this release of CROFF.

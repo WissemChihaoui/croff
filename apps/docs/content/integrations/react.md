@@ -9,7 +9,7 @@ description: A working React and Vite project.
 
 ```ts
 import react from "@vitejs/plugin-react";
-import croff from "@croff/vite";
+import croff from "@croffcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -18,7 +18,7 @@ export default defineConfig({
 ```
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: ["src/**/*.tsx"],
@@ -53,7 +53,7 @@ function Button({ kind, children }: { kind: keyof typeof variants; children: Rea
 ```bash
 pnpm install
 pnpm build
-pnpm --filter @croff/example-vite-react dev
+pnpm --filter @croffcss/example-vite-react dev
 ```
 
 `examples/showcase` is a larger set of components: buttons, cards, navigation, forms, layouts and typography. It runs through PostCSS and includes a small local plugin.

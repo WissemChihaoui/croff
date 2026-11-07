@@ -1,5 +1,5 @@
 {
-  "name": "@croff/example-vite-react",
+  "name": "@croffcss/example-vite-react",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,8 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@croff/core": "workspace:*",
-    "@croff/vite": "workspace:*",
+    "@croffcss/core": "workspace:*",
+    "@croffcss/vite": "workspace:*",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.2.1",

@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { basename, dirname, relative } from "node:path";
 import { styleText } from "node:util";
-import { formatDiagnostic, type Diagnostic, type Project } from "@croff/core/node";
+import { formatDiagnostic, type Diagnostic, type Project } from "@croffcss/core/node";
 
 export interface Output {
   log(message: string): void;

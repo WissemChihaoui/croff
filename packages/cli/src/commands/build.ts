@@ -1,4 +1,4 @@
-import { Project } from "@croff/core/node";
+import { Project } from "@croffcss/core/node";
 import { generate } from "../generate.js";
 import {
   COMMON_OPTIONS,

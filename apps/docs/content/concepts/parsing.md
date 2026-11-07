@@ -8,7 +8,7 @@ CROFF uses a real tokenizer and a recursive descent parser, not string splitting
 ## The AST
 
 ```ts
-import { parse } from "@croff/core";
+import { parse } from "@croffcss/core";
 
 const result = parse("md:bg(alpha(brand,50))");
 if (result.ok) {

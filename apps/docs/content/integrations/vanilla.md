@@ -8,7 +8,7 @@ description: No bundler, no framework.
 ## Files
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   content: ["*.html"],
@@ -39,7 +39,7 @@ export default defineConfig({
 ```bash
 pnpm install
 pnpm build
-pnpm --filter @croff/example-vanilla build
+pnpm --filter @croffcss/example-vanilla build
 ```
 
-Then open `index.html` in a browser. Use `pnpm --filter @croff/example-vanilla dev` to rebuild as you edit.
+Then open `index.html` in a browser. Use `pnpm --filter @croffcss/example-vanilla dev` to rebuild as you edit.

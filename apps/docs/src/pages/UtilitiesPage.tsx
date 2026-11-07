@@ -4,7 +4,7 @@ import {
   preferenceVariants,
   stateVariants,
   type UtilityDefinition,
-} from "@croff/core";
+} from "@croffcss/core";
 import { CodeBlock } from "../components/Code";
 import { DocsLayout } from "../components/DocsLayout";
 import {

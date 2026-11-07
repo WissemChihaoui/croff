@@ -1,5 +1,5 @@
-import type { ArgumentNode } from "@croff/parser";
-import { hasToken, tokenNames } from "@croff/theme";
+import type { ArgumentNode } from "@croffcss/parser";
+import { hasToken, tokenNames } from "@croffcss/theme";
 import type { ResolveContext, ValueType } from "./types.js";
 
 /** A token from a theme scale. With `negative`, `-4` means `calc(var(...) * -1)`. */

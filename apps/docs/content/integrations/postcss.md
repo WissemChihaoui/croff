@@ -4,7 +4,7 @@ description: Use CROFF in any PostCSS pipeline.
 ---
 
 ```js
-import croff from "@croff/postcss";
+import croff from "@croffcss/postcss";
 
 export default {
   plugins: [croff()],
@@ -15,7 +15,7 @@ Or, with string names:
 
 ```js
 export default {
-  plugins: { "@croff/postcss": {} },
+  plugins: { "@croffcss/postcss": {} },
 };
 ```
 

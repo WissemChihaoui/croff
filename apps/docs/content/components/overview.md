@@ -3,7 +3,7 @@ title: Components
 description: Ready-to-use components, in a design system of their own.
 ---
 
-`@croff/ui` gives you components to use straight away, built with CROFF. See them all in the [gallery](/docs/components/gallery).
+`@croffcss/ui` gives you components to use straight away, built with CROFF. See them all in the [gallery](/docs/components/gallery).
 
 ## The Chamfer design system
 
@@ -16,10 +16,14 @@ Chamfer takes its shapes from the CROFF logo:
 
 ## Installation
 
-Version 0.1.0 is a pre-release, and isn't on a package registry yet. Until it is, [build it from source](/docs/getting-started/installation) and link it. Then import the stylesheet once, before your own styles.
+```bash
+pnpm add @croffcss/ui
+```
+
+Then import the stylesheet once, before your own styles.
 
 ```ts
-import "@croff/ui/styles.css";
+import "@croffcss/ui/styles.css";
 ```
 
 The stylesheet is ready to use, so you don't need CROFF's build tools just for the components.
@@ -27,7 +31,7 @@ The stylesheet is ready to use, so you don't need CROFF's build tools just for t
 ## With React
 
 ```tsx
-import { Button, Field, Input } from "@croff/ui/react";
+import { Button, Field, Input } from "@croffcss/ui/react";
 
 export function SignUp() {
   return (
@@ -46,7 +50,7 @@ export function SignUp() {
 Each component is also a function that returns its class names, so it works in any framework or template.
 
 ```ts
-import { button } from "@croff/ui";
+import { button } from "@croffcss/ui";
 
 const classes = button({ tone: "secondary", size: "sm" });
 ```
@@ -101,8 +105,8 @@ The components use Archivo, Inter and JetBrains Mono when they're available, and
 Add the plugin to your CROFF config to write your own components in the same language.
 
 ```ts
-import { defineConfig } from "@croff/core";
-import { uiPlugin } from "@croff/ui/plugin";
+import { defineConfig } from "@croffcss/core";
+import { uiPlugin } from "@croffcss/ui/plugin";
 
 export default defineConfig({
   plugins: [uiPlugin],

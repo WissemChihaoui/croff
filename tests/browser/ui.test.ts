@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import * as ui from "@croff/ui";
+import * as ui from "@croffcss/ui";
 import { engineNames, launch, requireBuilt, type Browser, type Page } from "./helpers.js";
 
 // Using the package the way a project without CROFF's tools would: only its stylesheet and its
 // class names, on a page with no reset and no other styles.
 
-describe.each(engineNames)("@croff/ui on a bare page in %s", (engine) => {
+describe.each(engineNames)("@croffcss/ui on a bare page in %s", (engine) => {
   let browser: Browser;
   let page: Page;
   const css = readFileSync(requireBuilt("packages/ui/dist/styles.css"), "utf8");

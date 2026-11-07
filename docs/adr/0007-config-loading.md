@@ -2,7 +2,7 @@
 
 **Status:** accepted
 
-**Decision.** Configuration files may be `.ts`, `.mts`, `.js` or `.mjs`, and are loaded with `jiti`, which lives only in `@croff/core/node`.
+**Decision.** Configuration files may be `.ts`, `.mts`, `.js` or `.mjs`, and are loaded with `jiti`, which lives only in `@croffcss/core/node`.
 
 **Why.** TypeScript config is the expected experience. Native type stripping isn't available across our Node support range. `jiti` is dependency-free and well proven. The browser entry point never touches it.
 

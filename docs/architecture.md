@@ -20,22 +20,22 @@ access. Parsing, validation and CSS generation are separate.
 
 ## Packages
 
-| Package             | Responsibility                                                         | Depends on              |
-| ------------------- | ---------------------------------------------------------------------- | ----------------------- |
-| `@croff/parser`     | Tokenizer, parser, AST. No knowledge of utilities or themes.           | —                       |
-| `@croff/theme`      | Token scales, merging, validation, CSS variables, default theme.       | —                       |
-| `@croff/registry`   | Utility and variant definitions; AST → CSS declarations.               | parser (types), theme   |
-| `@croff/compiler`   | Resolution cache, ordering, selectors, printing, source maps.          | parser, theme, registry |
-| `@croff/scanner`    | Candidate extraction (browser-safe) and file scanning/watching.        | tinyglobby, picomatch   |
-| `@croff/plugin-api` | Plugin types, validation, application.                                 | theme, registry         |
-| `@croff/core`       | Public API (`createCroff`), plus `@croff/core/node` (config, project). | everything above, jiti  |
-| `@croff/cli`        | `croff init / dev / build / check`.                                    | core, scanner           |
-| `@croff/vite`       | Vite plugin.                                                           | core                    |
-| `@croff/postcss`    | PostCSS plugin.                                                        | core                    |
+| Package                | Responsibility                                                            | Depends on              |
+| ---------------------- | ------------------------------------------------------------------------- | ----------------------- |
+| `@croffcss/parser`     | Tokenizer, parser, AST. No knowledge of utilities or themes.              | —                       |
+| `@croffcss/theme`      | Token scales, merging, validation, CSS variables, default theme.          | —                       |
+| `@croffcss/registry`   | Utility and variant definitions; AST → CSS declarations.                  | parser (types), theme   |
+| `@croffcss/compiler`   | Resolution cache, ordering, selectors, printing, source maps.             | parser, theme, registry |
+| `@croffcss/scanner`    | Candidate extraction (browser-safe) and file scanning/watching.           | tinyglobby, picomatch   |
+| `@croffcss/plugin-api` | Plugin types, validation, application.                                    | theme, registry         |
+| `@croffcss/core`       | Public API (`createCroff`), plus `@croffcss/core/node` (config, project). | everything above, jiti  |
+| `@croffcss/cli`        | `croff init / dev / build / check`.                                       | core, scanner           |
+| `@croffcss/vite`       | Vite plugin.                                                              | core                    |
+| `@croffcss/postcss`    | PostCSS plugin.                                                           | core                    |
 
 The dependency graph is acyclic and is enforced by TypeScript project
-references. Everything reachable from `@croff/core` (not `/node`) and from
-`@croff/scanner/extract` is browser-safe; the playground imports exactly those
+references. Everything reachable from `@croffcss/core` (not `/node`) and from
+`@croffcss/scanner/extract` is browser-safe; the playground imports exactly those
 entry points.
 
 ## Output model

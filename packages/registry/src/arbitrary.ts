@@ -1,4 +1,4 @@
-import { isSafeCssValue } from "@croff/theme";
+import { isSafeCssValue } from "@croffcss/theme";
 
 const MATH_FUNCTIONS = new Set(["calc", "min", "max", "clamp"]);
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractCandidates } from "@croff/scanner/extract";
+import { extractCandidates } from "@croffcss/scanner/extract";
 
 const expressions = (source: string) =>
   extractCandidates(source).candidates.map((c) => c.expression);

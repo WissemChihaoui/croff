@@ -11,16 +11,16 @@ importers:
       '@changesets/cli':
         specifier: ^3.0.3
         version: 3.0.3
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:packages/core
-      '@croff/postcss':
+      '@croffcss/postcss':
         specifier: workspace:*
         version: link:packages/postcss
-      '@croff/ui':
+      '@croffcss/ui':
         specifier: workspace:*
         version: link:packages/ui
-      '@croff/vite':
+      '@croffcss/vite':
         specifier: workspace:*
         version: link:packages/vite
       '@eslint/js':
@@ -74,13 +74,13 @@ importers:
 
   apps/docs:
     dependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@croff/scanner':
+      '@croffcss/scanner':
         specifier: workspace:*
         version: link:../../packages/scanner
-      '@croff/ui':
+      '@croffcss/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@fontsource-variable/archivo':
@@ -99,13 +99,13 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
-      '@croff/cli':
+      '@croffcss/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@croff/postcss':
+      '@croffcss/postcss':
         specifier: workspace:*
         version: link:../../packages/postcss
-      '@croff/vite':
+      '@croffcss/vite':
         specifier: workspace:*
         version: link:../../packages/vite
       '@types/node':
@@ -142,10 +142,10 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@croff/postcss':
+      '@croffcss/postcss':
         specifier: workspace:*
         version: link:../../packages/postcss
       '@types/react':
@@ -166,10 +166,10 @@ importers:
 
   examples/vanilla:
     devDependencies:
-      '@croff/cli':
+      '@croffcss/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../../packages/core
 
@@ -182,10 +182,10 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@croff/vite':
+      '@croffcss/vite':
         specifier: workspace:*
         version: link:../../packages/vite
       '@types/react':
@@ -206,43 +206,43 @@ importers:
 
   packages/cli:
     dependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../core
-      '@croff/scanner':
+      '@croffcss/scanner':
         specifier: workspace:*
         version: link:../scanner
 
   packages/compiler:
     dependencies:
-      '@croff/parser':
+      '@croffcss/parser':
         specifier: workspace:*
         version: link:../parser
-      '@croff/registry':
+      '@croffcss/registry':
         specifier: workspace:*
         version: link:../registry
-      '@croff/theme':
+      '@croffcss/theme':
         specifier: workspace:*
         version: link:../theme
 
   packages/core:
     dependencies:
-      '@croff/compiler':
+      '@croffcss/compiler':
         specifier: workspace:*
         version: link:../compiler
-      '@croff/parser':
+      '@croffcss/parser':
         specifier: workspace:*
         version: link:../parser
-      '@croff/plugin-api':
+      '@croffcss/plugin-api':
         specifier: workspace:*
         version: link:../plugin-api
-      '@croff/registry':
+      '@croffcss/registry':
         specifier: workspace:*
         version: link:../registry
-      '@croff/scanner':
+      '@croffcss/scanner':
         specifier: workspace:*
         version: link:../scanner
-      '@croff/theme':
+      '@croffcss/theme':
         specifier: workspace:*
         version: link:../theme
       jiti:
@@ -253,16 +253,16 @@ importers:
 
   packages/plugin-api:
     dependencies:
-      '@croff/registry':
+      '@croffcss/registry':
         specifier: workspace:*
         version: link:../registry
-      '@croff/theme':
+      '@croffcss/theme':
         specifier: workspace:*
         version: link:../theme
 
   packages/postcss:
     dependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -272,10 +272,10 @@ importers:
 
   packages/registry:
     dependencies:
-      '@croff/parser':
+      '@croffcss/parser':
         specifier: workspace:*
         version: link:../parser
-      '@croff/theme':
+      '@croffcss/theme':
         specifier: workspace:*
         version: link:../theme
 
@@ -296,11 +296,11 @@ importers:
 
   packages/ui:
     dependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@croff/cli':
+      '@croffcss/cli':
         specifier: workspace:*
         version: link:../cli
       '@types/react':
@@ -318,7 +318,7 @@ importers:
 
   packages/vite:
     dependencies:
-      '@croff/core':
+      '@croffcss/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

@@ -29,7 +29,7 @@
 }
 ```
 
-> **Status: version 0.1.0, pre-release.** Everything described here works, but the packages aren't on a registry yet and the language may still change. See [PROJECT_STATUS.md](./PROJECT_STATUS.md).
+> **Status: version 0.1.0, pre-release.** Everything described here works, but the language may still change. See [PROJECT_STATUS.md](./PROJECT_STATUS.md).
 
 ## Why CROFF
 
@@ -53,24 +53,21 @@ pnpm build
 pnpm docs:dev
 
 # The examples.
-pnpm --filter @croff/example-vite-react dev
-pnpm --filter @croff/example-showcase dev
-pnpm --filter @croff/example-vanilla build
+pnpm --filter @croffcss/example-vite-react dev
+pnpm --filter @croffcss/example-showcase dev
+pnpm --filter @croffcss/example-vanilla build
 ```
 
 Requires Node.js 22.12 or newer and pnpm 11.
 
 ## Use it in a project
 
-Until the packages are published, link them from a checkout next to your project:
-
 ```bash
-pnpm add -D link:../croff/packages/core link:../croff/packages/vite link:../croff/packages/cli
-pnpm pkg set scripts.croff="node node_modules/@croff/cli/dist/bin.js"
+pnpm add -D @croffcss/core @croffcss/vite @croffcss/cli
 pnpm croff init
 ```
 
-`link:` dependencies don't get a `croff` command, which is what the script is for. `croff init` detects your project, creates a config and a stylesheet, and wires up the integration.
+`croff init` detects your project, creates a config and a stylesheet, and wires up the integration. For the ready-made components, add `@croffcss/ui`.
 
 ```css
 /* src/croff.css */
@@ -78,11 +75,11 @@ pnpm croff init
 @croff;
 ```
 
-| Integration | How                                             |
-| ----------- | ----------------------------------------------- |
-| Vite        | `plugins: [croff()]` from `@croff/vite`         |
-| PostCSS     | `plugins: [croff()]` from `@croff/postcss`      |
-| Standalone  | `croff dev` and `croff build` from `@croff/cli` |
+| Integration | How                                                |
+| ----------- | -------------------------------------------------- |
+| Vite        | `plugins: [croff()]` from `@croffcss/vite`         |
+| PostCSS     | `plugins: [croff()]` from `@croffcss/postcss`      |
+| Standalone  | `croff dev` and `croff build` from `@croffcss/cli` |
 
 ## The CLI
 

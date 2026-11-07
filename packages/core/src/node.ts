@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
-import { Scanner, watchFiles, type ScanResult, type WatchHandle } from "@croff/scanner";
+import { Scanner, watchFiles, type ScanResult, type WatchHandle } from "@croffcss/scanner";
 import { createJiti } from "jiti";
 import {
   createCroff,

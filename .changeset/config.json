@@ -2,10 +2,10 @@
   "$schema": "https://unpkg.com/@changesets/config@3/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [["@croff/*"]],
+  "fixed": [["@croffcss/*"]],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@croff/docs", "@croff/example-*"]
+  "ignore": ["@croffcss/docs", "@croffcss/example-*"]
 }

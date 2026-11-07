@@ -7,7 +7,7 @@ import {
   themeVariables,
   tokenKey,
   tokenVariable,
-} from "@croff/theme";
+} from "@croffcss/theme";
 
 describe("default tokens", () => {
   const { theme, issues } = createTheme();

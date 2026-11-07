@@ -1,4 +1,4 @@
-import { definePlugin, values } from "@croff/core";
+import { definePlugin, values } from "@croffcss/core";
 
 /** The logo's angled cut, taken from the top left and bottom right corners. */
 const cut = (size: string) =>
@@ -11,7 +11,7 @@ const cut = (size: string) =>
  * @unstable The plugin API may change between 0.x releases.
  */
 export const uiPlugin = definePlugin({
-  name: "@croff/ui",
+  name: "@croffcss/ui",
   theme: {
     colors: {
       ink: "#0a0a0a",

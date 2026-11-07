@@ -1,4 +1,4 @@
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 import { uiPlugin } from "./src/plugin.ts";
 
 // Every class lives in the recipes, so that is all this has to read. Emitting every token means

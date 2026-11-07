@@ -6,7 +6,7 @@ description: Define your own responsive variants.
 Each token in the `breakpoints` scale becomes a variant.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {

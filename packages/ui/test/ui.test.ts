@@ -3,9 +3,9 @@ import { fileURLToPath } from "node:url";
 import { createElement as h } from "react";
 import { renderToStaticMarkup as render } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { createCroff } from "@croff/core";
-import * as recipes from "@croff/ui";
-import { uiPlugin } from "@croff/ui/plugin";
+import { createCroff } from "@croffcss/core";
+import * as recipes from "@croffcss/ui";
+import { uiPlugin } from "@croffcss/ui/plugin";
 import {
   Avatar,
   Alert,
@@ -18,7 +18,7 @@ import {
   Switch,
   Table,
   Tabs,
-} from "@croff/ui/react";
+} from "@croffcss/ui/react";
 
 const tones = ["neutral", "brand", "success", "warning", "danger", "info"] as const;
 const sizes = ["sm", "md", "lg"] as const;

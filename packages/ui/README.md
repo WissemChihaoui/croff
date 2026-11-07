@@ -1,12 +1,16 @@
-# @croff/ui
+# @croffcss/ui
 
 Ready-to-use components for CROFF, with the Chamfer design system.
 
 Chamfer takes its shapes from the CROFF logo: cut corners on anything you can press, the logo's slash as a mark on badges, checkboxes, switches and loading states, wide display headings and mono labels. It comes in dark and light themes, and every color, font and size is a token you can override.
 
+```bash
+pnpm add @croffcss/ui
+```
+
 ```ts
-import "@croff/ui/styles.css";
-import { Button } from "@croff/ui/react";
+import "@croffcss/ui/styles.css";
+import { Button } from "@croffcss/ui/react";
 ```
 
 ```tsx
@@ -16,8 +20,8 @@ import { Button } from "@croff/ui/react";
 Not using React? Each component is also a function that returns its class names:
 
 ```ts
-import "@croff/ui/styles.css";
-import { button } from "@croff/ui";
+import "@croffcss/ui/styles.css";
+import { button } from "@croffcss/ui";
 
 const classes = button({ tone: "primary" });
 ```
@@ -37,8 +41,8 @@ Put `data-theme="light"` on the page, or on any part of it, for the light theme.
 
 ## Writing your own components
 
-Add `uiPlugin` from `@croff/ui/plugin` to your CROFF config to get the same tokens, the `cut` utility and the variants the components use.
+Add `uiPlugin` from `@croffcss/ui/plugin` to your CROFF config to get the same tokens, the `cut` utility and the variants the components use.
 
 See the [component documentation](https://croff.wisecode.tn/docs/components/overview) for every component.
 
-Version 0.1.0 is a pre-release, and isn't on a package registry yet.
+Version 0.1.0 is a pre-release, so the API may still change.

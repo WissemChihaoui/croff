@@ -1,4 +1,4 @@
-import { tokenNames, type ResolvedTheme, type ThemeIssue } from "@croff/theme";
+import { tokenNames, type ResolvedTheme, type ThemeIssue } from "@croffcss/theme";
 import { buildRegistry, type Registry } from "./registry.js";
 import type { UtilityDefinition } from "./types.js";
 import { backgroundUtilities } from "./utilities/background.js";

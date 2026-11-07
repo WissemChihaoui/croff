@@ -7,5 +7,5 @@ export const site = {
   version: "0.1.0",
   githubUrl: "https://github.com/WissemChihaoui/croff" as string | null,
   /** False until the packages are published to a registry. */
-  published: false,
+  published: true,
 };

@@ -7,7 +7,7 @@ description: Use the Vite plugin in an existing project.
 
 ```ts
 import react from "@vitejs/plugin-react";
-import croff from "@croff/vite";
+import croff from "@croffcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({

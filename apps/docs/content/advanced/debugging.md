@@ -40,7 +40,7 @@ Paste a snippet into the [playground](/playground), which runs the same compiler
 ## Inspect programmatically
 
 ```ts
-import { createCroff, parse } from "@croff/core";
+import { createCroff, parse } from "@croffcss/core";
 
 console.log(parse("md:gap(4)"));
 

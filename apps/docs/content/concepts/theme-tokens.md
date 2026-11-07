@@ -6,7 +6,7 @@ description: Your design decisions, as data.
 A theme is a set of scales, and a scale is a set of named tokens.
 
 ```ts
-import { defineConfig } from "@croff/core";
+import { defineConfig } from "@croffcss/core";
 
 export default defineConfig({
   theme: {

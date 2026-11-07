@@ -93,14 +93,16 @@ describe("init", () => {
     expect(await read("croff.config.ts")).toContain("defineConfig");
     expect(await read("src/croff.css")).toContain("@croff;");
     const vite = await read("vite.config.ts");
-    expect(vite).toContain(`import croff from "@croff/vite";`);
+    expect(vite).toContain(`import croff from "@croffcss/vite";`);
     expect(vite).toContain("plugins: [croff(), react()]");
   });
 
   it("only asks for packages that aren't installed, and reports edits as edits", async () => {
     await write(
       "package.json",
-      JSON.stringify({ devDependencies: { vite: "*", "@croff/core": "*", "@croff/vite": "*" } }),
+      JSON.stringify({
+        devDependencies: { vite: "*", "@croffcss/core": "*", "@croffcss/vite": "*" },
+      }),
     );
     await write("vite.config.js", "export default { plugins: [] };\n");
     const { stdout } = await croff("init", "--cwd", cwd);
@@ -121,7 +123,7 @@ describe("init", () => {
     await write("package.json", JSON.stringify({ dependencies: { next: "*" } }));
     const { stdout } = await croff("init", "--cwd", cwd);
     expect(stdout).toContain("postcss");
-    expect(await read("postcss.config.mjs")).toContain("@croff/postcss");
+    expect(await read("postcss.config.mjs")).toContain("@croffcss/postcss");
   });
 
   it("never overwrites existing files", async () => {
@@ -152,7 +154,7 @@ describe("init", () => {
   it("produces a project that builds", async () => {
     await write("index.html", '<p class="gap(4)">x</p>');
     await croff("init", "--cwd", cwd);
-    // The generated config imports @croff/core, which a temp directory can't resolve.
+    // The generated config imports @croffcss/core, which a temp directory can't resolve.
     await write(
       "croff.config.mjs",
       `export default { content: ["*.html"], input: "croff.css", output: "dist/croff.css" };`,

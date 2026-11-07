@@ -3,7 +3,7 @@
  * class names are always the real ones. This is a .ts file because the site's content patterns
  * only cover .tsx, and these classes are in the prebuilt stylesheet already.
  */
-import * as ui from "@croff/ui";
+import * as ui from "@croffcss/ui";
 
 export interface ComponentSample {
   id: string;
@@ -183,7 +183,7 @@ export const SAMPLES: ComponentSample[] = [
     { key: "name", label: "Name" },
     { key: "job", label: "Job" },
   ]}
-  rows={[{ id: "1", name: "@croff/parser", job: "Reads the grammar" }]}
+  rows={[{ id: "1", name: "@croffcss/parser", job: "Reads the grammar" }]}
 />`,
     html: `<div tabindex="0" class="${ui.tableWrap()}">
   <table class="${ui.table()}">
@@ -191,7 +191,7 @@ export const SAMPLES: ComponentSample[] = [
       <tr><th scope="col" class="${ui.tableHeader()}">Name</th></tr>
     </thead>
     <tbody>
-      <tr class="${ui.tableRow()}"><td class="${ui.tableCell()}">@croff/parser</td></tr>
+      <tr class="${ui.tableRow()}"><td class="${ui.tableCell()}">@croffcss/parser</td></tr>
     </tbody>
   </table>
 </div>`,

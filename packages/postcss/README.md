@@ -1,11 +1,11 @@
-# @croff/postcss
+# @croffcss/postcss
 
 PostCSS integration. Replaces `@croff` at-rules with generated CSS, and registers dependencies for watch mode.
 
 ```ts
-import croff from "@croff/postcss";
+import croff from "@croffcss/postcss";
 
 export default { plugins: [croff()] };
 ```
 
-Part of [CROFF](../../README.md), version 0.1.0 (pre-release, not published yet).
+Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).

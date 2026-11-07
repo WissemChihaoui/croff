@@ -6,7 +6,7 @@ description: Add selector and at-rule conditions.
 A variant has a selector template, an at-rule, or both.
 
 ```ts
-import { definePlugin } from "@croff/core";
+import { definePlugin } from "@croffcss/core";
 
 export default definePlugin({
   name: "croff-plugin-variants",

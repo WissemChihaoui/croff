@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { builtinUtilities, createCroff } from "@croff/core";
+import { builtinUtilities, createCroff } from "@croffcss/core";
 import { engineNames, launch, resize, type Browser, type Page } from "./helpers.js";
 
 // Checks what no text comparison can: that real browser engines accept the

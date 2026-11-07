@@ -1,4 +1,4 @@
-import type { Croff, ResolvedTheme, UtilityDefinition } from "@croff/core";
+import type { Croff, ResolvedTheme, UtilityDefinition } from "@croffcss/core";
 
 export interface ReferenceType {
   label: string;

@@ -244,7 +244,7 @@ export function Playground() {
               <CodeBlock
                 code={result.displayCss || "/* Nothing generated yet */"}
                 language="css"
-                label="Output of @croff/core, running in this tab"
+                label="Output of @croffcss/core, running in this tab"
               />
             ) : (
               <TokenEditor theme={theme} onChange={setToken} />
