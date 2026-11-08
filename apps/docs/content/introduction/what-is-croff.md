@@ -32,7 +32,7 @@ Nothing runs in the browser. The result is ordinary CSS that any browser, framew
 - A source scanner that works on any text file.
 - The `croff` CLI, a Vite plugin, a PostCSS plugin and a plugin API.
 
-Version 0.1.0 is a pre-release, published on npm under the `@croffcss` scope. The language may still change before 1.0.
+CROFF is a pre-release, published on npm under the `@croffcss` scope. The language may still change before 1.0.
 
 ## Where to go next
 

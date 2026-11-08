@@ -12,4 +12,4 @@ const project = await Project.load();
 const { css, diagnostics } = await project.generate({ minify: true });
 ```
 
-Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).
+Part of [CROFF](https://croff.wisecode.tn), a pre-release before 1.0.

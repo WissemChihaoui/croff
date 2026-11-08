@@ -9,4 +9,4 @@ import { defineConfig } from "vite";
 export default defineConfig({ plugins: [croff()] });
 ```
 
-Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).
+Part of [CROFF](https://croff.wisecode.tn), a pre-release before 1.0.

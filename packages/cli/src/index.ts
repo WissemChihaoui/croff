@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { parseArgs, type ParseArgsConfig } from "node:util";
 import { buildCommand } from "./commands/build.js";
 import { checkCommand } from "./commands/check.js";
@@ -5,7 +6,9 @@ import { devCommand } from "./commands/dev.js";
 import { initCommand } from "./commands/init.js";
 import { paint, UsageError, type Command, type Output } from "./shared.js";
 
-export const VERSION = "0.1.0";
+/** Read from package.json, which sits one level up from both src/ and dist/. */
+export const VERSION = (createRequire(import.meta.url)("../package.json") as { version: string })
+  .version;
 
 export const COMMANDS: Record<string, Command> = {
   init: initCommand,

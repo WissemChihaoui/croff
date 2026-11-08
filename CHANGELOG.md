@@ -1,3 +1,7 @@
+## 0.1.1 (pre-release)
+
+- `croff dev` no longer misses an edit saved while it's starting.
+
 ## 0.1.0 (pre-release)
 
 The first release, for public testing, published on npm under the `@croffcss` scope.

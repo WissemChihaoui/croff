@@ -45,4 +45,4 @@ Add `uiPlugin` from `@croffcss/ui/plugin` to your CROFF config to get the same t
 
 See the [component documentation](https://croff.wisecode.tn/docs/components/overview) for every component.
 
-Version 0.1.0 is a pre-release, so the API may still change.
+This is a pre-release before 1.0, so the API may still change.

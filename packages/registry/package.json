@@ -1,6 +1,6 @@
 {
   "name": "@croffcss/registry",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Utility and variant definitions for CROFF.",
   "type": "module",
   "license": "MIT",

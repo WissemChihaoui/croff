@@ -1,6 +1,6 @@
 # Project status
 
-**Version 0.1.0: implemented and verified, locally and on CI. Published on npm under the `@croffcss` scope.**
+**Version 0.1.1: implemented and verified, locally and on CI. Published on npm under the `@croffcss` scope.**
 
 ## Phases
 

@@ -29,7 +29,7 @@
 }
 ```
 
-> **Status: version 0.1.0, pre-release.** Everything described here works, but the language may still change. See [PROJECT_STATUS.md](./PROJECT_STATUS.md).
+> **Status: version 0.1, pre-release.** Everything described here works, but the language may still change. See [PROJECT_STATUS.md](./PROJECT_STATUS.md).
 
 ## Why CROFF
 

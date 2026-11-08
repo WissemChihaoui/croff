@@ -1,6 +1,6 @@
 {
   "name": "@croffcss/compiler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Compiles CROFF expressions into deterministic CSS.",
   "type": "module",
   "license": "MIT",

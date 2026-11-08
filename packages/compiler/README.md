@@ -12,4 +12,4 @@ const compiler = new Compiler({ theme, registry: createRegistry(theme) });
 const { css, failures } = compiler.compile(["gap(4)", "md:hover:bg(brand)"], { minify: true });
 ```
 
-Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).
+Part of [CROFF](https://croff.wisecode.tn), a pre-release before 1.0.

@@ -1,6 +1,6 @@
 {
   "name": "@croffcss/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The public CROFF API: configuration, engine and project orchestration.",
   "type": "module",
   "license": "MIT",

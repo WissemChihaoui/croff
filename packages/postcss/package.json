@@ -1,6 +1,6 @@
 {
   "name": "@croffcss/postcss",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "PostCSS integration for CROFF.",
   "type": "module",
   "license": "MIT",

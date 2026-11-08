@@ -44,7 +44,10 @@ describe("help", () => {
   });
 
   it("prints the version", async () => {
-    expect((await croff("--version")).stdout).toBe("0.1.0");
+    const { version } = JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ) as { version: string };
+    expect((await croff("--version")).stdout).toBe(version);
   });
 
   it.each(["init", "dev", "build", "check"])("prints help for %s", async (command) => {

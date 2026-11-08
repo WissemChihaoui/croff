@@ -1,6 +1,6 @@
 {
   "name": "@croffcss/theme",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Design tokens, theme merging and CSS variable generation for CROFF.",
   "type": "module",
   "license": "MIT",

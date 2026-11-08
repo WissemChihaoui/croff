@@ -1,6 +1,6 @@
 {
   "name": "@croffcss/parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tokenizer and parser for the CROFF utility language.",
   "type": "module",
   "license": "MIT",

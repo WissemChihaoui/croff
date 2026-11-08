@@ -9,4 +9,4 @@ builtinUtilities.map((utility) => utility.name);
 values.token("spacing"); // A value type accepting tokens from a scale.
 ```
 
-Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).
+Part of [CROFF](https://croff.wisecode.tn), a pre-release before 1.0.

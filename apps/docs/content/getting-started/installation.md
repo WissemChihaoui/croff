@@ -3,7 +3,7 @@ title: Installation
 description: Get CROFF into a project.
 ---
 
-> Version 0.1.0 is a pre-release. Everything described here works, but the language may still change before 1.0.
+> CROFF is a pre-release. Everything described here works, but the language may still change before 1.0.
 
 ## Requirements
 

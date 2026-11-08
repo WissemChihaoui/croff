@@ -10,4 +10,4 @@ const { candidates } = await scanner.scan();
 const handle = watchFiles(scanner, { onChange: (result) => console.log(result.candidates.length) });
 ```
 
-Part of [CROFF](https://croff.wisecode.tn), version 0.1.0 (pre-release).
+Part of [CROFF](https://croff.wisecode.tn), a pre-release before 1.0.
