@@ -76,6 +76,10 @@ export function watchFiles(scanner: Scanner, options: WatchOptions): WatchHandle
     }
   }
 
+  // An edit between the caller's last scan and the watchers starting raises no event, so
+  // rescan once now. Unchanged files aren't re-read, and nothing is reported if nothing changed.
+  timer = setTimeout(() => void flush(), debounceMs);
+
   return {
     close() {
       closed = true;

@@ -85,6 +85,12 @@ export const devCommand: Command = {
     await rebuild(context(), "built");
     if (values["once"]) return 0;
 
+    const report = (error: unknown) =>
+      output.error(paint.red(error instanceof Error ? error.message : String(error)));
+
+    let content = project.watch(() => {
+      rebuild(context(), "updated").catch(report);
+    }, report);
     output.log(
       paint.dim(
         `Watching ${project.scanner
@@ -93,13 +99,6 @@ export const devCommand: Command = {
           .join(", ")}`,
       ),
     );
-
-    const report = (error: unknown) =>
-      output.error(paint.red(error instanceof Error ? error.message : String(error)));
-
-    let content = project.watch(() => {
-      rebuild(context(), "updated").catch(report);
-    }, report);
 
     const fileWatchers: FSWatcher[] = [];
     if (project.configPath) {

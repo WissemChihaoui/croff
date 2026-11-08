@@ -258,6 +258,39 @@ describe("watching", () => {
     }
   });
 
+  it("picks up a change made after the last scan but before watching started", async () => {
+    await write("src/a.html", '"gap(4)"');
+    const scanner = new Scanner({ cwd });
+    await scanner.scan();
+    // No file event is ever raised for this edit, because nothing was watching yet.
+    await write("src/a.html", '"gap(8)"');
+
+    let handle: { close(): void } | undefined;
+    const change = new Promise<string[]>((resolve) => {
+      handle = watchFiles(scanner, {
+        debounceMs: 10,
+        onChange: (result) => resolve(names(result)),
+      });
+    });
+    const timeout = new Promise<string>((resolve) => setTimeout(() => resolve("no change"), 2000));
+    try {
+      expect(await Promise.race([change, timeout])).toEqual(["gap(8)"]);
+    } finally {
+      handle?.close();
+    }
+  });
+
+  it("reports nothing when nothing changed before watching started", async () => {
+    await write("src/a.html", '"gap(4)"');
+    const scanner = new Scanner({ cwd });
+    await scanner.scan();
+    const onChange = vi.fn();
+    const handle = watchFiles(scanner, { debounceMs: 10, onChange });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    handle.close();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("does not throw for a missing root", () => {
     const scanner = new Scanner({ cwd, content: ["nothing/**/*.html"] });
     const handle = watchFiles(scanner, { onChange: () => {} });
