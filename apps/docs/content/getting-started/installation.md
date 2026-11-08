@@ -28,7 +28,7 @@ Use `@croffcss/postcss` instead of `@croffcss/vite` for PostCSS or Next.js. With
 pnpm croff init
 ```
 
-With npm, that's `npx croff init`. Install `@croffcss/cli` first: otherwise `npx` looks for a package named `croff` on the registry, which isn't part of CROFF.
+With npm, that's `npx croff init`. Before anything is installed, run `npx @croffcss/cli init` instead.
 
 ## Build from source
 

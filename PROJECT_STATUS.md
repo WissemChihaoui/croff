@@ -15,7 +15,7 @@
 
 ## Where it lives
 
-The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). The docs site is live at [croff.wisecode.tn](https://croff.wisecode.tn). The packages are on [npm](https://www.npmjs.com/org/croffcss), under `@croffcss` because the `@croff` scope belongs to someone else.
+The source is public at [github.com/WissemChihaoui/croff](https://github.com/WissemChihaoui/croff). The docs site is live at [croff.wisecode.tn](https://croff.wisecode.tn). The packages are on [npm](https://www.npmjs.com/org/croffcss), under `@croffcss` because the `@croff` scope belongs to someone else. Releases are published by the [release workflow](./.github/workflows/release.yml), as described in [CONTRIBUTING.md](./CONTRIBUTING.md#releasing).
 
 ## Remaining before a public release
 

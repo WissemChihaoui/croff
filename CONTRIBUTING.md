@@ -57,4 +57,15 @@ pnpm test:browser
 
 If your change affects users, add a changeset with `pnpm changeset`.
 
+## Releasing
+
+For maintainers. Every package shares one version, so a release bumps them all.
+
+1. Run `pnpm changeset version`. It turns the pending changesets into version bumps and changelog entries.
+2. Commit the result and push it to `main`.
+
+Once CI passes, the [release workflow](./.github/workflows/release.yml) publishes every version that isn't on npm yet, then pushes the git tags. It signs in to npm through trusted publishing, so there's no npm token to keep, and each version gets a provenance statement. You can also start it by hand from the Actions tab.
+
+A new package has to be published once by hand, with `pnpm changeset publish`, before it can trust the workflow: on its settings page on npmjs.com, under **Trusted Publisher**, choose GitHub Actions with `WissemChihaoui`, `croff` and `release.yml`.
+
 Everyone taking part in this project is expected to follow the [code of conduct](./apps/docs/content/community/code-of-conduct.md).

@@ -1,0 +1,48 @@
+name: Release
+
+# Publishes to npm every package whose version isn't there yet, once CI has passed on main.
+# After an ordinary commit, every version is already published and this does nothing. To
+# release, run `pnpm changeset version` and push the result.
+#
+# There's no npm token: each package trusts this workflow on npmjs.com (trusted publishing),
+# and pnpm attaches provenance on its own.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release
+
+jobs:
+  publish:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build packages
+        run: pnpm build
+      - name: Publish what isn't on npm yet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          pnpm changeset publish
+      - name: Push the release tags
+        run: git push origin --tags
