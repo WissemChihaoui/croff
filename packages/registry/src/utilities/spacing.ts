@@ -57,6 +57,20 @@ function family(property: "padding" | "margin", types: ValueType[]): UtilityDefi
         examples: [`${property}-${side}(4)`, `${property}-${side}[3px]`],
       }),
     ),
+    ...(["start", "end"] as const).map((side) =>
+      simple({
+        name: `${property}-${side}`,
+        category,
+        description: `Sets ${noun} at the ${side} of the line: the ${side === "start" ? "left" : "right"} in left-to-right text, the ${side === "start" ? "right" : "left"} in right-to-left text.`,
+        types,
+        properties: [`${property}-inline-${side}`],
+        examples: [
+          `${property}-${side}(4)`,
+          `${property}-${side}(${example})`,
+          `${property}-${side}[3px]`,
+        ],
+      }),
+    ),
   ];
 }
 

@@ -13,13 +13,16 @@ Everything rests on two widely supported features: CSS custom properties, and cl
 
 A few utilities compile to newer CSS. You only depend on these if you use them.
 
-| Expression                          | CSS feature      | Chrome | Firefox | Safari |
-| ----------------------------------- | ---------------- | ------ | ------- | ------ |
-| `alpha(token,n)`                    | `color-mix()`    | 111    | 113     | 16.2   |
-| `columns(subgrid)`, `rows(subgrid)` | `subgrid`        | 117    | 71      | 16     |
-| `focus-visible:`                    | `:focus-visible` | 86     | 85      | 15.4   |
-| `aspect-ratio(...)`                 | `aspect-ratio`   | 88     | 89      | 15     |
-| `gap(...)` on flex containers       | flexbox `gap`    | 84     | 63      | 14.1   |
+| Expression                             | CSS feature          | Chrome | Firefox | Safari |
+| -------------------------------------- | -------------------- | ------ | ------- | ------ |
+| `alpha(token,n)`                       | `color-mix()`        | 111    | 113     | 16.2   |
+| `columns(subgrid)`, `rows(subgrid)`    | `subgrid`            | 117    | 71      | 16     |
+| `focus-visible:`                       | `:focus-visible`     | 86     | 85      | 15.4   |
+| `aspect-ratio(...)`                    | `aspect-ratio`       | 88     | 89      | 15     |
+| `gap(...)` on flex containers          | flexbox `gap`        | 84     | 63      | 14.1   |
+| `rtl:`, `ltr:`                         | `:dir()`             | 120    | 49      | 16.4   |
+| `inset-start(...)`, `inset-end(...)`   | `inset-inline-*`     | 87     | 63      | 14.1   |
+| `radius-start(...)`, `radius-end(...)` | logical corner radii | 89     | 66      | 15     |
 
 ## What has been tested
 

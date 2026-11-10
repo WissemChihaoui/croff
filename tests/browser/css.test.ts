@@ -117,6 +117,51 @@ describe.each(engineNames)("generated CSS in %s", (engine) => {
     });
   });
 
+  describe("right-to-left text", () => {
+    const classes =
+      "padding-start[11px] border-start[3px_solid_red] rtl:color[rgb(1,1,1)] ltr:color[rgb(2,2,2)]";
+    const css = () => croff.compile(classes.split(" "), { minify: true }).css;
+
+    it("puts logical utilities on the left in English and on the right in Arabic", async () => {
+      await render(page, css(), `<div id="x" class="${classes}">x</div>`);
+      expect(await computed("padding-left")).toBe("11px");
+      expect(await computed("border-left-width")).toBe("3px");
+      expect(await computed("padding-right")).toBe("0px");
+      await page.evaluate(() => document.documentElement.setAttribute("dir", "rtl"));
+      expect(await computed("padding-right")).toBe("11px");
+      expect(await computed("border-right-width")).toBe("3px");
+      expect(await computed("padding-left")).toBe("0px");
+    });
+
+    it("rtl: and ltr: follow dir on <html> and on any ancestor", async () => {
+      await render(
+        page,
+        css(),
+        `<div id="x" class="${classes}">x</div><section dir="rtl"><p id="y" class="${classes}">y</p></section>`,
+      );
+      expect(await computed("color")).toBe("rgb(2, 2, 2)");
+      expect(await computed("color", "y")).toBe("rgb(1, 1, 1)");
+      await page.evaluate(() => document.documentElement.setAttribute("dir", "rtl"));
+      expect(await computed("color")).toBe("rgb(1, 1, 1)");
+    });
+  });
+
+  describe("theme values", () => {
+    it("apply a clamp() token written without spaces", async () => {
+      const themed = createCroff({ theme: { textSizes: { hero: "clamp(10px,5px+1vw,40px)" } } });
+      await render(page, themed.compile(["text-size(hero)"]).css, element("text-size(hero)"));
+      // 5px + 1% of the 1600px viewport.
+      expect(await computed("font-size")).toBe("21px");
+    });
+
+    it("apply a radius token with a value per corner", async () => {
+      const themed = createCroff({ theme: { radius: { tab: "10px 10px 0 0" } } });
+      await render(page, themed.compile(["radius(tab)"]).css, element("radius(tab)"));
+      expect(await computed("border-top-left-radius")).toBe("10px");
+      expect(await computed("border-bottom-right-radius")).toBe("0px");
+    });
+  });
+
   describe("arbitrary properties", () => {
     it("set any property, and match the class name written", async () => {
       await render(page, croff.compile(["[float:left]"]).css, element("[float:left]"));

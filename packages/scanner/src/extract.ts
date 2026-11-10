@@ -62,12 +62,26 @@ function followsWhitespaceEscape(source: string, index: number): boolean {
   return source[index - 2] === "\\" && "nrtf".includes(source[index - 1] ?? " ");
 }
 
-/** Whether an expression can end at `end`: at whitespace, a quote, `>`, `/>`, or an escape of either. */
+/** Whether a template tag such as Jinja's `%}`, `}}` or `#}` ends just before `index`. */
+function followsTemplateTag(source: string, index: number): boolean {
+  return source[index - 1] === "}" && "%}#".includes(source[index - 2] ?? " ");
+}
+
+/** Whether a template tag such as Jinja's `{%`, `{{` or `{#` starts at `index`. */
+function startsTemplateTag(source: string, index: number): boolean {
+  return source[index] === "{" && "%{#".includes(source[index + 1] ?? " ");
+}
+
+/**
+ * Whether an expression can end at `end`: at whitespace, a quote, `>`, `/>`, the start of a
+ * template tag, or an escape of whitespace or a quote.
+ */
 function endsExpression(source: string, end: number): boolean {
   if (end >= source.length) return true;
   const code = source.charCodeAt(end);
   if (isWhitespace(code) || isQuote(code) || code === 62) return true;
   if (code === 47) return source[end + 1] === ">";
+  if (code === 123) return startsTemplateTag(source, end);
   return code === 92 && "nrtf\"'`".includes(source[end + 1] ?? " ");
 }
 
@@ -301,10 +315,10 @@ function readToken(
 
 /**
  * Finds every expression-shaped token in `source`. A token must begin after
- * whitespace, a quote or `=`, and end at whitespace, a quote, `>`, `/>` or the end
- * of the text. This is what keeps `foo.width(10)` and `width(10);` out. Whitespace
- * and quotes may be written as JS string escapes, and Svelte's `class:gap(4)={on}`
- * holds an expression after its prefix.
+ * whitespace, a quote, `=` or a template tag such as `%}`, and end at whitespace, a quote,
+ * `>`, `/>`, a template tag such as `{%` or the end of the text. This is what keeps
+ * `foo.width(10)` and `width(10);` out. Whitespace and quotes may be written as JS string
+ * escapes, and Svelte's `class:gap(4)={on}` holds an expression after its prefix.
  */
 export function extractCandidates(source: string, options: ExtractOptions = {}): ExtractResult {
   const regions = classRegions(source, options.classFunctions ?? DEFAULT_CLASS_FUNCTIONS);
@@ -332,7 +346,8 @@ export function extractCandidates(source: string, options: ExtractOptions = {}):
       isWhitespace(previous) ||
       isQuote(previous) ||
       previous === 61 ||
-      followsWhitespaceEscape(source, i);
+      followsWhitespaceEscape(source, i) ||
+      followsTemplateTag(source, i);
     // Only letters, digits and the bracket of an arbitrary property can start an expression.
     const startsWord = (code >= 97 && code <= 122) || (code >= 48 && code <= 57) || code === 91;
     if (!atBoundary || !startsWord) {

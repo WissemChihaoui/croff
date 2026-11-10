@@ -1,4 +1,5 @@
 export { defaultTheme } from "./default-theme.js";
+export { spaceMathOperators } from "./math.js";
 export {
   createTheme,
   hasToken,

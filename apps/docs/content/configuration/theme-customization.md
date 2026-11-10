@@ -80,15 +80,18 @@ Any other key defines a new scale, which custom utilities can read. See [Extendi
 
 ## Validation
 
-| Scale                            | Must be                                          |
-| -------------------------------- | ------------------------------------------------ |
-| `colors`                         | A hex color, a color function or a named color.  |
-| `spacing`, `radius`, `textSizes` | A length, `0` or a CSS function.                 |
-| `letterSpacings`                 | A length, a CSS function or `normal`.            |
-| `lineHeights`                    | A number, a length or `normal`.                  |
-| `textWeights`                    | A number, `normal` or `bold`.                    |
-| `breakpoints`                    | A width in `px`, `em` or `rem`.                  |
-| `durations`                      | A time such as `200ms`.                          |
-| Other scales                     | Any value that can't break out of a declaration. |
+| Scale                  | Must be                                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `colors`               | A hex color, a color function or a named color.                                                                                 |
+| `spacing`, `textSizes` | A length, `0` or a CSS function.                                                                                                |
+| `radius`               | Anything `border-radius` takes: up to four lengths, optionally `/` and up to four more, such as `1rem 1rem 0 0` or `50% / 30%`. |
+| `letterSpacings`       | A length, a CSS function or `normal`.                                                                                           |
+| `lineHeights`          | A number, a length or `normal`.                                                                                                 |
+| `textWeights`          | A number, `normal` or `bold`.                                                                                                   |
+| `breakpoints`          | A width in `px`, `em` or `rem`.                                                                                                 |
+| `durations`            | A time such as `200ms`.                                                                                                         |
+| Other scales           | Any value that can't break out of a declaration.                                                                                |
 
 Token names can contain letters, digits, `-` and `_`.
+
+In `calc()`, `clamp()`, `min()` and `max()`, CSS needs spaces around `+` and `-`. CROFF adds them, so `clamp(2rem,1rem+3vw,4rem)` works as well as `clamp(2rem, 1rem + 3vw, 4rem)`.

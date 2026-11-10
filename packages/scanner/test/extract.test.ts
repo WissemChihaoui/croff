@@ -50,6 +50,27 @@ describe("HTML", () => {
   });
 });
 
+describe("template tags", () => {
+  it("extracts expressions glued to Jinja, Twig and Liquid tags", () => {
+    const source = `<div class="card {% if wide %}lg:grid-span(3){% endif %} {%- if x -%}gap(4){%- endif -%}"></div>`;
+    expect(expressions(source)).toEqual(["lg:grid-span(3)", "gap(4)"]);
+  });
+
+  it("extracts expressions glued to output and comment tags", () => {
+    const source = `<p class="{{ base }}padding(4){{ extra }} {# note #}gap(2){# end #}"></p>`;
+    expect(expressions(source)).toEqual(["padding(4)", "gap(2)"]);
+  });
+
+  it("finds them in a class context", () => {
+    const { candidates } = extractCandidates(`<div class="{% if a %}gap(4){% endif %}"></div>`);
+    expect(candidates.map((c) => c.context)).toEqual(["class"]);
+  });
+
+  it("still ignores code glued to a single brace", () => {
+    expect(expressions(`if (x) {gap(4)} else {width(10)}`)).toEqual([]);
+  });
+});
+
 describe("JSX and JavaScript", () => {
   it("extracts from className strings and expressions", () => {
     const source = `<div className="flex(row)" />

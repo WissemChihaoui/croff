@@ -10,6 +10,17 @@ const EMPTY_CONTENT = { content: 'var(--croff-content, "")' };
 /** State variants. Array order is cascade order: later variants override earlier ones. */
 export const stateVariants: VariantDefinition[] = [
   {
+    name: "rtl",
+    selector: "&:dir(rtl)",
+    description:
+      'Applies in right-to-left text, such as Arabic or Hebrew: inside dir="rtl", including when it\'s set on <html>.',
+  },
+  {
+    name: "ltr",
+    selector: "&:dir(ltr)",
+    description: "Applies in left-to-right text, the default.",
+  },
+  {
     name: "group-hover",
     selector: ".group:hover &",
     description: 'Applies when an ancestor with the class "group" is hovered.',

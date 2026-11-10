@@ -79,6 +79,18 @@ export const borderUtilities: UtilityDefinition[] = [
     arbitrary: [`border-${side}`],
     examples: [`border-${side}()`, `border-${side}(2,muted)`, `border-${side}[1px_dashed_#333]`],
   })),
+  ...(["start", "end"] as const).map((side): UtilityDefinition => ({
+    name: `border-${side}`,
+    category,
+    description: `Adds a solid border at the ${side} of the line, following the text direction, with an optional width and color.`,
+    args: [
+      { name: "width", types: [words("none"), px], optional: true },
+      { name: "color", types: color(), optional: true },
+    ],
+    compile: borderDeclarations(`border-inline-${side}`),
+    arbitrary: [`border-inline-${side}`],
+    examples: [`border-${side}()`, `border-${side}(2,muted)`, `border-${side}[1px_dashed_#333]`],
+  })),
   simple({
     name: "radius",
     category,
@@ -87,6 +99,18 @@ export const borderUtilities: UtilityDefinition[] = [
     properties: ["border-radius"],
     examples: ["radius(md)", "radius(full)", "radius[3px_0]"],
   }),
+  ...(["start", "end"] as const).map((side) =>
+    simple({
+      name: `radius-${side}`,
+      category,
+      description: `Rounds the two corners at the ${side} of the line, following the text direction.`,
+      types: [token("radius"), cssVar()],
+      properties: [`border-start-${side}-radius`, `border-end-${side}-radius`],
+      examples: [`radius-${side}(md)`, `radius-${side}(full)`, `radius-${side}[4px]`],
+      notes:
+        "Each corner takes one or two lengths, so a radius token with more values only works with radius().",
+    }),
+  ),
   {
     name: "outline",
     category,

@@ -99,7 +99,8 @@ export function reservedTokenIssues(theme: ResolvedTheme): ThemeIssue[] {
   return issues;
 }
 
-export { normalizeArbitraryValue, spaceMathOperators } from "./arbitrary.js";
+export { normalizeArbitraryValue } from "./arbitrary.js";
+export { spaceMathOperators } from "@croffcss/theme";
 export { RegistrationError, Registry, type RegisterOptions } from "./registry.js";
 export { closest } from "./suggest.js";
 export type {

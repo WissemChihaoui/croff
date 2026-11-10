@@ -142,6 +142,42 @@ describe("built-in utilities", () => {
   });
 });
 
+describe("logical utilities, for right-to-left languages", () => {
+  it.each([
+    ["padding-start(4)", { "padding-inline-start": "var(--croff-spacing-4)" }],
+    ["padding-end(4)", { "padding-inline-end": "var(--croff-spacing-4)" }],
+    ["margin-start(auto)", { "margin-inline-start": "auto" }],
+    ["margin-end(-2)", { "margin-inline-end": "calc(var(--croff-spacing-2) * -1)" }],
+    ["inset-start(0)", { "inset-inline-start": "var(--croff-spacing-0)" }],
+    ["inset-end(1/2)", { "inset-inline-end": "50%" }],
+    [
+      "border-start(2,brand)",
+      {
+        "border-inline-start-width": "2px",
+        "border-inline-start-style": "solid",
+        "border-inline-start-color": "var(--croff-color-brand)",
+      },
+    ],
+    ["border-end(none)", { "border-inline-end": "none" }],
+    [
+      "radius-start(md)",
+      {
+        "border-start-start-radius": "var(--croff-radius-md)",
+        "border-end-start-radius": "var(--croff-radius-md)",
+      },
+    ],
+    [
+      "radius-end(md)",
+      {
+        "border-start-end-radius": "var(--croff-radius-md)",
+        "border-end-end-radius": "var(--croff-radius-md)",
+      },
+    ],
+  ])("%s follows the text direction", (source, expected) => {
+    expect(declarations(source)).toEqual(expected);
+  });
+});
+
 describe("value resolution", () => {
   it("uses theme tokens through custom properties", () => {
     expect(declarations("gap(4)")).toEqual({ gap: "var(--croff-spacing-4)" });

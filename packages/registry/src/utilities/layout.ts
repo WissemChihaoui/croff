@@ -75,6 +75,21 @@ export const layoutUtilities: UtilityDefinition[] = [
       examples: [`${side}(0)`, `${side}(-2)`, `${side}(1/2)`, `${side}[3px]`],
     }),
   ),
+  ...(["start", "end"] as const).map((side) =>
+    simple({
+      name: `inset-${side}`,
+      category,
+      description: `Sets the offset at the ${side} of the line: left or right, following the text direction.`,
+      types: offset(),
+      properties: [`inset-inline-${side}`],
+      examples: [
+        `inset-${side}(0)`,
+        `inset-${side}(-2)`,
+        `inset-${side}(1/2)`,
+        `inset-${side}[3px]`,
+      ],
+    }),
+  ),
   ...(["overflow-x", "overflow-y"] as const).map((name) =>
     simple({
       name,

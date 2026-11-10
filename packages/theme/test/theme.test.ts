@@ -75,6 +75,54 @@ describe("custom tokens", () => {
   });
 });
 
+describe("math in token values", () => {
+  it("adds the spaces that + and - need in clamp(), calc(), min() and max()", () => {
+    const { theme, issues } = createTheme([
+      {
+        textSizes: { hero: "clamp(2rem,1rem+3vw,4rem)" },
+        spacing: { gutter: "calc(1rem-2px)", side: "max(1rem,5vw-2rem)" },
+      },
+    ]);
+    expect(issues).toEqual([]);
+    expect(theme.scales.textSizes!.hero).toBe("clamp(2rem,1rem + 3vw,4rem)");
+    expect(theme.scales.spacing!.gutter).toBe("calc(1rem - 2px)");
+    expect(theme.scales.spacing!.side).toBe("max(1rem,5vw - 2rem)");
+  });
+
+  it("leaves values that already have spaces, and hyphenated names, alone", () => {
+    const { theme } = createTheme([
+      { spacing: { a: "calc(100% - var(--side-width))" }, fonts: { body: "sans-serif" } },
+    ]);
+    expect(theme.scales.spacing!.a).toBe("calc(100% - var(--side-width))");
+    expect(theme.scales.fonts!.body).toBe("sans-serif");
+  });
+});
+
+describe("radius tokens", () => {
+  it.each([
+    ["one length", "0.5rem"],
+    ["two lengths", "1rem 0"],
+    ["four lengths", "1rem 1rem 0 0"],
+    ["elliptical corners", "50% / 30%"],
+    ["both sides of the slash", "1rem 2rem / 3rem 4rem"],
+    ["a function", "var(--r) 0"],
+  ])("accepts %s", (_, value) => {
+    const { theme, issues } = createTheme([{ radius: { card: value } }]);
+    expect(issues).toEqual([]);
+    expect(theme.scales.radius!.card).toBe(value);
+  });
+
+  it.each([
+    ["five lengths", "1rem 1rem 1rem 1rem 1rem"],
+    ["two slashes", "1rem / 2rem / 3rem"],
+    ["an empty side", "1rem /"],
+    ["a word", "round"],
+  ])("rejects %s", (_, value) => {
+    const { issues } = createTheme([{ radius: { card: value } }]);
+    expect(issues.map((i) => i.code)).toEqual(["invalid-token-value"]);
+  });
+});
+
 describe("invalid values", () => {
   it.each([
     ["colors", "not a color"],

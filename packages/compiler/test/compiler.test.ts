@@ -119,6 +119,8 @@ describe("state variants", () => {
     ["disabled:gap(4)", ".disabled\\:gap\\(4\\):disabled"],
     ["focus-within:gap(4)", ".focus-within\\:gap\\(4\\):focus-within"],
     ["group-hover:gap(4)", ".group:hover .group-hover\\:gap\\(4\\)"],
+    ["rtl:gap(4)", ".rtl\\:gap\\(4\\):dir(rtl)"],
+    ["ltr:gap(4)", ".ltr\\:gap\\(4\\):dir(ltr)"],
   ])("%s selects %s", (expression, selector) => {
     expect(makeCompiler().compile([expression]).rules[0]!.selector).toBe(selector);
   });
@@ -127,6 +129,14 @@ describe("state variants", () => {
     const [rule] = makeCompiler().compile(["md:hover:focus:bg(brand)"]).rules;
     expect(rule!.selector).toBe(".md\\:hover\\:focus\\:bg\\(brand\\):hover:focus");
     expect(rule!.atRules).toEqual(["@media (min-width: 768px)"]);
+  });
+
+  it("composes a direction with states and pseudo-elements", () => {
+    const { rules } = makeCompiler().compile(["rtl:hover:gap(4)", "rtl:before:gap(4)"]);
+    expect(rules.map((r) => r.selector)).toEqual([
+      ".rtl\\:hover\\:gap\\(4\\):dir(rtl):hover",
+      ".rtl\\:before\\:gap\\(4\\):dir(rtl)::before",
+    ]);
   });
 
   it("composes group-hover with hover", () => {

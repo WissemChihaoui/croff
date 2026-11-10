@@ -34,7 +34,7 @@ Where a candidate appears decides what happens if it's invalid.
 | Any other string          | `const a = "gap(banana)"` | Warning if the utility exists, otherwise ignored |
 | Code                      | `run(1)`                  | Ignored                                          |
 
-Class attributes are `class`, `className`, `:class` and `class:list`, and Svelte's `class:gap(4)={on}` counts too. Helpers are the functions in `classFunctions`, called or used as a template tag, like ``cx`gap(4) bg(brand)` ``. Add your own:
+Class attributes are `class`, `className`, `:class` and `class:list`, and Svelte's `class:gap(4)={on}` counts too. Inside them, template tags such as Jinja's, Twig's, Liquid's or Blade's count as separators, so `{% if wide %}lg:grid-span(3){% endif %}` is read even with no spaces around the expression. Helpers are the functions in `classFunctions`, called or used as a template tag, like ``cx`gap(4) bg(brand)` ``. Add your own:
 
 ```ts
 import { defineConfig } from "@croffcss/core";

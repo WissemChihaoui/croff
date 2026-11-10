@@ -1,4 +1,5 @@
 import { defaultTheme } from "./default-theme.js";
+import { spaceMathOperators } from "./math.js";
 import type { ResolvedTheme, ThemeConfig, ThemeIssue, TokenGroup } from "./types.js";
 
 const TOKEN_NAME = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
@@ -17,6 +18,46 @@ const BREAKPOINT = /^(\d+\.?\d*|\.\d+)(px|rem|em)$/;
 
 type Validator = { test(value: string): boolean; expected: string };
 
+/** Splits at a separator, outside parentheses and strings. */
+function splitTopLevel(value: string, isSeparator: (ch: string) => boolean): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let quote = "";
+  let current = "";
+  for (const ch of value) {
+    if (quote) {
+      if (ch === quote) quote = "";
+    } else if (ch === '"' || ch === "'") {
+      quote = ch;
+    } else if (ch === "(") {
+      depth++;
+    } else if (ch === ")") {
+      depth--;
+    } else if (depth === 0 && isSeparator(ch)) {
+      parts.push(current);
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+  parts.push(current);
+  return parts;
+}
+
+/** A border-radius value: one to four lengths, then optionally "/" and one to four more. */
+function isRadius(value: string): boolean {
+  const sides = splitTopLevel(value, (ch) => ch === "/");
+  if (sides.length > 2) return false;
+  return sides.every((side) => {
+    const parts = splitTopLevel(side.trim(), (ch) => /\s/.test(ch)).filter((part) => part !== "");
+    return (
+      parts.length >= 1 &&
+      parts.length <= 4 &&
+      parts.every((part) => LENGTH.test(part) || CSS_FUNCTION.test(part))
+    );
+  });
+}
+
 const VALIDATORS: Record<string, Validator> = {
   colors: {
     test: (v) => HEX_COLOR.test(v) || CSS_FUNCTION.test(v) || NAMED.test(v),
@@ -27,8 +68,9 @@ const VALIDATORS: Record<string, Validator> = {
     expected: "a CSS length such as 1rem",
   },
   radius: {
-    test: (v) => LENGTH.test(v) || CSS_FUNCTION.test(v),
-    expected: "a CSS length such as 0.5rem",
+    test: isRadius,
+    expected:
+      'a border-radius value: up to four lengths, such as 0.5rem or "1rem 1rem 0 0", optionally followed by "/" and up to four more',
   },
   textSizes: {
     test: (v) => LENGTH.test(v) || CSS_FUNCTION.test(v),
@@ -90,9 +132,11 @@ export function isSafeCssValue(value: string): boolean {
   return quote === null && open.length === 0;
 }
 
+/** Tidies a token value. Math functions get the spaces CSS needs around + and -. */
 function normalizeValue(scale: string, value: string): string {
   const trimmed = value.trim();
-  return scale === "colors" && HEX_COLOR.test(trimmed) ? trimmed.toLowerCase() : trimmed;
+  if (scale === "colors" && HEX_COLOR.test(trimmed)) return trimmed.toLowerCase();
+  return spaceMathOperators(trimmed);
 }
 
 function mergeScale(

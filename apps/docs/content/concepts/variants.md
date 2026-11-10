@@ -13,6 +13,8 @@ A variant is written before a utility, followed by a colon.
 
 | Variant          | Applies when                                   |
 | ---------------- | ---------------------------------------------- |
+| `rtl:`           | The text runs right to left.                   |
+| `ltr:`           | The text runs left to right.                   |
 | `group-hover:`   | An ancestor with the class `group` is hovered. |
 | `first:`         | The element is its parent's first child.       |
 | `last:`          | The element is its parent's last child.        |
@@ -32,6 +34,20 @@ A variant is written before a utility, followed by a colon.
 ```
 
 The pseudo-element always ends the selector, so `before:hover:` and `hover:before:` both mean "the box, while the element is hovered". An element only has one of each, so `before:after:` is the error `conflicting-variants`.
+
+## Right-to-left languages
+
+For Arabic, Hebrew, Persian and other right-to-left languages, set `dir="rtl"` on the page or on any part of it. Then reach for the logical utilities, which follow the text direction instead of naming a side: `padding-start`, `padding-end`, `margin-start`, `margin-end`, `inset-start`, `inset-end`, `border-start`, `border-end`, `radius-start` and `radius-end`. `text-align(start)` and `float(inline-start)` work the same way.
+
+```html compile
+<p class="padding-start(4) border-start(2,brand) text-align(start)">مرحبا</p>
+```
+
+The same markup puts the border on the left in English and on the right in Arabic. For anything that isn't a side, such as flipping an arrow icon, use `rtl:` and `ltr:`. They follow `dir` from any ancestor, including `<html>`:
+
+```html compile
+<span class="rtl:scale[-1,1]">→</span>
+```
 
 ## Preference variants
 
