@@ -12,3 +12,6 @@ coverage
 test-results
 playwright-report
 *.tgz
+
+# A local React app for trying CROFF by hand. Not part of the repo.
+sandbox

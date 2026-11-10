@@ -2,3 +2,4 @@ dist
 pnpm-lock.yaml
 *.png
 packages/compiler/test/__snapshots__
+sandbox
